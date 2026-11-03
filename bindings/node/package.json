@@ -1,5 +1,5 @@
 {
-  "name": "doyen",
+  "name": "@leofdss/doyen",
   "version": "0.0.1",
   "description": "Pick one master among the instances of a service, through the database you already run. Work in progress: this version only reserves the name.",
   "keywords": [

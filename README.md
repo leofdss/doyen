@@ -1,7 +1,7 @@
 # doyen
 
 > 🚧 **Status: planning — not usable yet.** This repository holds the design and, soon, the
-> first release. The npm package `doyen` 0.0.1 only reserves the name.
+> first release. The npm package `@leofdss/doyen` 0.0.1 only reserves the name.
 
 Pick **one master** among the instances of a service, through **the database you already
 run**.
@@ -40,7 +40,7 @@ rule of this library.
 | Version | What | Where |
 |---|---|---|
 | 0.1 | Rust core + Redis adapter | crates.io |
-| 0.2 | Node.js package | npm |
+| 0.2 | Node.js package | npm: `@leofdss/doyen` |
 | 0.3 | Go module | `github.com/leofdss/doyen-go` |
 | 0.4 | PostgreSQL adapter | all three |
 

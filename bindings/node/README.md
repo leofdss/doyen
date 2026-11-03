@@ -1,4 +1,4 @@
-# doyen
+# @leofdss/doyen
 
 > 🚧 **Not usable yet.** Version 0.0.1 only reserves the name.
 
