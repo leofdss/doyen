@@ -1,0 +1,14 @@
+# Rust
+/target/
+
+# Node.js
+node_modules/
+*.node
+*.tgz
+
+# Go
+/bindings/go/lib/
+
+# Editors and OS
+.idea/
+.DS_Store

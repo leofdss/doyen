@@ -1,0 +1,35 @@
+{
+  "name": "doyen",
+  "version": "0.0.1",
+  "description": "Pick one master among the instances of a service, through the database you already run. Work in progress: this version only reserves the name.",
+  "keywords": [
+    "leader-election",
+    "master",
+    "election",
+    "fencing-token",
+    "redis",
+    "postgresql",
+    "mongodb",
+    "distributed"
+  ],
+  "homepage": "https://github.com/leofdss/doyen#readme",
+  "bugs": {
+    "url": "https://github.com/leofdss/doyen/issues"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/leofdss/doyen.git",
+    "directory": "bindings/node"
+  },
+  "license": "MIT OR Apache-2.0",
+  "author": "Leonardo Farias de Souza Silva",
+  "main": "index.js",
+  "files": [
+    "index.js",
+    "README.md"
+  ],
+  "publishConfig": {
+    "registry": "https://registry.npmjs.org/",
+    "access": "public"
+  }
+}
