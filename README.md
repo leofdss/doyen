@@ -29,9 +29,10 @@ graph TD
   bindings.
 - **A small API.** `join`, `status`, `onStatusChange`, `token` and `leave` — nothing more.
 - **Fencing token.** While an instance is master, `token()` returns `(generation, number)`,
-  which only grows — also after the database loses data, because the generation comes from
-  the database server's clock. Send it with your writes, and your database can reject a late
-  write from an old master.
+  which only grows — also after a restart or a data loss of the database, because the
+  generation comes from the database server's clock (rare exceptions in
+  [Using the token](#using-the-token)). Send it with your writes, and your database can reject
+  a late write from an old master.
 
 Planned API (Node.js):
 
@@ -64,7 +65,10 @@ process.on("SIGTERM", async () => {
 > The token protects your data only if your database checks it: keep the highest token seen
 > and reject lower ones (compare `generation` first, then `number`). Without that check, after
 > a long pause (for example, garbage collection) or a Redis failover, an old master can still
-> write for a moment. See [Using the token](#using-the-token).
+> write for a moment. **With Redis, the check is required:** in a network partition an old
+> master can write for as long as the partition lasts (see
+> [Planned databases](#planned-databases)). Actions outside a database (an email, a call to
+> another service) can happen twice. See [Using the token](#using-the-token).
 
 ## Status
 
@@ -76,7 +80,7 @@ error, when there is one (for example a wrong password).
 |---|---|---|
 | `notJoined` | `join()` was not called yet, or it rejected. | Your app: call `join()`. If it rejected, its error says why. |
 | `connecting` | `join()` is running, and the instance has no place in the line yet. doyen tries again after each network error. | This instance never reached the database: URL, DNS, network, firewall, or the database is not running. |
-| `connectionLost` | The instance had a place, but it could not renew it in time. doyen keeps trying to renew the same place. | The database does not answer or is too slow, or the process stopped for a long time (a VM or container pause). `error` shows the last database error. |
+| `connectionLost` | The instance had a place, but it could not renew it in time. doyen keeps trying to renew the same place. | The database does not answer or is too slow, or the process stopped for a long time (for example a container pause). `error` shows the last database error. |
 | `reconnecting` | The place is gone (it expired, or the database lost it). doyen joins again, at the end of the line. | After `connectionLost`: the problem lasted longer than `timeoutMs`. Directly from `master` or `slave`: the database lost data (a Redis restart without persistence, a failover). If it stays, `error` says why the joins fail. |
 | `left` | After `leave()`. | Normal stop. |
 
@@ -89,8 +93,9 @@ error, when there is one (for example a wrong password).
   password, which you can fix while the service runs).
 - The reasons are strings, so a log line shows `connectionLost`, not a number.
 - **Warnings.** doyen warns once, at connect, about a setup that works but has a known risk:
-  in Node.js with `process.emitWarning` (codes `DOYEN_MONGODB_ARBITER` and
-  `DOYEN_REDIS_EVICTION`), in Rust with `tracing`, in Go with `slog`.
+  in Node.js with `process.emitWarning` (codes `DOYEN_MONGODB_ARBITER`,
+  `DOYEN_REDIS_EVICTION` and `DOYEN_REDIS_NO_MIN_REPLICAS`), in Rust with `tracing`, in Go
+  with `slog`.
 
 ## Using the token
 
@@ -125,7 +130,9 @@ async function saveInvoice(invoice: Invoice, token: Token): Promise<boolean> {
     );
     if (fence.rowCount === 0) {
       await client.query("ROLLBACK");
-      return false; // a newer master exists: this write is late
+      // A newer token was used: a newer master exists, or this master's token changed
+      // (read doyen.token() again before the next write).
+      return false;
     }
 
     await client.query("UPDATE invoices SET status = $2 WHERE id = $1", [
@@ -154,9 +161,14 @@ Why it works:
 Any database with transactions can do the same: in one transaction, update the fence record
 only if the token is not lower, then write your data.
 
-After you restore doyen's MongoDB data from a backup, delete the group's document in doyen's
-collection (default `doyen`): doyen creates it again with a new generation. Else the token
-can go back, and the fence rejects every write of the new master.
+The token can go back only in rare cases. Then the fence rejects every write of the new
+master, and you reset the fence row:
+
+- After you restore doyen's MongoDB data from a backup. Better: delete the group's document
+  in doyen's collection (default `doyen`) after the restore; doyen creates it again with a
+  new generation.
+- Redis: a failover loses the write of a new generation, and the new primary's clock is
+  behind by more than the time since that write.
 
 ## Timeout and renew interval
 
@@ -169,7 +181,7 @@ there.
 | `renewIntervalMs` | `2000` (2 s) | How often each instance renews its place. |
 
 With the defaults, the next instance takes over 8–12 s after the master crashes (at once
-after `leave()`), and a database problem shorter than about 7 s does not change the master.
+after `leave()`), and a database problem shorter than 6 s never changes the master.
 
 - A **shorter timeout** gives a faster takeover, but more master changes when the network or
   the database is slow for a moment.
@@ -183,19 +195,28 @@ after `leave()`), and a database problem shorter than about 7 s does not change 
 
 | Database | Needs | Note |
 |---|---|---|
-| Redis | 6.2 or newer; one server, Redis Cluster or Sentinel; no eviction of doyen's keys | The weakest for safety: Redis can lose recent writes after a restart or a failover, so two masters can exist for a moment. The token helps your database reject the old one. |
-| MongoDB | 4.2 or newer; a replica set or a sharded cluster | All writes use `w: "majority"`. With an arbiter (primary, secondary, arbiter), if one data node is down, no instance can be master until it comes back. doyen warns at connect (`DOYEN_MONGODB_ARBITER`). |
+| Redis | 6.2 or newer; one server, Redis Cluster or Sentinel; best with `noeviction` (see Redis memory) | The weakest for safety: Redis can lose recent writes after a restart or a failover, so two masters can exist for a moment — and for a whole network partition (see below). The token helps your database reject the old one. |
+| MongoDB | 5.0 or newer; a replica set or a sharded cluster | All writes use `w: "majority"`. With an arbiter (primary, secondary, arbiter), if one data node is down, no instance can be master until it comes back. doyen warns at connect (`DOYEN_MONGODB_ARBITER`). |
 | PostgreSQL | Later | |
 
 - **Redis URL:** `redis://` or `rediss://` (TLS) for one server or Redis Cluster (doyen finds
   out which); `redis+sentinel://[user:pass@]host1:26379,host2:26379/<master name>` for
-  Sentinel. With one URL and no Sentinel, doyen follows a failover only if the name moves to
-  the new primary (for example the primary endpoint of a managed service).
+  Sentinel (`rediss+sentinel://` with TLS; the sentinels' own login in the query:
+  `?sentinelUsername=…&sentinelPassword=…`). With one URL and no Sentinel, doyen follows a
+  failover only if the name moves to the new primary (for example the primary endpoint of a
+  managed service).
+- **Redis network partition:** with Sentinel or a managed endpoint, an old primary cut off
+  from the others keeps accepting writes, so its master keeps working while the other side
+  has a new master: two masters for as long as the partition lasts. Set
+  `min-replicas-to-write 1` and `min-replicas-max-lag 10` on the primary: an isolated primary
+  then stops accepting writes, and the old master goes `offline`. doyen warns when a primary
+  with replicas does not have it (`DOYEN_REDIS_NO_MIN_REPLICAS`).
 - **Redis keys:** they start with `doyen:{group}:`, so a `group` cannot contain `{` or `}`.
-- **Redis memory:** doyen's keys must stay. With `maxmemory` set, an `allkeys-*` policy is
-  refused (Redis could delete the counters), and a `volatile-*` policy gives the warning
-  `DOYEN_REDIS_EVICTION` (Redis could delete a member's place: a master change). Best:
-  `noeviction`.
+  Deleting them is safe (the instances join again); do not edit them.
+- **Redis memory:** with `maxmemory` set, an `allkeys-*` policy is refused (Redis could delete
+  the counters), and a `volatile-*` policy gives the warning `DOYEN_REDIS_EVICTION` (Redis
+  could delete a member's place: a master change, with two masters for up to one renew
+  interval — the token covers it). Best: `noeviction`.
 - **MongoDB database:** the one in the URL path, else `doyen`. The settings `database` and
   `collection` (default `doyen`) change it.
 

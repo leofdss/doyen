@@ -30,6 +30,8 @@ RUN pacman -Syu --noconfirm --needed \
     # rustup: rustup lives in $HOME and would be hidden by the HOME mount.
     # Arch is a rolling release, so this is always the latest stable.
     rust \
+    # The standard library's source, for rust-analyzer (VS Code)
+    rust-src \
     # Node.js -- the npm package (napi-rs binding, v0.2). fnm pins a Node
     # version per project when needed.
     nodejs \
@@ -56,11 +58,23 @@ RUN pacman -Syu --noconfirm --needed \
  && pacman -Scc --noconfirm \
  && rm -rf /var/cache/pacman/pkg/* /var/lib/pacman/sync/*
 
+# The coverage tools come from the `llvm` package, so its major version must
+# be the one rustc was built with. Arch updates both, but a weekly build can
+# catch them out of step: then stop the build instead of shipping a broken
+# `cargo llvm-cov`.
+RUN rust_llvm="$(rustc -vV | sed -n 's/^LLVM version: \([0-9]*\)\..*/\1/p')" \
+ && pkg_llvm="$(llvm-config --version | cut -d. -f1)" \
+ && echo "LLVM: rustc ${rust_llvm}, llvm package ${pkg_llvm}" \
+ && test -n "${rust_llvm}" && test "${rust_llvm}" = "${pkg_llvm}"
+
 # cargo-llvm-cov -- test coverage for the core. Not in the Arch repos, so
 # built from crates.io. CARGO_HOME points outside HOME during the build, and
-# the binary is copied to /usr/local/bin.
+# the binary is copied to /usr/local/bin. Without rustup there is no
+# llvm-tools-preview, so it needs these two variables.
 RUN CARGO_HOME=/tmp/cargo cargo install --locked --root /usr/local cargo-llvm-cov \
  && rm -rf /tmp/cargo
+ENV LLVM_COV=/usr/bin/llvm-cov \
+    LLVM_PROFDATA=/usr/bin/llvm-profdata
 
 # Claude Code (CLI) -- npm global as root, so it lands in /usr, not HOME.
 # --allow-scripts: recent npm blocks the postinstall that downloads the

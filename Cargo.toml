@@ -4,6 +4,7 @@ resolver = "3"
 
 [workspace.package]
 edition = "2024"
+# The lowest Rust that builds doyen (edition 2024 needs 1.85). To test in CI (v0.1).
+rust-version = "1.85"
 license = "MIT OR Apache-2.0"
 repository = "https://github.com/leofdss/doyen"
-homepage = "https://github.com/leofdss/doyen"

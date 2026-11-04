@@ -30,7 +30,7 @@ Arch Linux (`quay.io/toolbx/arch-toolbox`) with:
 
 | Tool | For |
 |---|---|
-| Rust (`rust` package) + `cargo-llvm-cov` | the core, the adapters, test coverage |
+| Rust (`rust` + `rust-src`) + `cargo-llvm-cov` | the core, the adapters, test coverage; `rust-src` for rust-analyzer |
 | Node.js, npm, fnm | the npm package (napi-rs, v0.2) |
 | Go, cbindgen (+ gcc from base-devel) | the Go module (cgo + C ABI, v0.3) |
 | Python, git, OpenSSL | scripts, version control, TLS for the drivers |
@@ -43,6 +43,9 @@ Decisions (the same as StemLoft):
 - **Rust from the Arch package, not rustup.** rustup lives in `$HOME`. Arch is a rolling
   release, so the package is always the latest stable Rust.
 - **`cargo-llvm-cov` installed with `--root /usr/local`**, so it is on every user's `PATH`.
+  Without rustup there is no `llvm-tools-preview`, so the image sets `LLVM_COV` and
+  `LLVM_PROFDATA` to the `llvm` package's tools, and the build stops if that package's major
+  LLVM version is not the one `rustc` uses.
 - **Logins need nothing in the image.** `~/.gitconfig`, `~/.claude`,
   `~/.cargo/credentials.toml` and `~/.npmrc` live in `HOME`, which is shared: log in once,
   inside or outside.
@@ -58,7 +61,7 @@ tests.)
 ```bash
 podman build -t localhost/doyen-dev:latest -f distrobox/Containerfile .
 podman run --rm localhost/doyen-dev:latest bash -lc \
-  'rustc --version && cargo llvm-cov --version && node --version && go version && cbindgen --version'
+  'rustc --version && cargo llvm-cov show-env && node --version && go version && cbindgen --version'
 ```
 
 To create the container from the local image, change two lines in `distrobox.ini`, create it
@@ -77,4 +80,7 @@ by hand (`workflow_dispatch`). Tags: `latest` and `YYYYMMDD-<short sha>`.
 
 A new package on GHCR is **private**, even in a public repository. After the first publish,
 make it public once: *Package settings* of `doyen-dev` in
-`github.com/users/leofdss/packages/container/doyen-dev/settings`.
+`github.com/users/leofdss/packages/container/doyen-dev/settings`. (Done on 2026-11-04.)
+
+GitHub turns off scheduled workflows in a public repository after **60 days with no
+activity**. If the weekly build stops, turn the workflow on again in the *Actions* tab.
