@@ -122,6 +122,26 @@ Why it works:
 Any database with transactions can do the same: in one transaction, update the fence record
 only if the token is not lower, then write your data.
 
+## Timeout and renew interval
+
+You choose them in the config. The right values depend on your infrastructure, so test them
+there.
+
+| Setting | Default | What it does |
+|---|---|---|
+| `timeoutMs` | `10000` (10 s) | An instance that does not renew for this long leaves the line. |
+| `renewIntervalMs` | `2000` (2 s) | How often each instance renews its place. |
+
+With the defaults, the next instance takes over 10–12 s after the master crashes (at once
+after `leave()`), and a database problem shorter than about 7 s does not change the master.
+
+- A **shorter timeout** gives a faster takeover, but more master changes when the network or
+  the database is slow for a moment.
+- Keep `timeoutMs` at **3 to 5 times** `renewIntervalMs`. `join` rejects a config where
+  `timeoutMs` is less than 2 times `renewIntervalMs`.
+- **Test a database failover.** If it takes longer than `timeoutMs`, there is no master
+  during the failover. That is safe, but your master work stops for that time.
+
 ## Planned databases
 
 | Database | Needs | Note |
