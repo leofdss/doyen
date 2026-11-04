@@ -26,14 +26,37 @@ graph TD
 - **One API, many databases.** Adapters for Redis and MongoDB first, then PostgreSQL.
 - **Three languages, one core.** The core is written in Rust; Node.js and Go use it through
   bindings.
-- **Fencing token.** Each master gets a token, `(generation, number)`, that only grows. Send it
-  with your writes, and your database can reject a late write from an old master.
+- **A small API.** `join`, `status`, `onStatusChange` and `leave` — nothing more.
+
+Planned API (Node.js):
+
+```ts
+import { DatabaseType, Doyen, Status } from "@leofdss/doyen";
+
+const doyen = new Doyen();
+await doyen.join({ type: DatabaseType.redis, url: "redis://localhost:6379", group: "billing-jobs" });
+
+doyen.onStatusChange((status) => {
+  if (status === Status.master) startJobs();
+  else stopJobs();
+});
+
+process.on("SIGTERM", async () => {
+  await doyen.leave(); // the next instance takes over at once
+  process.exit(0);
+});
+```
+
+> [!WARNING]
+> doyen does not protect your writes. After a long pause (for example, garbage collection) or
+> a Redis failover, an old master can still write for a moment. If your work cannot run twice,
+> make it safe to repeat.
 
 ## Planned databases
 
 | Database | Needs | Note |
 |---|---|---|
-| Redis | A Redis server, with or without replicas, or Redis Cluster | The weakest for safety: Redis can lose recent writes after a restart or a failover, so two masters can exist for a moment. The token helps your database reject the old one. |
+| Redis | A Redis server, with or without replicas, or Redis Cluster | The weakest for safety: Redis can lose recent writes after a restart or a failover, so two masters can exist for a moment. |
 | MongoDB | 4.2 or newer; a replica set or a sharded cluster | All writes use `w: "majority"`. With an arbiter (primary, secondary, arbiter), if one data node is down, no instance can be master until it comes back. doyen logs a warning at connect. |
 | PostgreSQL | Later | |
 
