@@ -34,15 +34,17 @@ graph TD
 Planned API (Node.js):
 
 ```ts
-import { DatabaseType, Doyen, Status } from "@leofdss/doyen";
+import { DatabaseType, Doyen, State } from "@leofdss/doyen";
 
 const doyen = new Doyen();
-await doyen.join({ type: DatabaseType.redis, url: "redis://localhost:6379", group: "billing-jobs" });
 
 doyen.onStatusChange((status) => {
-  if (status === Status.master) startJobs();
+  if (status.state === State.master) startJobs();
   else stopJobs();
+  if (status.state === State.offline) console.warn(`doyen offline: ${status.reason}`);
 });
+
+await doyen.join({ type: DatabaseType.redis, url: "redis://localhost:6379", group: "billing-jobs" });
 
 // Read the token at each write and send it with the write.
 const token = doyen.token(); // null when this instance is not master
@@ -59,6 +61,25 @@ process.on("SIGTERM", async () => {
 > and reject lower ones (compare `generation` first, then `number`). Without that check, after
 > a long pause (for example, garbage collection) or a Redis failover, an old master can still
 > write for a moment. See [Using the token](#using-the-token).
+
+## Status
+
+`status()` returns `{ state }`: `master`, `slave` or `offline`. When the state is `offline`,
+the status also has a `reason`, so you can find the problem:
+
+| Reason | When | Where to look |
+|---|---|---|
+| `notJoined` | `join()` was not called yet, or it rejected. | Your app: call `join()`. If it rejected, its error says why. |
+| `connecting` | `join()` is running, and the instance has no place in the line yet. doyen tries again after each network error. | This instance never reached the database: URL, DNS, network, firewall, or the database is not running. |
+| `connectionLost` | The instance had a place, but it could not renew it in time. doyen keeps trying to renew the same place. | The database does not answer or is too slow, or the process stopped for a long time (a VM or container pause). |
+| `reconnecting` | The place is gone (it expired, or the database lost it). doyen joins again, at the end of the line. | After `connectionLost`: the problem lasted longer than `timeoutMs`. Directly from `master` or `slave`: the database lost data (a Redis restart without persistence, a failover). |
+| `left` | After `leave()`. | Normal stop. |
+
+- When the database goes down, the status changes to `offline` (`connectionLost`) when the
+  local lease ends: 7–9 s with the defaults. A shorter problem does not change the master.
+- `onStatusChange` runs on every change, and a new reason is a change too. A failed retry
+  with the same reason does not call it.
+- The reasons are strings, so a log line shows `connectionLost`, not a number.
 
 ## Using the token
 
