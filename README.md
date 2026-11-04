@@ -23,11 +23,19 @@ graph TD
     R["A comes back"] -.-> R2["A joins the end of the line"]
 ```
 
-- **One API, many databases.** Adapters for Redis (first), then PostgreSQL and MongoDB.
+- **One API, many databases.** Adapters for Redis and MongoDB first, then PostgreSQL.
 - **Three languages, one core.** The core is written in Rust; Node.js and Go use it through
   bindings.
 - **Fencing token.** Each master gets a token, `(generation, number)`, that only grows. Send it
   with your writes, and your database can reject a late write from an old master.
+
+## Planned databases
+
+| Database | Needs | Note |
+|---|---|---|
+| Redis | A Redis server, with or without replicas, or Redis Cluster | The weakest for safety: Redis can lose recent writes after a restart or a failover, so two masters can exist for a moment. The token helps your database reject the old one. |
+| MongoDB | 4.2 or newer; a replica set or a sharded cluster | All writes use `w: "majority"`. With an arbiter (primary, secondary, arbiter), if one data node is down, no instance can be master until it comes back. doyen logs a warning at connect. |
+| PostgreSQL | Later | |
 
 ## Why the name
 
@@ -39,7 +47,7 @@ rule of this library.
 
 | Version | What | Where |
 |---|---|---|
-| 0.1 | Rust core + Redis adapter | crates.io |
+| 0.1 | Rust core + Redis and MongoDB adapters | crates.io |
 | 0.2 | Node.js package | npm: `@leofdss/doyen` |
 | 0.3 | Go module | `github.com/leofdss/doyen-go` |
 | 0.4 | PostgreSQL adapter | all three |
