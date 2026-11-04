@@ -26,7 +26,10 @@ graph TD
 - **One API, many databases.** Adapters for Redis and MongoDB first, then PostgreSQL.
 - **Three languages, one core.** The core is written in Rust; Node.js and Go use it through
   bindings.
-- **A small API.** `join`, `status`, `onStatusChange` and `leave` — nothing more.
+- **A small API.** `join`, `status`, `onStatusChange`, `token` and `leave` — nothing more.
+- **Fencing token.** While an instance is master, `token()` returns `(generation, number)`,
+  which only grows. Send it with your writes, and your database can reject a late write from
+  an old master.
 
 Planned API (Node.js):
 
@@ -41,22 +44,27 @@ doyen.onStatusChange((status) => {
   else stopJobs();
 });
 
+// Read the token at each write and send it with the write.
+const token = doyen.token(); // null when this instance is not master
+if (token) await saveWithToken(data, token);
+
 process.on("SIGTERM", async () => {
   await doyen.leave(); // the next instance takes over at once
   process.exit(0);
 });
 ```
 
-> [!WARNING]
-> doyen does not protect your writes. After a long pause (for example, garbage collection) or
-> a Redis failover, an old master can still write for a moment. If your work cannot run twice,
-> make it safe to repeat.
+> [!IMPORTANT]
+> The token protects your data only if your database checks it: keep the highest token seen
+> and reject lower ones (compare `generation` first, then `number`). Without that check, after
+> a long pause (for example, garbage collection) or a Redis failover, an old master can still
+> write for a moment.
 
 ## Planned databases
 
 | Database | Needs | Note |
 |---|---|---|
-| Redis | A Redis server, with or without replicas, or Redis Cluster | The weakest for safety: Redis can lose recent writes after a restart or a failover, so two masters can exist for a moment. |
+| Redis | 6.2 or newer; a server, with or without replicas, or Redis Cluster | The weakest for safety: Redis can lose recent writes after a restart or a failover, so two masters can exist for a moment. The token helps your database reject the old one. |
 | MongoDB | 4.2 or newer; a replica set or a sharded cluster | All writes use `w: "majority"`. With an arbiter (primary, secondary, arbiter), if one data node is down, no instance can be master until it comes back. doyen logs a warning at connect. |
 | PostgreSQL | Later | |
 
