@@ -46,7 +46,7 @@ doyen.onStatusChange((status) => {
 
 // Read the token at each write and send it with the write.
 const token = doyen.token(); // null when this instance is not master
-if (token) await saveWithToken(data, token);
+if (token) await saveInvoice(invoice, token); // see "Using the token"
 
 process.on("SIGTERM", async () => {
   await doyen.leave(); // the next instance takes over at once
@@ -58,7 +58,69 @@ process.on("SIGTERM", async () => {
 > The token protects your data only if your database checks it: keep the highest token seen
 > and reject lower ones (compare `generation` first, then `number`). Without that check, after
 > a long pause (for example, garbage collection) or a Redis failover, an old master can still
-> write for a moment.
+> write for a moment. See [Using the token](#using-the-token).
+
+## Using the token
+
+Your database keeps the highest token it has seen, and each write checks it first. Example
+with PostgreSQL and the `pg` package — one fence row per group:
+
+```sql
+CREATE TABLE doyen_fence (
+  grp text PRIMARY KEY,
+  gen bigint NOT NULL,
+  num bigint NOT NULL
+);
+INSERT INTO doyen_fence VALUES ('billing-jobs', 0, 0);
+```
+
+```ts
+import pg from "pg";
+import type { Token } from "@leofdss/doyen";
+
+const pool = new pg.Pool();
+
+async function saveInvoice(invoice: Invoice, token: Token): Promise<boolean> {
+  const client = await pool.connect();
+  try {
+    await client.query("BEGIN");
+
+    // Keep the highest token. An older token changes no row.
+    const fence = await client.query(
+      `UPDATE doyen_fence SET gen = $2, num = $3
+        WHERE grp = $1 AND (gen, num) <= ($2::bigint, $3::bigint)`,
+      ["billing-jobs", token.generation, token.number],
+    );
+    if (fence.rowCount === 0) {
+      await client.query("ROLLBACK");
+      return false; // a newer master exists: this write is late
+    }
+
+    await client.query("UPDATE invoices SET status = $2 WHERE id = $1", [
+      invoice.id,
+      invoice.status,
+    ]);
+    await client.query("COMMIT");
+    return true;
+  } catch (err) {
+    await client.query("ROLLBACK");
+    throw err;
+  } finally {
+    client.release();
+  }
+}
+```
+
+Why it works:
+
+- `(gen, num) <= (…)` compares `gen` first, then `num` — the order of the token.
+- The `UPDATE` locks the fence row until `COMMIT`, so the writes of two masters run one after
+  the other, never at the same time.
+- After the first write of the new master, every write of the old master changes no fence
+  row and is rolled back.
+
+Any database with transactions can do the same: in one transaction, update the fence record
+only if the token is not lower, then write your data.
 
 ## Planned databases
 
