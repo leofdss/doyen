@@ -1,7 +1,8 @@
 # doyen
 
-> 🚧 **Status: planning — not usable yet.** This repository holds the design and, soon, the
-> first release. The npm package `@leofdss/doyen` 0.0.1 only reserves the name.
+> 🚧 **Status: planning — not usable yet.** This README shows the planned design; the first
+> release comes soon. The npm package `@leofdss/doyen` and the crate `doyen` only reserve the
+> names.
 
 Pick **one master** among the instances of a service, through **the database you already
 run**.
