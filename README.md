@@ -213,6 +213,23 @@ rule of this library.
 | 0.3 | Go module | `github.com/leofdss/doyen-go` |
 | 0.4 | PostgreSQL adapter | all three |
 
+## Development
+
+The development environment is a Distrobox container with Rust, Node.js and Go — see
+[distrobox/README.md](distrobox/README.md):
+
+```bash
+distrobox assemble create --file distrobox/distrobox.ini
+distrobox enter doyen
+cargo build
+```
+
+| Path | What |
+|---|---|
+| `crates/doyen` | The Rust crate `doyen` (now a placeholder that reserves the name) |
+| `bindings/node` | The npm package `@leofdss/doyen` (now a placeholder) |
+| `distrobox/` | The development image and container |
+
 ## License
 
 Licensed under either of

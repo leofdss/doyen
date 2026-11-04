@@ -1,0 +1,67 @@
+name: Build and publish dev image
+
+# Publishes the development image (distrobox/Containerfile) to the GitHub
+# Container Registry (ghcr.io). Same workflow as StemLoft.
+#
+# Triggers:
+# - a push to main that changes the Containerfile or this workflow;
+# - every Monday: Arch is a rolling release, so a weekly build brings the
+#   security updates;
+# - workflow_dispatch, to build by hand.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "distrobox/Containerfile"
+      - ".github/workflows/build-dev-image.yml"
+  schedule:
+    - cron: "0 6 * * 1" # every Monday, 06:00 UTC
+  workflow_dispatch: {}
+
+env:
+  IMAGE_NAME: doyen-dev
+  REGISTRY: ghcr.io
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Install Podman
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y podman
+
+      - name: Image name and tags
+        id: vars
+        run: |
+          echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+          echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
+          echo "date=$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
+
+      - name: Log in to GHCR
+        run: |
+          echo "${{ secrets.GITHUB_TOKEN }}" | podman login ${{ env.REGISTRY }} \
+            --username "${{ github.actor }}" --password-stdin
+
+      - name: Build the image
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ steps.vars.outputs.owner }}/${{ env.IMAGE_NAME }}"
+          podman build \
+            --label org.opencontainers.image.source="https://github.com/${{ github.repository }}" \
+            --label org.opencontainers.image.revision="${{ github.sha }}" \
+            -t "$IMAGE:latest" \
+            -t "$IMAGE:${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}" \
+            -f distrobox/Containerfile .
+
+      - name: Push the image
+        run: |
+          IMAGE="${{ env.REGISTRY }}/${{ steps.vars.outputs.owner }}/${{ env.IMAGE_NAME }}"
+          podman push "$IMAGE:latest"
+          podman push "$IMAGE:${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}"

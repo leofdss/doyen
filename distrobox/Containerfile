@@ -1,0 +1,83 @@
+# doyen development image, for use with Distrobox (runtime: Podman).
+# Based on the StemLoft dev image (github.com/leofdss/stem-loft, distrobox/).
+#
+# Base: quay.io/toolbx/arch-toolbox -- an Arch image kept by the Toolbx
+# project (Distrobox's sibling). It already has base-devel (gcc, make,
+# pkgconf, ...), git and sudo.
+#
+# Golden rule: NOTHING is installed inside /home. Distrobox mounts the
+# host's HOME over the container's HOME, so anything written to
+# /home/<user> during the build is hidden at run time. Every tool goes to
+# /usr or /opt.
+#
+# Logins (git, ~/.claude, ~/.cargo/credentials.toml, ~/.npmrc) need nothing
+# here: they live in HOME, which Distrobox shares with the host.
+FROM quay.io/toolbx/arch-toolbox:latest
+
+LABEL org.opencontainers.image.title="doyen-dev" \
+      org.opencontainers.image.description="Development environment (Arch Linux) for doyen, for use with Distrobox/Podman" \
+      org.opencontainers.image.licenses="MIT OR Apache-2.0"
+
+# The base image has no local pacman signing key; without it the
+# archlinux-keyring hook fails during the -Syu below.
+RUN pacman-key --init && pacman-key --populate archlinux
+
+RUN pacman -Syu --noconfirm --needed \
+    git \
+    # Python -- for small scripts and hooks (standard library only)
+    python \
+    # Rust -- the core, the adapters and the bindings. The Arch package, not
+    # rustup: rustup lives in $HOME and would be hidden by the HOME mount.
+    # Arch is a rolling release, so this is always the latest stable.
+    rust \
+    # Node.js -- the npm package (napi-rs binding, v0.2). fnm pins a Node
+    # version per project when needed.
+    nodejs \
+    npm \
+    fnm \
+    # Go and cbindgen -- the Go module (cgo + C ABI, v0.3). cgo uses the gcc
+    # from base-devel.
+    go \
+    cbindgen \
+    # TLS for the database drivers when a crate links OpenSSL
+    openssl \
+    # LLVM tools for cargo-llvm-cov (below): there is no rustup, so no
+    # `rustup component add llvm-tools-preview`.
+    llvm \
+    # Interactive shell: Distrobox gives the container user the host's
+    # login shell; fish + starship for hosts that use them.
+    fish \
+    starship \
+    # Distrobox uses sudo to give the host user rights inside the container.
+    sudo \
+    # VS Code (Electron) needs libsecret and NSS/NSPR at run time.
+    libsecret \
+    nss \
+ && pacman -Scc --noconfirm \
+ && rm -rf /var/cache/pacman/pkg/* /var/lib/pacman/sync/*
+
+# cargo-llvm-cov -- test coverage for the core. Not in the Arch repos, so
+# built from crates.io. CARGO_HOME points outside HOME during the build, and
+# the binary is copied to /usr/local/bin.
+RUN CARGO_HOME=/tmp/cargo cargo install --locked --root /usr/local cargo-llvm-cov \
+ && rm -rf /tmp/cargo
+
+# Claude Code (CLI) -- npm global as root, so it lands in /usr, not HOME.
+# --allow-scripts: recent npm blocks the postinstall that downloads the
+# native binary.
+RUN npm install --global --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code \
+ && npm cache clean --force
+
+# VS Code -- Microsoft's official tarball in /opt (no official Arch package;
+# AUR would depend on a third-party PKGBUILD).
+RUN curl -fsSL "https://update.code.visualstudio.com/latest/linux-x64/stable" -o /tmp/vscode.tar.gz \
+ && mkdir -p /opt/vscode \
+ && tar -xzf /tmp/vscode.tar.gz -C /opt/vscode --strip-components=1 \
+ && rm -f /tmp/vscode.tar.gz \
+ && ln -s /opt/vscode/bin/code /usr/local/bin/code
+
+# Under WSL, `code` asks "continue anyway? [y/N]" and waits on stdin.
+ENV DONT_PROMPT_WSL_INSTALL=1
+
+# No USER here: Distrobox creates the user (same UID/GID/name as the host)
+# and sets up sudo when it creates the container.
