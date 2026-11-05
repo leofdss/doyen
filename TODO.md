@@ -38,7 +38,7 @@ change.
 
 | # | Change | Release | Depends on | Capabilities | Owner first | Status |
 |---|---|---|---|---|---|---|
-| 1 | `add-ci-baseline` | v0.1 | — | `ci-checks` | — | todo |
+| 1 | `add-ci-baseline` | v0.1 | — | `ci-checks` | — | done |
 | 2 | `add-core-election` | v0.1 | 1 | `election-core`, `status-reporting`, `client-config`, `adapter-contract`, `rust-api` | approve the crate layout, the private trait and the hidden hooks (task 0.1) | todo |
 | 3 | `add-redis-adapter` | v0.1 | 2 | `redis-adapter` | choose the Redis client (task 1.1) | todo |
 | 4 | `add-mongodb-adapter` | v0.1 | 2 | `mongodb-adapter` | — | todo |
@@ -97,11 +97,13 @@ README: do them one after the other (Redis first, the first database the owner c
   (OSPS-LE-01). A simple flow: the agent commits without it; before the pull request, the
   owner runs `git rebase --signoff main` (the human act that certifies). If yes, the commit
   check of `add-ci-baseline` checks it.
-- [ ] (owner) After `add-ci-baseline`: protect `main` with a ruleset (pull request and green
-  CI before a merge with every job of `ci.yml` required, rebase merge only, linear history,
-  no force push, no deletion of `main`), as the OpenSSF SCM guide and Baseline
-  (OSPS-AC-03) ask and GitHub Flow needs. Until then, push work as a branch and a pull
-  request too, not straight to `main`.
+- [ ] (owner) Now that `add-ci-baseline` is merged: protect `main` with a ruleset (pull
+  request and green CI before a merge, rebase merge only, linear history, no force push, no
+  deletion of `main`), as the OpenSSF SCM guide and Baseline (OSPS-AC-03) ask and GitHub
+  Flow needs. Required checks: the eleven jobs of `ci.yml` (`fmt`, `clippy`, `test`, `msrv`,
+  `coverage`, `commits`, `scenarios`, `specs`, `workflows`, `deps`, `licenses`). Also allow
+  only rebase merging in the repo settings: pull requests #1–#3 were merged with merge
+  commits. Until then, push work as a branch and a pull request too, not straight to `main`.
 - [ ] (owner) GitHub settings for the OpenSSF Baseline level 1: two-factor login on the
   account (OSPS-AC-01); secret scanning and push protection on (OSPS-BR-07); default
   workflow token read-only (Settings → Actions, OSPS-AC-04).
@@ -142,4 +144,6 @@ the hidden hooks (change 2, task 0.1), the Redis client (change 3, task 1.1), th
 
 ## Done
 
-(nothing yet)
+- `add-ci-baseline` (v0.1): merged in pull request #3 on 2026-11-05, archived as
+  `openspec/changes/archive/2026-11-05-add-ci-baseline/`; its spec is
+  `openspec/specs/ci-checks/`.
