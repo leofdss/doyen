@@ -8,6 +8,10 @@ name: Build and publish dev image
 # - every Monday: Arch is a rolling release, so a weekly build brings the
 #   security updates;
 # - workflow_dispatch, to build by hand.
+#
+# Security (OpenSSF): the action is pinned to a full commit SHA (Dependabot
+# updates it), the token has the least permissions, and the ${{ }} values
+# reach the scripts through env, never inside the script text.
 on:
   push:
     branches: [main]
@@ -17,6 +21,9 @@ on:
   schedule:
     - cron: "0 6 * * 1" # every Monday, 06:00 UTC
   workflow_dispatch: {}
+
+permissions:
+  contents: read
 
 env:
   IMAGE_NAME: doyen-dev
@@ -31,7 +38,9 @@ jobs:
 
     steps:
       - name: Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
 
       - name: Install Podman
         run: |
@@ -40,28 +49,40 @@ jobs:
 
       - name: Image name and tags
         id: vars
+        env:
+          OWNER: ${{ github.repository_owner }}
         run: |
-          echo "owner=$(echo '${{ github.repository_owner }}' | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
+          echo "owner=$(echo "$OWNER" | tr '[:upper:]' '[:lower:]')" >> "$GITHUB_OUTPUT"
           echo "sha_short=$(git rev-parse --short HEAD)" >> "$GITHUB_OUTPUT"
           echo "date=$(date -u +%Y%m%d)" >> "$GITHUB_OUTPUT"
 
       - name: Log in to GHCR
+        env:
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          ACTOR: ${{ github.actor }}
         run: |
-          echo "${{ secrets.GITHUB_TOKEN }}" | podman login ${{ env.REGISTRY }} \
-            --username "${{ github.actor }}" --password-stdin
+          echo "$TOKEN" | podman login "$REGISTRY" --username "$ACTOR" --password-stdin
 
       - name: Build the image
+        env:
+          OWNER: ${{ steps.vars.outputs.owner }}
+          TAG: ${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}
+          REPOSITORY: ${{ github.repository }}
+          REVISION: ${{ github.sha }}
         run: |
-          IMAGE="${{ env.REGISTRY }}/${{ steps.vars.outputs.owner }}/${{ env.IMAGE_NAME }}"
+          IMAGE="$REGISTRY/$OWNER/$IMAGE_NAME"
           podman build \
-            --label org.opencontainers.image.source="https://github.com/${{ github.repository }}" \
-            --label org.opencontainers.image.revision="${{ github.sha }}" \
+            --label org.opencontainers.image.source="https://github.com/$REPOSITORY" \
+            --label org.opencontainers.image.revision="$REVISION" \
             -t "$IMAGE:latest" \
-            -t "$IMAGE:${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}" \
+            -t "$IMAGE:$TAG" \
             -f distrobox/Containerfile .
 
       - name: Push the image
+        env:
+          OWNER: ${{ steps.vars.outputs.owner }}
+          TAG: ${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}
         run: |
-          IMAGE="${{ env.REGISTRY }}/${{ steps.vars.outputs.owner }}/${{ env.IMAGE_NAME }}"
+          IMAGE="$REGISTRY/$OWNER/$IMAGE_NAME"
           podman push "$IMAGE:latest"
-          podman push "$IMAGE:${{ steps.vars.outputs.date }}-${{ steps.vars.outputs.sha_short }}"
+          podman push "$IMAGE:$TAG"

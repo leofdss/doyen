@@ -1,0 +1,44 @@
+# Dependency updates (OpenSSF: keep dependencies current). Weekly, one pull request per
+# ecosystem. The cooldown waits a week after a release, so a bad or hijacked release has
+# time to be found before it reaches this repo. Commit subjects follow Conventional
+# Commits: "ci(deps): ..." for actions, "build(deps): ..." for crates and npm packages.
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      actions:
+        patterns: ["*"]
+    commit-message:
+      prefix: ci
+      include: scope
+
+  - package-ecosystem: cargo
+    directory: /
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      crates:
+        patterns: ["*"]
+    commit-message:
+      prefix: build
+      include: scope
+
+  - package-ecosystem: npm
+    directory: /bindings/node
+    schedule:
+      interval: weekly
+    cooldown:
+      default-days: 7
+    groups:
+      npm:
+        patterns: ["*"]
+    commit-message:
+      prefix: build
+      include: scope
