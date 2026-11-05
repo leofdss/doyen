@@ -32,6 +32,13 @@ own toolchains, so the CI does not depend on the image.
   and checks each subject with one regular expression. The same script runs locally. For a
   push to `main` the range is the push (`before..after`); for a pull request, base..head.
 - **Branch names** are not checked; `TODO.md` asks for `<type>/<change-name>`.
+- **Commit-spec check: `scripts/check-commit-specs.py <base> <head> <branch>`** (Python,
+  standard library). It takes the change name after the first `/` of the branch (in CI:
+  `github.head_ref` for a pull request, `github.ref_name` for a push). If
+  `openspec/changes/<change>/` does not exist, it passes. Else, for each commit that is not a
+  merge, it reads `git show --name-only`: a file outside `openspec/` that is not `*.md` is
+  code, and then some file in `openspec/changes/<change>/` must change too (the ticks are
+  enough). It runs in the `commits` job, after `check-commits.sh`.
 - **Scenario check: `scripts/check-scenario-tests.py`** (Python, standard library). It reads
   the scenarios of `openspec/specs/**/spec.md` (or of one open change with `--change`), and
   searches `crates/`, `bindings/` and `scripts/tests/` for comments
@@ -41,11 +48,16 @@ own toolchains, so the CI does not depend on the image.
   inside one capability (`scripts/check-specs.py` checks it), so a test can name them.
 - **Specs job:** installs `@fission-ai/openspec@1.15.0` (the version in the dev image) and runs
   `openspec validate --all --strict` and `python3 scripts/check-specs.py`.
-- **TDD for the scripts too:** the tests of `check-commits.sh` and `check-scenario-tests.py`
-  (in `scripts/tests/`, run with `python3 -m unittest`) come before the scripts.
+- **TDD for the scripts too:** the tests of `check-commits.sh`, `check-commit-specs.py` and
+  `check-scenario-tests.py` (in `scripts/tests/`, run with `python3 -m unittest`) come before
+  the scripts.
 
 ## Risks / Trade-offs
 
+- [A change branch with another name (not `<type>/<change>`) skips the commit-spec check] →
+  the review checks the branch name; the check cannot guess the change.
+- [The check sees that the change's folder changed, not that the right spec changed] → it
+  catches the common mistake (code committed alone); the review checks the content.
 - [The first push of a new branch has no `before` commit] → the script checks only the
   pushed head commit when `before` is all zeros.
 - [Clippy gets new lints with each stable Rust] → a new warning can fail a run with no code

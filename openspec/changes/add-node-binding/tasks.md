@@ -14,7 +14,7 @@ make it pass.
 - [ ] 1.1 Replace the placeholder in `bindings/node` with the napi-rs v3 crate `doyen-node` (workspace member, `publish = false`, `tokio_rt`) and the `@napi-rs/cli` setup; verify `distrobox enter doyen -- npm run build` makes a `.node` file
 - [ ] 1.2 Write the type test (`tsc --noEmit` on the README example, scenario "Types of the README example") and the runtime tests "Compare with the enum", "Offline status object" and "Token type"; verify they fail (red)
 - [ ] 1.3 Write the types (`DatabaseConfig`, `Status` with `discriminant_case`, the string enums, `Token`); verify the tests pass (green)
-- [ ] 1.4 Commit the tests (`test(node): add the type and runtime value tests`), then the code (`feat(node): add the napi-rs binding types`)
+- [ ] 1.4 Commit the group in one commit (tests, code, spec changes, ticks): `feat(node): add the napi-rs binding types`
 
 ## 2. Methods and callbacks
 
@@ -22,14 +22,14 @@ make it pass.
 - [ ] 2.2 Write `new Doyen()`, `status()`, `token()` on the core snapshot, and `join` with an `Unknown` argument converted inside; verify the config tests pass
 - [ ] 2.3 Write `onStatusChange` with one weak thread-safe function per callback; verify the callback tests pass
 - [ ] 2.4 Write `leave` (never rejects on a network error, second call at once, pending join → `DOYEN_LEFT`), the error codes and the warnings through `process.emitWarning`; verify the remaining tests pass (green)
-- [ ] 2.5 Commit the tests (`test(node): add the method and callback tests`), then the code (`feat(node): add the Doyen class`)
+- [ ] 2.5 Commit the group in one commit (tests, code, spec changes, ticks): `feat(node): add the Doyen class`
 
 ## 3. Event loop check and process life
 
 - [ ] 3.1 Write the tests in child processes: "Endless loop" (20 s busy loop), "Short block" (5 s), "Script ends after leave", "Object not kept by the app", and a worker that ends; verify they fail (red)
 - [ ] 3.2 Write the tick with the strong thread-safe function and `__binding::set_liveness`; verify the event loop tests pass
 - [ ] 3.3 Write the process life rules, the GC reference and the worker cleanup hook; verify the remaining tests pass (green)
-- [ ] 3.4 Commit the tests (`test(node): add the event loop and process life tests`), then the code (`feat(node): stop the renews when the event loop is blocked`)
+- [ ] 3.4 Commit the group in one commit (tests, code, spec changes, ticks): `feat(node): stop the renews when the event loop is blocked`
 
 ## 4. CI and release
 

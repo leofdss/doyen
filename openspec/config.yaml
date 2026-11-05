@@ -29,8 +29,12 @@ context: |
   - Tests are the source of truth (TDD, owner decision 2026-11-04): every spec scenario
     becomes an automated test, written and seen failing before the code that makes it pass.
     A test names its scenario in a comment: `spec: <capability> / <scenario>`. To change a
-    behaviour, change its test first (and the spec in the same change). Never change a test
+    behaviour, change its test first (and the spec in the same commit). Never change a test
     only to make it pass.
+  - Code goes in the same commit as its spec (owner decision 2026-11-05). When code (tests
+    included) belongs to an open change, the commit that adds or changes it also holds the
+    spec changes it needs and the ticks in that change's tasks.md. Never code in one commit
+    and its spec in another.
 
   Repo: Cargo workspace (edition 2024, MSRV Rust 1.85, resolver 3). Crate crates/doyen
   (core + adapters behind cargo features), npm package bindings/node (@leofdss/doyen), Go
@@ -52,7 +56,7 @@ rules:
       "to confirm (owner)".
   tasks:
     - "TDD: a task group with behaviour starts with a task that writes the tests for its scenarios and checks that they fail (red); the next tasks write the code until they pass (green), then clean up (refactor)."
-    - "Commit the red tests first (test(scope) subject), then the code (feat or fix); main stays green at every merge."
+    - "One task group is one commit: its tests, its code, the spec changes they need and its ticks in tasks.md (code goes with its spec). Stage the red tests (git add) before writing the code; every commit is green."
     - Use the model-tiering skill to choose the model and effort of each task group.
     - Commits follow Conventional Commits, type(scope) subject; scopes core, redis, mongodb,
       postgresql, node, go, ci, release, docs.

@@ -10,7 +10,7 @@ make it pass.
 - [ ] 1.1 Add the `mongodb` and `bson` crates behind the feature `mongodb`; verify `cargo build --no-default-features --features mongodb` and the `msrv` job
 - [ ] 1.2 Write the config tests for "URL without a database" and "Database in the URL path"; verify they fail (red)
 - [ ] 1.3 Write the MongoDB config (`database`, `collection`, URL schemes, defaults); verify the tests pass (green)
-- [ ] 1.4 Commit the tests (`test(mongodb): add the config tests`), then the code (`feat(mongodb): add the MongoDB config`)
+- [ ] 1.4 Commit the group in one commit (tests, code, spec changes, ticks): `feat(mongodb): add the MongoDB config`
 
 ## 2. Operations
 
@@ -18,19 +18,19 @@ make it pass.
 - [ ] 2.2 Write join (upsert pipeline, `gen` at creation, tag retry, `version`); verify the join tests pass
 - [ ] 2.3 Write renew (the pipeline in design.md, "place gone" rules) and the write options; verify the renew and write-option tests pass
 - [ ] 2.4 Write leave and watch (change stream filter, reopen on error, "no push" when not allowed); verify the remaining tests and the whole conformance suite pass (green)
-- [ ] 2.5 Commit the tests (`test(mongodb): add the operation tests and the conformance run`), then the code (`feat(mongodb): add the MongoDB adapter`)
+- [ ] 2.5 Commit the group in one commit (tests, code, spec changes, ticks): `feat(mongodb): add the MongoDB adapter`
 
 ## 3. Connect checks
 
 - [ ] 3.1 Write the connect tests: "Standalone server", "MongoDB 4.4", "PSA set", "Through mongos"; verify they fail (red)
 - [ ] 3.2 Write the version, replica set / `mongos` and arbiter checks; verify the tests pass (green)
-- [ ] 3.3 Commit the tests (`test(mongodb): add the connect check tests`), then the code (`feat(mongodb): check the MongoDB setup at connect`)
+- [ ] 3.3 Commit the group in one commit (tests, code, spec changes, ticks): `feat(mongodb): check the MongoDB setup at connect`
 
 ## 4. CI
 
 - [ ] 4.1 Write the failover tests: "Failover" (`rs.stepDown()` on a three-node set: same generation and numbers), a deleted group document → the token still grows, and the 5.0 test "a pipeline update reaches the change stream with `updatedFields.version`"; verify the tests that need code not written yet fail
 - [ ] 4.2 Add the CI jobs `mongodb-rs` (one-node replica set, 5.0 / latest), `mongodb-psa` and the three-node failover job, all with `DOYEN_TEST_REQUIRE_DB=1`; fix the code until the tests pass; verify the jobs pass
-- [ ] 4.3 Commit the tests (`test(mongodb): run the adapter on replica sets in CI`), then any code fix (`fix(mongodb): …`)
+- [ ] 4.3 Commit the group in one commit (tests, any code fix, ticks): `test(mongodb): run the adapter on replica sets in CI`
 
 ## 5. Documentation
 

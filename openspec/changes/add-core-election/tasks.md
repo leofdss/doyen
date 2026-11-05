@@ -15,20 +15,20 @@ write the code until they pass. Never change a test only to make it pass.
 - [ ] 2.1 Write the tests: every scenario of `client-config`, and the `rust-api` scenarios "Build a config", "Match a code" and "Feature off"; declare only the public types they need (no logic) and verify the tests fail (red)
 - [ ] 2.2 Write `Error`, `ErrorCode` (the five codes), the config structs with `new(url, group)`, the defaults, the shared checks and the feature-off rule; verify the tests pass (green), also with `cargo test --no-default-features --features redis`
 - [ ] 2.3 Write the rustdoc of the config and error types with one example each; verify `cargo test --doc`
-- [ ] 2.4 Commit the tests (`test(core): add the tests for the config and the error codes`), then the code (`feat(core): add the config, its checks and the error codes`)
+- [ ] 2.4 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add the config, its checks and the error codes`
 
 ## 3. Status and token types
 
 - [ ] 3.1 Write the tests for the `rust-api` scenarios "Display a reason" and "Compare tokens" and the `status-reporting` scenario "Log a reason"; verify they fail (red)
 - [ ] 3.2 Write `Status`, `OfflineReason` (camelCase `Display`) and `Token` (`Ord`, generation first); verify the tests pass (green)
-- [ ] 3.3 Commit the tests (`test(core): add the tests for the status and token types`), then the code (`feat(core): add the status and token types`)
+- [ ] 3.3 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add the status and token types`
 
 ## 4. Clock
 
 - [ ] 4.1 Write the clock tests: the real clock against a real 2 s sleep, the fake clock in paused Tokio time; verify they fail (red)
 - [ ] 4.2 Write the `Clock` trait, the real clock (Linux `CLOCK_BOOTTIME` through `rustix`) and the fake clock on `tokio::time::Instant`; verify the tests pass (green)
 - [ ] 4.3 Choose the suspend-aware clock for macOS (and note Windows) and record it in design.md; verify `cargo check --target aarch64-apple-darwin` (or the CI macOS job when it exists)
-- [ ] 4.4 Commit the tests (`test(core): add the clock tests`), then the code (`feat(core): add a clock that counts suspend time`)
+- [ ] 4.4 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add a clock that counts suspend time`
 
 ## 5. Adapter contract and conformance suite
 
@@ -36,7 +36,7 @@ write the code until they pass. Never change a test only to make it pass.
 - [ ] 5.2 Write the conformance suite, generic over `Backend`: one test per scenario of `adapter-contract`; run it against a stub adapter whose methods return an error and verify every test fails (red)
 - [ ] 5.3 Write the in-memory adapter on the fake clock (counter, line, places with expiry, tags, wake-ups, a switch to "lose all data"); verify the whole conformance suite passes (green)
 - [ ] 5.4 Write the tests of the database test switch (no `DOYEN_TEST_*_URL` → skipped; `DOYEN_TEST_REQUIRE_DB=1` and no URL → failure), see them fail, then write the switch; verify they pass
-- [ ] 5.5 Commit the tests (`test(core): add the conformance suite of the adapter contract`), then the code (`feat(core): add the in-memory adapter and the database test switch`)
+- [ ] 5.5 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add the in-memory adapter and the database test switch`
 
 ## 6. Engine
 
@@ -48,13 +48,13 @@ write the code until they pass. Never change a test only to make it pass.
 - [ ] 6.6 Write the subscribers (one unbounded queue per stream, error alone is not a change, `left` last) and the warnings through `tracing`; verify every `status-reporting` test and the stream tests pass
 - [ ] 6.7 Make a dropped `join` future go back to `notJoined` with the tag kept, and check the Tokio runtime rule; verify the last two `rust-api` tests pass
 - [ ] 6.8 Refactor with every test green; verify `cargo clippy -- -D warnings` and that no test changed
-- [ ] 6.9 Commit the tests (`test(core): add the engine tests from the specs`), then the code (`feat(core): add the election engine`)
+- [ ] 6.9 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add the election engine`
 
 ## 7. Binding hooks
 
 - [ ] 7.1 Write the tests: a false liveness check skips the renews and the status turns offline `connectionLost`; the warnings stream gets each connect warning once; verify they fail (red)
 - [ ] 7.2 Write `__binding::set_liveness` and `__binding::warnings`; verify the tests pass (green)
-- [ ] 7.3 Commit the tests (`test(core): add the tests for the binding hooks`), then the code (`feat(core): add the hidden hooks for the bindings`)
+- [ ] 7.3 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add the hidden hooks for the bindings`
 
 ## 8. Integration check
 

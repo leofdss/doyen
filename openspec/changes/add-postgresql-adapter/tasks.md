@@ -14,7 +14,7 @@ make it pass.
 - [ ] 1.1 Add `tokio-postgres` with a TLS connector behind the feature `postgresql` (in the default features); verify `cargo build --no-default-features --features postgresql` and the `msrv` job
 - [ ] 1.2 Write the tests: "Default schema", "Standby URL", "No CREATE privilege", "Tables made by hand", "Function not allowed", and a PostgreSQL 13 server refused (PostgreSQL containers: 13, 14, a standby, limited users); verify they fail (red)
 - [ ] 1.3 Write the PostgreSQL config (`schema`, URL schemes), the connect checks (version, standby, timeline readable) and the table creation; verify the tests pass (green)
-- [ ] 1.4 Commit the tests (`test(postgresql): add the config and connect check tests`), then the code (`feat(postgresql): add the config and the connect checks`)
+- [ ] 1.4 Commit the group in one commit (tests, code, spec changes, ticks): `feat(postgresql): add the config and the connect checks`
 
 ## 2. Operations
 
@@ -22,7 +22,7 @@ make it pass.
 - [ ] 2.2 Write join (transaction, row lock, tag retry, n rule, `NOTIFY`); verify the join tests pass
 - [ ] 2.3 Write renew (one statement, `clock_timestamp()`, live line, timeline) and the generation rules; verify the expiry and generation tests pass
 - [ ] 2.4 Write leave and watch (`LISTEN doyen`, payload filter); verify the remaining tests and the whole conformance suite pass (green)
-- [ ] 2.5 Commit the tests (`test(postgresql): add the operation tests and the conformance run`), then the code (`feat(postgresql): add the PostgreSQL adapter`)
+- [ ] 2.5 Commit the group in one commit (tests, code, spec changes, ticks): `feat(postgresql): add the PostgreSQL adapter`
 
 ## 3. CI
 
@@ -40,7 +40,7 @@ make it pass.
 
 - [ ] 5.1 Write the binding tests first: the Node.js runtime test and a Go test join a PostgreSQL service with type `postgresql`; verify they fail (red)
 - [ ] 5.2 Add `postgresql` to the Node.js `DatabaseType` and its config shape, and `PostgresConfig` to the Go package; verify both tests pass (green)
-- [ ] 5.3 Commit the tests (`test(node,go): add the postgresql type tests`), then the code (`feat(node,go): add the postgresql database type`)
+- [ ] 5.3 Commit the group in one commit (tests, code, spec changes, ticks): `feat(node,go): add the postgresql database type`
 - [ ] 5.4 Run `python3 scripts/check-scenario-tests.py --change add-postgresql-adapter`; verify every `postgresql-adapter` scenario is named by a test or a manual check
 - [ ] 5.5 Release the crate (next minor version), the npm package and the Go module with the release processes of `crate-release`, `node-binding` and `go-binding`; verify each one installs in a clean project
 - [ ] 5.6 (owner) Publish the crate and the npm packages (2FA)

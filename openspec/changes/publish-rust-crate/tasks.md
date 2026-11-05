@@ -17,7 +17,7 @@ and the README examples are doc tests (they fail until the code they show exists
 - [ ] 2.1 Write `scripts/tests/test_release_checks.py` for the scenarios "New version" (git-cliff output has a `0.1.0` section with the `feat` and `fix` commits) and "Wrong tag" (tag `v0.1.1` vs version `0.1.0` fails); verify they fail (red)
 - [ ] 2.2 Add `cliff.toml`, `git-cliff` in the dev image, and `scripts/check-release-tag.sh <tag>` (compares the tag with `crates/doyen/Cargo.toml`); verify the tests pass (green)
 - [ ] 2.3 Add `.github/workflows/release.yml` (tag check script, `cargo package`, GitHub release with `git cliff --latest`); add "File missing from the package" and "Release day" to `openspec/manual-checks.md` after checking them on a throwaway tag (deleted after)
-- [ ] 2.4 Commit the tests (`test(release): add the tests for the release checks`), then the code (`ci(release): add the changelog and the release workflow`)
+- [ ] 2.4 Commit the group in one commit (tests, code, spec changes, ticks): `ci(release): add the changelog and the release workflow`
 
 ## 3. Release v0.1.0
 

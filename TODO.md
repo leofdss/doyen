@@ -11,7 +11,9 @@ change.
 - **Branch:** `<type>/<change-name>`, for example `feat/add-core-election`.
 - **Commits:** [Conventional Commits](https://www.conventionalcommits.org/) —
   `type(scope): subject`, scopes `core`, `redis`, `mongodb`, `postgresql`, `node`, `go`, `ci`,
-  `release`, `docs`. Each task group in a `tasks.md` names its commit.
+  `release`, `docs`. Each task group in a `tasks.md` is one commit and names it.
+- **Code goes with its spec:** that commit holds the group's tests, code, spec changes and
+  ticks in `tasks.md`. Never code in one commit and its spec in another (see `AGENTS.md`).
 - **Tests first (TDD):** the tests are the source of truth. Each task group writes the tests
   for its scenarios, sees them fail, then writes the code until they pass (see `AGENTS.md`).
   A change is done when every scenario of its specs is named by a test (or by

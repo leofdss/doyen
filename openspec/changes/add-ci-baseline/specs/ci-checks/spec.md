@@ -3,7 +3,7 @@
 ## Purpose
 
 Defines the checks that every push to main and every pull request must pass, so that the
-code always builds, is formatted, has no lint warnings and keeps the commit message rule.
+code always builds, is formatted, has no lint warnings and keeps the commit rules.
 
 ## ADDED Requirements
 
@@ -73,6 +73,28 @@ test, build, ci, chore, revert, and `(scope)` and `!` are optional.
 #### Scenario: Merge commit
 - **WHEN** a pull request contains a merge commit made by Git (subject starts with `Merge`)
 - **THEN** the check skips it
+
+### Requirement: Code is committed with its spec
+The CI SHALL fail when a commit of a branch `<type>/<change>`, where
+`openspec/changes/<change>/` exists, changes a file that is outside `openspec/` and is not a
+Markdown file, and changes no file in `openspec/changes/<change>/`. It SHALL skip merge
+commits. On any other branch the check SHALL pass.
+
+#### Scenario: Code with its spec
+- **WHEN** a commit on the branch `feat/add-core-election` changes `crates/doyen/src/lease.rs` and `openspec/changes/add-core-election/tasks.md`
+- **THEN** the commit-spec check passes
+
+#### Scenario: Code without its spec
+- **WHEN** a commit on the branch `feat/add-core-election` changes `crates/doyen/src/lease.rs` and no file in `openspec/changes/add-core-election/`
+- **THEN** the commit-spec check fails and names that commit
+
+#### Scenario: Docs only
+- **WHEN** a commit on the branch `feat/add-core-election` changes only `README.md`
+- **THEN** the commit-spec check passes
+
+#### Scenario: Branch without a change
+- **WHEN** a commit on the branch `fix/typo` changes code and `openspec/changes/typo/` does not exist
+- **THEN** the commit-spec check passes
 
 ### Requirement: Every scenario has a test
 The CI SHALL fail when a scenario of a spec in `openspec/specs/` is named by no test (a

@@ -55,12 +55,14 @@ code only makes the tests pass.
 
 1. **Red:** write the tests for the scenarios of the task group, and see them fail. Each test
    names its scenario in a comment: `// spec: election-core / Master dies` (`#` in Python).
-2. **Green:** write the code until the tests pass.
+   Stage them (`git add`).
+2. **Green:** write the code until the tests pass. The staged tests do not change: `git diff`
+   on the test files stays empty.
 3. **Refactor:** clean up with every test green. No test changes in this step.
+4. **Commit** the task group as one commit: its tests, its code, the spec changes and the
+   ticks in `tasks.md` (see *Commits*). Every commit is green.
 
-- Commit the red tests first (`test(core): add the tests for the local lease`), then the code
-  (`feat(core): add the local lease`). `main` stays green at every merge.
-- To change a behaviour, change its test first, and the spec in the same change.
+- To change a behaviour, change its test first, and the spec in the same commit.
 - Never change a test only to make it pass. A test that looks wrong goes back to the spec:
   ask the owner.
 - `python3 scripts/check-scenario-tests.py` (from `add-ci-baseline`) fails when a scenario has
@@ -83,6 +85,12 @@ tests pass at a cheaper one, and when to escalate.
   (or none).
 - `!` after the type or scope for a breaking change, for example `feat(core)!: …`.
 - Subject in English, imperative, lower case, no period: `feat(core): add the local lease`.
+- **Code goes with its spec.** When code (tests included) belongs to an open change, the
+  commit that adds or changes it also holds the spec changes it needs (`specs/`,
+  `design.md`) and the ticks in that change's `tasks.md`. Never code in one commit and its
+  spec in another. One task group = one commit. Code outside a change (a typo, a dependency
+  update) has no spec. `scripts/check-commit-specs.py` (from `add-ci-baseline`) checks it on
+  the change branches.
 - Branch: `<type>/<change-name>`, for example `feat/add-core-election`.
 
 ## Rules

@@ -10,7 +10,7 @@ pass.
 - [ ] 1.1 (owner) Choose the Redis client: check `redis` (redis-rs) and `fred` against the three needs in design.md with a small test program, and record the choice and why in design.md; verify the program runs a `WATCH`/`MULTI`/`EXEC` on one server and on a Cluster, and logs in to a TLS Sentinel with its own login
 - [ ] 1.2 Write the URL tests for the scenarios "Sentinel URL" and "Sentinel login" (parsing only); verify they fail (red)
 - [ ] 1.3 Add the client behind the feature `redis` and parse the four URL schemes and the Sentinel query; verify the tests pass (green)
-- [ ] 1.4 Commit the tests (`test(redis): add the URL tests`), then the code (`feat(redis): add the Redis client and the URL parsing`)
+- [ ] 1.4 Commit the group in one commit (tests, code, spec changes, ticks): `feat(redis): add the Redis client and the URL parsing`
 
 ## 2. Operations
 
@@ -20,7 +20,7 @@ pass.
 - [ ] 2.4 Write renew (`SET … XX PX … GET`, tag check, live line, `ZREM` of dead numbers in the next renew); verify the renew and live-line tests pass
 - [ ] 2.5 Write the generation rules and value (missing `meta`, `run_id`/`replid`, data went back, `seq` raised, the highest-seen state per group); verify the generation tests pass
 - [ ] 2.6 Write `WAIT` (online replicas only, 25% timeout, fewer acks not an error), leave and watch; verify the remaining operation tests and the whole conformance suite pass (green)
-- [ ] 2.7 Commit the tests (`test(redis): add the operation tests and the conformance run`), then the code (`feat(redis): add the Redis adapter`)
+- [ ] 2.7 Commit the group in one commit (tests, code, spec changes, ticks): `feat(redis): add the Redis adapter`
 
 ## 3. Connect checks and warnings
 
@@ -29,13 +29,13 @@ pass.
 - [ ] 3.3 Write the warnings `DOYEN_REDIS_NO_MIN_REPLICAS` (not in Cluster) and `DOYEN_REDIS_SENTINEL_TIMING`; verify their tests pass
 - [ ] 3.4 Map `NOPERM` to `DOYEN_AUTH` with the command name and `READONLY` to a reconnect; verify their tests pass, and that no script command is ever sent
 - [ ] 3.5 Find how Redis Active-Active can be detected; write its test first and refuse it, or record in design.md that it cannot be detected and document it (owner decides)
-- [ ] 3.6 Commit the tests (`test(redis): add the connect check tests`), then the code (`feat(redis): check the Redis setup at connect`)
+- [ ] 3.6 Commit the group in one commit (tests, code, spec changes, ticks): `feat(redis): check the Redis setup at connect`
 
 ## 4. Topologies in CI
 
 - [ ] 4.1 Write the topology tests: "URL of a Cluster node", "Sentinel failover", "Transaction in Cluster", and the failure tests (restart without persistence, `FLUSHDB`, Sentinel failback with old data, partition with `docker network disconnect` at the default and at a 5 s `down-after-milliseconds`, Cluster failover); add the Sentinel and Cluster Compose files; verify the tests that need code not written yet fail
 - [ ] 4.2 Add the CI jobs `redis-single` (6.2 and latest), `redis-sentinel` and `redis-cluster` with `DOYEN_TEST_REQUIRE_DB=1`; fix the code until the tests pass; verify the three jobs pass on a pull request and each failure test shows the token still growing and the expected warning
-- [ ] 4.3 Commit the tests (`test(redis): run the adapter on one server, Sentinel and Cluster`), then any code fix (`fix(redis): …`)
+- [ ] 4.3 Commit the group in one commit (tests, any code fix, ticks): `test(redis): run the adapter on one server, Sentinel and Cluster`
 
 ## 5. Documentation
 

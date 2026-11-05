@@ -33,7 +33,7 @@ only by the escalation rules.
 |---|---|
 | `/opsx:explore`, `/opsx:propose`, editing a `design.md` | T2 |
 | Test-first step of a task group: write the tests from the scenarios, see them fail | T2 for `election-core`, `adapter-contract`, `status-reporting` and the adapters' generation and join rules; T1 for config, types, docs examples, CI |
-| Implementation step: make the failing tests pass | T1; T2 for the engine (`crates/doyen/src/engine/`) and each adapter's join / renew / generation code |
+| Implementation step: make the failing (staged) tests pass, without changing them | T1; T2 for the engine (`crates/doyen/src/engine/`) and each adapter's join / renew / generation code |
 | Conformance suite and the in-memory adapter | T2 (they define what every adapter must do) |
 | Bindings (`bindings/node`, `bindings/go`, `crates/doyen-ffi`) | T2 for the C ABI and the thread rules; T1 for the rest, after the tests exist |
 | CI red: find the failing step | T0, then the tier of the failing code to fix it |
