@@ -9,9 +9,9 @@
 
 ## 2. Commit-spec check (test first)
 
-- [ ] 2.1 Write `scripts/tests/test_check_commit_specs.py` with a temporary git repo (a folder `openspec/changes/add-core-election/`, branches `feat/add-core-election` and `fix/typo`) for the scenarios "Code with its spec", "Code without its spec", "Docs only" and "Branch without a change", plus a merge commit that is skipped; verify they fail (red), then stage the tests
-- [ ] 2.2 Write `scripts/check-commit-specs.py <base> <head> <branch>`; verify the tests pass (green) and the script passes on the commits of this branch
-- [ ] 2.3 Commit the group in one commit (tests, code, ticks): `ci: add the commit-spec check`
+- [x] 2.1 Write `scripts/tests/test_check_commit_specs.py` with a temporary git repo (a folder `openspec/changes/add-core-election/`, branches `feat/add-core-election` and `fix/typo`) for the scenarios "Code with its spec", "Code without its spec", "Docs only" and "Branch without a change", plus a merge commit that is skipped; verify they fail (red), then stage the tests
+- [x] 2.2 Write `scripts/check-commit-specs.py <base> <head> <branch>`; verify the tests pass (green) and the script passes on the commits of this branch
+- [x] 2.3 Commit the group in one commit (tests, code, ticks): `ci: add the commit-spec check`
 
 ## 3. License header check (test first)
 
