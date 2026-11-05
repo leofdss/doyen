@@ -9,3 +9,9 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
+
+# Failure paths of the CI (task 5.2 of add-ci-baseline). Throwaway branch, never merged.
+[dependencies]
+smallvec = "=1.6.0" # RUSTSEC-2021-0003: the deps job fails (advisory)
+webpki-roots = "=0.25.4" # MPL-2.0, not on the allow list: the deps job fails (license)
+itoa = { git = "https://github.com/dtolnay/itoa", tag = "1.0.11" } # the deps job fails (source)

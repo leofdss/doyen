@@ -5,3 +5,25 @@ version = 4
 [[package]]
 name = "doyen"
 version = "0.0.1"
+dependencies = [
+ "itoa",
+ "smallvec",
+ "webpki-roots",
+]
+
+[[package]]
+name = "itoa"
+version = "1.0.11"
+source = "git+https://github.com/dtolnay/itoa?tag=1.0.11#8f392032fadf15b5e6b9b7b6add21875575d67af"
+
+[[package]]
+name = "smallvec"
+version = "1.6.0"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "1a55ca5f3b68e41c979bf8c46a6f1da892ca4db8f94023ce0bd32407573b1ac0"
+
+[[package]]
+name = "webpki-roots"
+version = "0.25.4"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "5f20c57d8d7db6d3b86154206ae5d8fba62dd39573114de97c2cb0578251f8e1"

@@ -1,0 +1,12 @@
+# Failure path of the CI (task 5.2 of add-ci-baseline). Throwaway branch, never merged.
+name: Unpinned action
+on: workflow_dispatch
+permissions:
+  contents: read
+jobs:
+  unpinned:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          persist-credentials: false
