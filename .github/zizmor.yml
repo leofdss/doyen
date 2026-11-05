@@ -1,0 +1,9 @@
+# zizmor config (spec ci-checks, "Workflows are checked"). The CI job `workflows` runs
+# `zizmor --config .github/zizmor.yml .github/workflows/` and fails on any finding.
+rules:
+  unpinned-uses:
+    config:
+      policies:
+        # Every action, also actions/*, is pinned to a full commit SHA with its version in a
+        # comment. Dependabot updates the pins (.github/dependabot.yml).
+        "*": hash-pin

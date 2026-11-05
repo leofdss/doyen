@@ -32,7 +32,16 @@ own toolchains, so the CI does not depend on the image.
 - **MSRV job:** `cargo check --workspace --all-features` with 1.85 (a build check is enough;
   tests run on stable).
 - **Coverage:** `taiki-e/install-action` installs `cargo-llvm-cov`; the report
-  (`lcov.info`) is uploaded as an artifact. No external coverage service.
+  (`lcov.info`) is uploaded as an artifact. No external coverage service. `--ignore-run-fail`
+  keeps the report when a test fails, so a failing test fails the `test` job only (coverage
+  never fails the run). While the crate is
+  the 0.0.1 placeholder it has no code, so `cargo llvm-cov` finds no coverage data and stops;
+  the job then keeps an empty report (only for that error message). `add-core-election`
+  (task 8.2) removes this case once the crate has code.
+- **Tool versions:** each tool is pinned to a release at least 7 days old (the same cooldown
+  as Dependabot), and installed in a way that checks what it downloads: `taiki-e/install-action`
+  checks the SHA-256 of `cargo-llvm-cov`, `cargo-deny` and `zizmor`; `npm ci` checks the
+  hashes in a lockfile.
 - **Commit check:** `scripts/check-commits.sh <base> <head>` reads `git log --format=%H %s`
   and checks each subject with one regular expression. The same script runs locally. For a
   push to `main` the range is the push (`before..after`); for a pull request, base..head.
@@ -57,18 +66,24 @@ own toolchains, so the CI does not depend on the image.
   open change (so the tests of a change in progress pass the check without `--change`).
   Scenario names must be unique inside one capability (`scripts/check-specs.py` checks it), so
   a test can name them.
-- **Specs job:** installs `@fission-ai/openspec@1.15.0` (the version in the dev image) and runs
-  `openspec validate --all --strict` and `python3 scripts/check-specs.py`.
+- **Specs job:** installs `@fission-ai/openspec@1.15.0` (the version in the dev image) with
+  `npm ci` from `.github/tools/package-lock.json` (zizmor's `adhoc-packages` audit: no package
+  installed outside a lockfile), and runs `openspec validate --all --strict` and
+  `python3 scripts/check-specs.py`.
 - **Workflow security:** every action is pinned to a full commit SHA with the version in a
   comment (Dependabot updates them); `permissions: contents: read` at the top of `ci.yml`;
   `${{ }}` values reach `run:` scripts through `env:`; `actions/checkout` with
-  `persist-credentials: false`. The `workflows` job runs `zizmor` (installed with `pipx`,
-  version pinned) with `.github/zizmor.yml` asking for SHA pins on every action (to confirm
-  while applying: the exact config key of the `unpinned-uses` audit).
+  `persist-credentials: false`. The `workflows` job runs `zizmor` (installed with
+  `taiki-e/install-action`, version pinned) with `.github/zizmor.yml`, which asks for SHA pins
+  on every action: `rules.unpinned-uses.config.policies` = `"*": hash-pin` (checked in the
+  zizmor 1.31 docs; it is also the default since zizmor 1.20, written out so that a new
+  default cannot loosen it).
 - **Dependency check:** the `deps` job runs `cargo deny check` with `deny.toml`: advisories
   from RustSec, licenses allowed = MIT, Apache-2.0, Apache-2.0 WITH LLVM-exception,
   BSD-2-Clause, BSD-3-Clause, ISC, Unicode-3.0, Zlib (add one only when a real dependency
-  needs it), sources = crates.io only. Installed with `taiki-e/install-action`.
+  needs it), sources = crates.io only. Installed with `taiki-e/install-action`. Advisories:
+  vulnerabilities and unmaintained crates fail (the cargo-deny defaults), and `unsound =
+  "all"` makes unsound crates fail too, also when they are not direct dependencies.
 - **License headers:** `scripts/check-license-headers.py` reads the first three lines of
   each tracked source file. Generated files get the line from their generator when it can
   (cbindgen `header`); the others are on a short list in the script (for example the napi-rs
