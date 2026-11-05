@@ -9,3 +9,7 @@
 - `model-tiering` (`.claude/skills/model-tiering`, a symlink to `.agents/skills/`) says which
   model and effort to use: `/model` and `/effort` for the session, the Agent tool's `model`
   (alias only) and `effort` for one subagent call.
+- `.claude/settings.json` turns off Claude Code's default `Co-Authored-By` trailer and pull
+  request line (`attribution`): add the `Assisted-by` trailer yourself, with the model you
+  run on (see *AI agents* in `AGENTS.md`). It also blocks `cargo publish` and `npm publish`
+  and asks before `git push` and `gh release`.

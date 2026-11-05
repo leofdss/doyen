@@ -85,6 +85,18 @@ README: do them one after the other (Redis first, the first database the owner c
   `npm unpublish @leofdss/doyen@0.0.0-stage` before 2026-11-06 20:56 UTC.
 - [ ] (owner, optional) Publish the placeholders again (npm 0.0.3, crate 0.0.2) so they carry
   the license texts.
+- [ ] (owner) Turn on private vulnerability reporting, which `SECURITY.md` points to:
+  `gh api -X PUT repos/leofdss/doyen/private-vulnerability-reporting` (or Settings →
+  Code security).
+- [ ] (owner) Decide on the DCO: ask for `Signed-off-by` in every commit, added by the person
+  (never by an agent, see `AI_POLICY.md`). If yes, the commit check of `add-ci-baseline`
+  checks it.
+- [ ] (owner) After `add-ci-baseline`: protect `main` with a ruleset (pull request and green
+  CI before a merge, no force push), as the OpenSSF SCM guide asks.
+- [ ] (owner) The dev image downloads VS Code "latest" with no checksum: pin a version with
+  its SHA-256, or take VS Code out of the image.
+- [ ] (owner, optional) Get the OpenSSF Best Practices badge (bestpractices.dev) and add the
+  OpenSSF Scorecard workflow.
 - [ ] Read the code of mongo-leader and @platformatic/leader: note what doyen does better and
   what it should copy (before change 4).
 

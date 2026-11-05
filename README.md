@@ -273,7 +273,9 @@ cargo build
 
 The work is planned as OpenSpec changes, applied one at a time in the order of
 [TODO.md](TODO.md). How to work here (also for AI agents): [AGENTS.md](AGENTS.md).
-Commits follow [Conventional Commits](https://www.conventionalcommits.org/).
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/). Contributions
+made with AI tools are welcome under the [AI policy](AI_POLICY.md). To report a
+vulnerability, see [SECURITY.md](SECURITY.md).
 
 ## License
 

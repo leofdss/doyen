@@ -61,6 +61,20 @@ fail with `DOYEN_INVALID_CONFIG`.
 - **WHEN** the config has the MongoDB type and the URL `redis://localhost`
 - **THEN** `join` fails with `DOYEN_INVALID_CONFIG`
 
+### Requirement: Secrets are never shown
+doyen SHALL NOT show a secret of a URL (the password of the user info, and query parameters
+that hold a password, such as `sentinelPassword`) in an error, a warning, a log line, a
+status or the `Debug` output of a config. Where it shows a URL, it SHALL write `***` in
+place of each secret.
+
+#### Scenario: Password in an error
+- **WHEN** `join` fails with the URL `redis://app:s3cret@db:6379`
+- **THEN** no error, warning, log line or status contains `s3cret`, and the URL is shown as `redis://app:***@db:6379`
+
+#### Scenario: Debug of a config
+- **WHEN** a config with the URL `mongodb://app:s3cret@db/doyen` is printed with `{:?}`
+- **THEN** the output contains `app:***@db` and not `s3cret`
+
 ### Requirement: Error codes
 Every error the core returns SHALL have one of these codes and a message that says what to
 fix: `DOYEN_INVALID_CONFIG`, `DOYEN_AUTH`, `DOYEN_UNSUPPORTED`, `DOYEN_ALREADY_JOINED`,

@@ -18,8 +18,8 @@ own toolchains, so the CI does not depend on the image.
 
 ## Decisions
 
-- **Jobs:** `fmt`, `clippy`, `test`, `msrv`, `coverage`, `commits`, `scenarios`, `specs`, in
-  parallel. One job per check gives a clear failure name. Alternative: one job with many steps; rejected, a
+- **Jobs:** `fmt`, `clippy`, `test`, `msrv`, `coverage`, `commits`, `scenarios`, `specs`,
+  `workflows`, `deps`, in parallel. One job per check gives a clear failure name. Alternative: one job with many steps; rejected, a
   failure hides the next checks.
 - **Toolchains:** `dtolnay/rust-toolchain` (stable, and `1.85` for `msrv`), plus
   `Swatinem/rust-cache`. Alternative: the dev image as a container job; rejected for now,
@@ -48,6 +48,16 @@ own toolchains, so the CI does not depend on the image.
   inside one capability (`scripts/check-specs.py` checks it), so a test can name them.
 - **Specs job:** installs `@fission-ai/openspec@1.15.0` (the version in the dev image) and runs
   `openspec validate --all --strict` and `python3 scripts/check-specs.py`.
+- **Workflow security:** every action is pinned to a full commit SHA with the version in a
+  comment (Dependabot updates them); `permissions: contents: read` at the top of `ci.yml`;
+  `${{ }}` values reach `run:` scripts through `env:`; `actions/checkout` with
+  `persist-credentials: false`. The `workflows` job runs `zizmor` (installed with `pipx`,
+  version pinned) with `.github/zizmor.yml` asking for SHA pins on every action (to confirm
+  while applying: the exact config key of the `unpinned-uses` audit).
+- **Dependency check:** the `deps` job runs `cargo deny check` with `deny.toml`: advisories
+  from RustSec, licenses allowed = MIT, Apache-2.0, Apache-2.0 WITH LLVM-exception,
+  BSD-2-Clause, BSD-3-Clause, ISC, Unicode-3.0, Zlib (add one only when a real dependency
+  needs it), sources = crates.io only. Installed with `taiki-e/install-action`.
 - **TDD for the scripts too:** the tests of `check-commits.sh`, `check-commit-specs.py` and
   `check-scenario-tests.py` (in `scripts/tests/`, run with `python3 -m unittest`) come before
   the scripts.

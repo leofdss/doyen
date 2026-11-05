@@ -3,7 +3,8 @@
 ## Purpose
 
 Defines the checks that every push to main and every pull request must pass, so that the
-code always builds, is formatted, has no lint warnings and keeps the commit rules.
+code always builds, is formatted, has no lint warnings, keeps the commit rules, and its
+workflows and dependencies pass the supply-chain checks.
 
 ## ADDED Requirements
 
@@ -95,6 +96,31 @@ commits. On any other branch the check SHALL pass.
 #### Scenario: Branch without a change
 - **WHEN** a commit on the branch `fix/typo` changes code and `openspec/changes/typo/` does not exist
 - **THEN** the commit-spec check passes
+
+### Requirement: Workflows are checked
+The CI SHALL run `zizmor` on `.github/workflows/` and SHALL fail on its findings. Its config
+SHALL ask for every action to be pinned to a full commit SHA.
+
+#### Scenario: Unpinned action
+- **WHEN** a workflow uses `actions/checkout@v6` (a tag, not a commit SHA)
+- **THEN** the workflow check fails and names the file
+
+### Requirement: Dependencies are checked
+The CI SHALL run `cargo deny check` and SHALL fail when a dependency has a known
+vulnerability (RustSec advisory), a license that is not on the allow list, or a source other
+than crates.io.
+
+#### Scenario: Known vulnerability
+- **WHEN** `Cargo.lock` has a crate version with a RustSec advisory
+- **THEN** the dependency check fails and names the advisory
+
+#### Scenario: License not allowed
+- **WHEN** a new dependency has a license that is not on the allow list in `deny.toml`
+- **THEN** the dependency check fails
+
+#### Scenario: Unknown source
+- **WHEN** a dependency comes from a git repository or another registry
+- **THEN** the dependency check fails
 
 ### Requirement: Every scenario has a test
 The CI SHALL fail when a scenario of a spec in `openspec/specs/` is named by no test (a

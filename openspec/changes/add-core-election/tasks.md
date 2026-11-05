@@ -13,7 +13,7 @@ write the code until they pass. Never change a test only to make it pass.
 ## 2. Config and errors
 
 - [ ] 2.1 Write the tests: every scenario of `client-config`, and the `rust-api` scenarios "Build a config", "Match a code" and "Feature off"; declare only the public types they need (no logic) and verify the tests fail (red)
-- [ ] 2.2 Write `Error`, `ErrorCode` (the five codes), the config structs with `new(url, group)`, the defaults, the shared checks and the feature-off rule; verify the tests pass (green), also with `cargo test --no-default-features --features redis`
+- [ ] 2.2 Write `Error`, `ErrorCode` (the five codes), the config structs with `new(url, group)`, the defaults, the shared checks, the feature-off rule and the URL redaction (`***` in errors, logs and `Debug`); verify the tests pass (green), also with `cargo test --no-default-features --features redis`
 - [ ] 2.3 Write the rustdoc of the config and error types with one example each; verify `cargo test --doc`
 - [ ] 2.4 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add the config, its checks and the error codes`
 

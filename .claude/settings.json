@@ -1,0 +1,19 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "permissions": {
+    "deny": [
+      "Bash(cargo publish *)",
+      "Bash(* cargo publish *)",
+      "Bash(npm publish *)",
+      "Bash(* npm publish *)"
+    ],
+    "ask": [
+      "Bash(git push *)",
+      "Bash(gh release *)"
+    ]
+  }
+}

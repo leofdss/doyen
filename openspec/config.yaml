@@ -39,6 +39,10 @@ context: |
     follow (Rust and Go too), and that people read and understand fast: not too short
     (clever one-liners, one-letter names), not too long (extra layers, comments that repeat
     the code). The rules are in AGENTS.md, "Code style".
+  - AI use follows AI_POLICY.md (Linux Foundation guidance, owner decision 2026-11-05): a
+    person is the author and is responsible; agents never add Signed-off-by or
+    Co-authored-by; commits made with AI help end with `Assisted-by: <tool> (<model>)`. The
+    security rules for code are in AGENTS.md, "Security"; the threat model is in SECURITY.md.
 
   Repo: Cargo workspace (edition 2024, MSRV Rust 1.85, resolver 3). Crate crates/doyen
   (core + adapters behind cargo features), npm package bindings/node (@leofdss/doyen), Go
@@ -55,6 +59,7 @@ rules:
       open change adds; refer to it by name instead.
     - Error and warning codes start with DOYEN_. Each code is defined in one capability only.
     - Write each scenario so it can become one automated test (clear WHEN and THEN).
+    - "A requirement about secrets, untrusted input or memory safety has a negative scenario: it shows that doyen fails safe."
   design:
     - Record every assumption the owner has not confirmed under "Decisions" with the words
       "to confirm (owner)".
@@ -65,6 +70,7 @@ rules:
     - "The refactor step checks the code style rules of AGENTS.md (familiar to TypeScript programmers; not too short, not too long). Tests follow them too."
     - Use the model-tiering skill to choose the model and effort of each task group.
     - Commits follow Conventional Commits, type(scope) subject; scopes core, redis, mongodb,
-      postgresql, node, go, ci, release, docs.
+      postgresql, node, go, ci, release, docs, deps.
+    - "A task that adds a dependency says why and checks that it is the real package (AGENTS.md, Security)."
     - Mark the tasks that only the owner can do (publish, 2FA, a decision) with "(owner)".
     - "Run Rust, Node.js and Go commands inside the container (distrobox enter doyen -- <command>)."

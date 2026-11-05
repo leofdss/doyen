@@ -17,7 +17,8 @@ Release: v0.1. Depends on: `add-ci-baseline`.
   `connectionLost`, `reconnecting`, `left`) and the last database error; one notification
   per change, in order; warnings once at connect.
 - The config shared by all databases (`type`, `url`, `group`, `timeoutMs`,
-  `renewIntervalMs`, `instanceName`), its defaults, its checks and the error codes.
+  `renewIntervalMs`, `instanceName`), its defaults, its checks and the error codes. A
+  password in a URL never shows in an error, a log or a status.
 - The adapter contract (`connect`, `join`, `renew`, `leave`, `watch`), an in-memory adapter
   with a fake clock, and one conformance test suite that every adapter must pass.
 - The Rust public API: `Doyen::new()`, `join`, `status`, `status_changes`, `token`, `leave`.

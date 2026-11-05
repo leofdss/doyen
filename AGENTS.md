@@ -19,6 +19,8 @@ order is in [`TODO.md`](TODO.md).
 | `openspec/` | Specs (`specs/`), open changes (`changes/`), project rules (`config.yaml`) |
 | `distrobox/` | The development image and container |
 | `scripts/` | Repo checks (`check-specs.py`) |
+| `AI_POLICY.md` | How AI tools may be used here (people and agents) |
+| `SECURITY.md` | How to report a vulnerability, and the threat model |
 
 ## Environment
 
@@ -26,6 +28,18 @@ order is in [`TODO.md`](TODO.md).
   `distrobox enter doyen -- cargo test`. See [`distrobox/README.md`](distrobox/README.md).
 - Test databases run as Podman containers on the host (`distrobox-host-exec podman …`).
 - The `openspec` CLI (1.15.0) is in the image.
+
+## Commands
+
+Run them inside the container (`distrobox enter doyen -- <command>`).
+
+| What | Command |
+|---|---|
+| Format | `cargo fmt --all --check` |
+| Lint | `cargo clippy --workspace --all-features --all-targets -- -D warnings` |
+| Tests | `cargo test --workspace --all-features` |
+| Specs | `openspec validate --all --strict` and `python3 scripts/check-specs.py` |
+| Scenario tests (from `add-ci-baseline`) | `python3 scripts/check-scenario-tests.py` |
 
 ## Work with OpenSpec
 
@@ -113,6 +127,52 @@ understands it.
 - Tests follow these rules too. The refactor step of TDD and the review before the merge
   check them.
 
+## Security
+
+The threat model is in [`SECURITY.md`](SECURITY.md). These rules come from the OpenSSF
+[guide for AI code assistant instructions](https://best.openssf.org/Security-Focused-Guide-for-AI-Code-Assistant-Instructions),
+the parts that matter for doyen:
+
+- **Secrets:** never put a password, token or key in code, tests, logs, errors or commit
+  messages. Database URLs carry passwords: show a URL only with `***` in place of each
+  secret (`client-config`, "Secrets are never shown"). Tests read their URLs from the
+  `DOYEN_TEST_*` variables, never from a file in the repo.
+- **Untrusted input:** a config and every database reply can be wrong. Check them and return
+  an error or an offline status with a reason. Never panic and never `unwrap()` on them.
+- **Safe defaults:** TLS (`rediss://`, MongoDB `tls=true`) must work. Never turn off the
+  certificate check by default.
+- **`unsafe`:** only in the C ABI and the napi-rs glue, each block with a `// SAFETY:`
+  comment that says why it is sound. Go tests run with `-race`.
+- **Negative tests:** each safety rule has a test that shows it fails safe: a lost place goes
+  offline, a token never goes back, a secret never shows.
+- **Dependencies:** add one only when the standard library and the current dependencies
+  cannot do the job. Check that the crate or package is the real one (name, owner,
+  repository, downloads): AI tools invent names. Add it with `cargo add` or `npm install`,
+  commit the lock file, and say why in the commit message.
+- **Downloads** in the image or in CI: check a checksum or a signature.
+- **GitHub Actions:** pin each action to a full commit SHA, with the version in a comment.
+  Give each workflow and job the least `permissions`. Pass `${{ … }}` values to `run:`
+  scripts through `env:`. Secrets live only in GitHub secrets.
+- **Review loop:** before you say a task is done, review your own change for problems (bugs,
+  security, the specs, *Code style*), fix them, and run the checks again. Two rounds are
+  usually enough.
+
+## AI agents
+
+Agents follow [`AI_POLICY.md`](AI_POLICY.md), like people. Also:
+
+- **A person decides.** An agent never pushes, publishes, creates a tag or a release, changes
+  GitHub settings, or sends anything outside the repo (issues, comments, security reports,
+  emails) without the owner's go. `.claude/settings.json` blocks `cargo publish` and
+  `npm publish`, and asks before `git push` and `gh release`.
+- **Commits:** end the message with `Assisted-by: <tool> (<model>)`, for example
+  `Assisted-by: Claude Code (claude-opus-5-5)`. Never add `Signed-off-by` or
+  `Co-authored-by` for an agent: only a person can sign.
+- **Say what you did not check:** in the final message and in the pull request, list what
+  you could not build, test or reproduce.
+- **Ask first** before a command that deletes data, writes outside the repo, or uses a
+  database that is not a local test container.
+
 ## Choosing the model
 
 Use the skill `model-tiering` (`.agents/skills/model-tiering/`, also in `.claude/skills/`):
@@ -125,8 +185,8 @@ tests pass at a cheaper one, and when to escalate.
 
 - Types: `feat`, `fix`, `docs`, `style`, `refactor`, `perf`, `test`, `build`, `ci`, `chore`,
   `revert`.
-- Scopes: `core`, `redis`, `mongodb`, `postgresql`, `node`, `go`, `ci`, `release`, `docs`
-  (or none).
+- Scopes: `core`, `redis`, `mongodb`, `postgresql`, `node`, `go`, `ci`, `release`, `docs`,
+  `deps` (Dependabot), or none.
 - `!` after the type or scope for a breaking change, for example `feat(core)!: …`.
 - Subject in English, imperative, lower case, no period: `feat(core): add the local lease`.
 - **Code goes with its spec.** When code (tests included) belongs to an open change, the
@@ -136,6 +196,7 @@ tests pass at a cheaper one, and when to escalate.
   update) has no spec. `scripts/check-commit-specs.py` (from `add-ci-baseline`) checks it on
   the change branches.
 - Branch: `<type>/<change-name>`, for example `feat/add-core-election`.
+- AI help: the trailer `Assisted-by: <tool> (<model>)` (see *AI agents*).
 
 ## Rules
 
