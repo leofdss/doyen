@@ -1,5 +1,4 @@
 # doyen development image, for use with Distrobox (runtime: Podman).
-# Based on the StemLoft dev image (github.com/leofdss/stem-loft, distrobox/).
 #
 # Base: quay.io/toolbx/arch-toolbox -- an Arch image kept by the Toolbx
 # project (Distrobox's sibling). It already has base-devel (gcc, make,

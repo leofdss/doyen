@@ -39,13 +39,13 @@ change.
 | # | Change | Release | Depends on | Capabilities | Owner first | Status |
 |---|---|---|---|---|---|---|
 | 1 | `add-ci-baseline` | v0.1 | — | `ci-checks` | — | todo |
-| 2 | `add-core-election` | v0.1 | 1 | `election-core`, `status-reporting`, `client-config`, `adapter-contract`, `rust-api` | — | todo |
+| 2 | `add-core-election` | v0.1 | 1 | `election-core`, `status-reporting`, `client-config`, `adapter-contract`, `rust-api` | approve the crate layout, the private trait and the hidden hooks (task 0.1) | todo |
 | 3 | `add-redis-adapter` | v0.1 | 2 | `redis-adapter` | choose the Redis client (task 1.1) | todo |
 | 4 | `add-mongodb-adapter` | v0.1 | 2 | `mongodb-adapter` | — | todo |
 | 5 | `add-system-tests` | v0.1 | 3, 4 | `system-tests` | — | todo |
 | 6 | `publish-rust-crate` | v0.1 | 5 | `release-process` | pick the use cases (task 1.4); GitHub App, environment, crates.io publisher (task 3.1); approve the release | todo |
 | 7 | `add-node-binding` | v0.2 | 6 | `node-binding` | approve the napi-rs design (task 0.1); npm publishers (task 4.7); approve the release | todo |
-| 8 | `add-go-binding` | v0.3 | 7 | `go-binding` | create `leofdss/doyen-go` and its deploy key (task 3.2) | todo |
+| 8 | `add-go-binding` | v0.3 | 7 | `go-binding` | approve the Go design (task 0.1); create `leofdss/doyen-go` and its deploy key (task 3.2) | todo |
 | 9 | `add-postgresql-adapter` | v0.4 | 8 | `postgresql-adapter` | approve the design (task 0.1); approve the release | todo |
 
 Changes 3 and 4 depend only on 2, but both edit `Cargo.toml`, the CI workflow and the
@@ -128,12 +128,17 @@ README: do them one after the other (Redis first, the first database the owner c
 - [ ] (owner, optional) Get the OpenSSF Best Practices badge (bestpractices.dev) and add the
   OpenSSF Scorecard workflow; later, an OpenSSF Security Insights file and Fedora Packit
   builds in Copr.
+- [ ] (owner, optional) Try the Claude Code sandbox (`/sandbox`) with Podman and Distrobox.
+  The Distrobox container is not an isolation boundary (`distrobox/README.md`); the sandbox
+  may block Podman.
 - [ ] Read the code of mongo-leader and @platformatic/leader: note what doyen does better and
   what it should copy (before change 4).
 
-The other open questions of the planning are tasks inside the changes: the Redis client
-(change 3, task 1.1), the napi-rs design (change 7, task 0.1), the use cases (change 6, task
-1.4), the PostgreSQL decisions (change 9, task 0.1).
+The other open questions of the planning are tasks inside the changes: the crate layout and
+the hidden hooks (change 2, task 0.1), the Redis client (change 3, task 1.1), the use cases
+(change 6, task 1.4), the napi-rs design (change 7, task 0.1), the Go design (change 8, task
+0.1), the PostgreSQL decisions (change 9, task 0.1). Every open point is marked "to confirm
+(owner)" in the design.md of its change.
 
 ## Done
 

@@ -4,6 +4,10 @@ Test first: in each group with behaviour, the first task writes the tests (each 
 its scenario: `// spec: <capability> / <scenario>`) and shows that they fail; the next tasks
 write the code until they pass. Never change a test only to make it pass.
 
+## 0. Decision
+
+- [ ] 0.1 (owner) Review the "to confirm (owner)" decisions in design.md (one crate with one cargo feature per adapter and every adapter in the default features, the private adapter trait, the hidden binding hooks, Windows later) and approve them or ask for changes
+
 ## 1. Crate setup (no behaviour)
 
 - [ ] 1.1 Add the dependencies from design.md and the empty features `redis` and `mongodb` (both default) to `crates/doyen/Cargo.toml`; verify `distrobox enter doyen -- cargo build --all-features` and the CI `msrv` job pass

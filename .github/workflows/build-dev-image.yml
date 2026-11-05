@@ -1,7 +1,7 @@
 name: Build and publish dev image
 
 # Publishes the development image (distrobox/Containerfile) to the GitHub
-# Container Registry (ghcr.io). Same workflow as StemLoft.
+# Container Registry (ghcr.io).
 #
 # Triggers:
 # - a push to main that changes the Containerfile or this workflow;

@@ -1,7 +1,6 @@
 # Development environment (Distrobox)
 
-doyen is built inside a [Distrobox](https://distrobox.it/) container, the same model as
-[StemLoft](https://github.com/leofdss/stem-loft/tree/main/distrobox). This folder has two
+doyen is built inside a [Distrobox](https://distrobox.it/) container. This folder has two
 files:
 
 - `Containerfile` — what is **inside** the image.
@@ -37,7 +36,7 @@ Arch Linux (`quay.io/toolbx/arch-toolbox`) with:
 | Claude Code, VS Code, fish, starship | editing and the shell |
 | OpenSpec CLI (`openspec` 1.15.0) | the specs and changes in `openspec/` (see `TODO.md`) |
 
-Decisions (the same as StemLoft):
+Decisions:
 
 - **Nothing in `/home`.** Distrobox mounts the host's `HOME` over the container's `HOME`, so
   files installed there at build time disappear. Every tool goes to `/usr` or `/opt`.
@@ -50,6 +49,11 @@ Decisions (the same as StemLoft):
 - **Logins need nothing in the image.** `~/.gitconfig`, `~/.claude`,
   `~/.cargo/credentials.toml` and `~/.npmrc` live in `HOME`, which is shared: log in once,
   inside or outside.
+- **The container is not a security boundary.** It shares `HOME` and the host's files: it is
+  a toolchain, not a sandbox. Code and agents inside it can read and write what the host user
+  can.
+- **The base image is not pinned by digest, on purpose.** Arch is a rolling release and the
+  image is rebuilt every week to get the security updates; a digest pin would stop them.
 
 ## Test databases
 

@@ -5,6 +5,10 @@ Test first: in each group with behaviour, the first task writes the tests (C tes
 that they fail; the next tasks write the code until they pass. Never change a test only to
 make it pass.
 
+## 0. Decision
+
+- [ ] 0.1 (owner) Review the "to confirm (owner)" decisions in design.md (one status channel per object, every adapter in the static libraries) and approve them or ask for changes
+
 ## 1. C ABI
 
 - [ ] 1.1 Write the C test program (built in CI): join a local Redis, read the status, read a status change with `next_event`, cancel a blocked join, leave, `free` while another thread is in `status`; verify it fails to link or fails (red)
