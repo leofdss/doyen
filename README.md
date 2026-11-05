@@ -94,8 +94,8 @@ error, when there is one (for example a wrong password).
 - The reasons are strings, so a log line shows `connectionLost`, not a number.
 - **Warnings.** doyen warns once, at connect, about a setup that works but has a known risk:
   in Node.js with `process.emitWarning` (codes `DOYEN_MONGODB_ARBITER`,
-  `DOYEN_REDIS_EVICTION` and `DOYEN_REDIS_NO_MIN_REPLICAS`), in Rust with `tracing`, in Go
-  with `slog`.
+  `DOYEN_REDIS_EVICTION`, `DOYEN_REDIS_NO_MIN_REPLICAS` and `DOYEN_REDIS_SENTINEL_TIMING`), in
+  Rust with `tracing`, in Go with `slog`.
 
 ## Using the token
 
@@ -167,8 +167,10 @@ master, and you reset the fence row:
 - After you restore doyen's MongoDB data from a backup. Better: delete the group's document
   in doyen's collection (default `doyen`) after the restore; doyen creates it again with a
   new generation.
-- Redis: a failover loses the write of a new generation, and the new primary's clock is
-  behind by more than the time since that write.
+- Redis: Redis goes back to older data (a failover that loses recent writes, or an old
+  primary that comes back), and no running instance saw the newer generation (for example
+  every instance restarted in the meantime). While one instance that saw it still runs,
+  doyen sees that the data went back and makes a new, higher generation.
 
 ## Timeout and renew interval
 
@@ -195,7 +197,7 @@ after `leave()`), and a database problem shorter than 6 s never changes the mast
 
 | Database | Needs | Note |
 |---|---|---|
-| Redis | 6.2 or newer; one server, Redis Cluster or Sentinel; best with `noeviction` (see Redis memory) | The weakest for safety: Redis can lose recent writes after a restart or a failover, so two masters can exist for a moment — and for a whole network partition (see below). The token helps your database reject the old one. |
+| Redis | 6.2 or newer; one server, Redis Cluster or Sentinel (not Active-Active); best with `noeviction` (see Redis memory) | The weakest for safety: Redis can lose recent writes after a restart or a failover, so two masters can exist for a moment — and for a whole network partition (see below). The token helps your database reject the old one. |
 | MongoDB | 5.0 or newer; a replica set or a sharded cluster | All writes use `w: "majority"`. With an arbiter (primary, secondary, arbiter), if one data node is down, no instance can be master until it comes back. doyen warns at connect (`DOYEN_MONGODB_ARBITER`). |
 | PostgreSQL | Later | |
 
@@ -209,10 +211,26 @@ after `leave()`), and a database problem shorter than 6 s never changes the mast
   from the others keeps accepting writes, so its master keeps working while the other side
   has a new master: two masters for as long as the partition lasts. Set
   `min-replicas-to-write 1` and `min-replicas-max-lag 10` on the primary: an isolated primary
-  then stops accepting writes, and the old master goes `offline`. doyen warns when a primary
-  with replicas does not have it (`DOYEN_REDIS_NO_MIN_REPLICAS`).
+  then stops accepting writes, and the old master goes `offline` about
+  `min-replicas-max-lag` + `timeoutMs` after the partition began (~20 s). doyen warns when a
+  primary with replicas does not have it (`DOYEN_REDIS_NO_MIN_REPLICAS`).
+- **Sentinel timing:** the old master goes `offline` before the new one starts only when
+  Sentinel's `down-after-milliseconds` is more than `min-replicas-max-lag` + `timeoutMs` +
+  1 s (true with the default 30 s). With a shorter value (for example 5 s), there are two
+  masters for some seconds; the token covers it, and doyen warns
+  (`DOYEN_REDIS_SENTINEL_TIMING`).
+- **Redis Cluster:** a primary cut off from the others stops writes after
+  `cluster-node-timeout`, so two masters can exist for about that time (the token covers it).
+  No warning.
 - **Redis keys:** they start with `doyen:{group}:`, so a `group` cannot contain `{` or `}`.
   Deleting them is safe (the instances join again); do not edit them.
+- **Redis user (ACL):** doyen's user needs the keys `~doyen:*`, the channels `&doyen:*`, the
+  plain data and transaction commands, and `INFO`, `TIME` and `WAIT`. `INFO` is in the
+  `@dangerous` category: a user with `-@dangerous` needs `+info`. With Sentinel, the
+  sentinels' user needs `SENTINEL MASTER`. The exact list comes with 0.1.
+- **Redis behind a proxy or a managed service:** doyen reads `INFO` from the server that holds
+  the keys. If a field it needs is missing, `join` rejects with `DOYEN_UNSUPPORTED` and names
+  the field. Active-Active (several writable primaries) is not supported.
 - **Redis memory:** with `maxmemory` set, an `allkeys-*` policy is refused (Redis could delete
   the counters), and a `volatile-*` policy gives the warning `DOYEN_REDIS_EVICTION` (Redis
   could delete a member's place: a master change, with two masters for up to one renew
