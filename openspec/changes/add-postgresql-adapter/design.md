@@ -2,10 +2,12 @@
 
 ## Context
 
-The design notes had a sketch: a counter row for the join, a session advisory lock as "I am
-alive", `LISTEN`/`NOTIFY`, the timeline ID as the generation, and two open questions for
-v0.4 (a dump/restore resets the timeline; a crash after a partition is seen only through TCP
-keepalive). This design answers them. The behaviour is in the `postgresql-adapter` spec.
+The first idea for PostgreSQL was: a counter row for the join, a session advisory lock as "I
+am alive", `LISTEN`/`NOTIFY`, and the timeline ID as the generation. It left two questions:
+a dump/restore into a new cluster starts again at timeline 1, so the token would go back;
+and after a machine crash or a partition, the advisory lock is freed only when TCP keepalive
+or a server timeout ends the session. This design answers both. The behaviour is in the
+`postgresql-adapter` spec.
 
 ## Goals / Non-Goals
 
@@ -23,7 +25,7 @@ keepalive). This design answers them. The behaviour is in the `postgresql-adapte
 ### Places as rows with a server-time expiry — to confirm (owner)
 
 `doyen_member(grp, number, tag, id, expires_at)`; a place is alive while `expires_at >
-clock_timestamp()`. Alternative from the sketch: a session advisory lock. Rejected: it needs
+clock_timestamp()`. Alternative (the first idea): a session advisory lock. Rejected: it needs
 one pinned connection per instance, does not work through poolers in transaction mode, and
 after a partition the lock stays until TCP keepalive or a server timeout ends the session
 (2 h by default): no master for that time. With rows, a crash and a partition are both seen

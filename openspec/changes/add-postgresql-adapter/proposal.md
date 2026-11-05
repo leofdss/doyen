@@ -9,9 +9,10 @@ teams run PostgreSQL and no Redis. The adapter follows the same `adapter-contrac
 Release: v0.4. Depends on: `add-go-binding` (v0.3 done), because the bindings get the new
 `postgresql` type in the same release.
 
-**The design notes left two questions for v0.4: the generation after a dump/restore, and how
-a crash is seen (advisory locks need TCP keepalive). design.md proposes answers marked "to
-confirm (owner)". Review them before `/opsx:apply`.**
+**Two questions are open for v0.4: the generation after a dump/restore (a new cluster starts
+again at timeline 1), and how a crash is seen (a session advisory lock is freed only when TCP
+keepalive or a server timeout ends the session). design.md proposes answers marked "to
+confirm (owner)". Review them before `/opsx:apply` (task 0.1).**
 
 ## What Changes
 

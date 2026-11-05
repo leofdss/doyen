@@ -20,8 +20,8 @@ changes. This change makes the first real release and the process for every late
 
 ## Decisions
 
-All the decisions below were confirmed by the owner on 2026-11-05 ("segue as
-recomendações"), except the points marked "to confirm while applying".
+The owner confirmed all the decisions below on 2026-11-05, except the points marked "to
+confirm while applying".
 
 - **Branch flow: GitHub Flow.** `main` is always green and protected by a ruleset (pull
   request, green CI, rebase merge only, linear history, no force push). Work happens on
@@ -56,7 +56,7 @@ recomendações"), except the points marked "to confirm while applying".
     `0.1.0`; if not, set `release-as: 0.1.0` for that release.
   - Alternatives: semantic-release (publishes at each merge, with no point to review;
     made for Node.js); release-plz (Rust only); changesets (needs a file written by hand
-    for each change); git-cliff and a tag made by hand (the earlier plan; manual).
+    for each change); git-cliff and a tag made by hand (manual steps at each release).
 - **release-please token:** a GitHub App token (`actions/create-github-app-token`, app
   `doyen-release` with contents and pull requests write, made by the owner). A pull request
   opened with `GITHUB_TOKEN` starts no workflow, so its CI would never run and the ruleset

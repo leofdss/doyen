@@ -21,7 +21,7 @@ later changes, so the core is built and tested with an in-memory adapter only.
 
 ## Decisions
 
-### Crate layout
+### Crate layout — to confirm (owner)
 
 One crate, `doyen`:
 
@@ -41,6 +41,10 @@ One crate, `doyen`:
 Alternative: one crate per adapter (`doyen-redis`, …). Rejected: users then match versions
 by hand, and the config enum would need a plugin registry. Cargo features give the same
 choice with one dependency line.
+
+To confirm (owner), task 0.1: one crate with one cargo feature per adapter and every adapter
+in the default features (`rust-api`, "Cargo features per adapter"), and the adapter trait
+`pub(crate)` (no public trait for third-party adapters in v0.1).
 
 The conformance suite stays inside the crate (`#[cfg(test)]`), so the trait can stay
 private. The database tests read `DOYEN_TEST_REDIS_URL`, `DOYEN_TEST_MONGODB_URL` (later
@@ -121,7 +125,7 @@ time from the config). Native `async fn` in traits is not object-safe.
 with one call timeout, ignores a network error, sends the last notification `left`, closes
 the queues and stops the driver.
 
-### Binding hooks
+### Binding hooks — to confirm (owner)
 
 A `#[doc(hidden)] pub mod __binding` (not semver-covered) gives the bindings what the public
 API does not:

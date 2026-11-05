@@ -18,6 +18,8 @@ context: |
     status() (master | slave | offline; offline always has a reason), onStatusChange(cb),
     token() ((generation, number) or null), leave(). Do not add public methods.
   - The core is in Rust and opens its own database connection.
+  - doyen stores only its own coordination data in the database (the line, the places, the
+    generation), never the service's data.
   - No Lua or other server-side scripts in Redis. MongoDB aggregation pipeline updates are
     allowed.
   - timeoutMs and renewIntervalMs are settings chosen by the team that uses doyen
@@ -49,6 +51,14 @@ context: |
     person is the author and is responsible; agents never add Signed-off-by or
     Co-authored-by; commits made with AI help end with `Assisted-by: <tool> (<model>)`. The
     security rules for code are in AGENTS.md, "Security"; the threat model is in SECURITY.md.
+  - Standards (owner decision 2026-11-05): follow the Linux Foundation and Fedora line: the
+    OpenSSF Security Baseline (OSPS) controls, the Fedora packaging guidelines, and the
+    Linux kernel style where it fits. The open owner decisions about them are in TODO.md.
+  - The repo is self-contained (owner decision 2026-11-05): every rule, decision, reason and
+    open question is written in this repo. Never point to notes, chats, reviews or other
+    projects as a source ("the design notes", "the sketch", "the same as project X"); write
+    the content here. A link to a public standard is fine, but write the rule here too. See
+    AGENTS.md, "The repo is self-contained".
 
   Repo: Cargo workspace (edition 2024, MSRV Rust 1.85, resolver 3). Crate crates/doyen
   (core + adapters behind cargo features), npm package bindings/node (@leofdss/doyen), Go
@@ -68,7 +78,8 @@ rules:
     - "A requirement about secrets, untrusted input or memory safety has a negative scenario: it shows that doyen fails safe."
   design:
     - Record every assumption the owner has not confirmed under "Decisions" with the words
-      "to confirm (owner)".
+      "to confirm (owner)", and add an (owner) task in tasks.md to review them.
+    - Write the reasons and the alternatives here, not as a pointer to notes outside the repo.
     - "Prefer the plain design a TypeScript programmer knows. When a Rust- or Go-only feature is needed (lifetimes, own macros, generics with many bounds, unsafe), say why."
   tasks:
     - "TDD: a task group with behaviour starts with a task that writes the tests for its scenarios and checks that they fail (red); the next tasks write the code until they pass (green), then clean up (refactor)."

@@ -2,7 +2,7 @@
 name: model-tiering
 description: Choose the model and the effort level for each kind of work in doyen (OpenSpec proposals, writing tests, implementing tasks, reviews, CI logs, docs), and when to escalate to a stronger model. Use before you delegate work to a subagent, when you start an OpenSpec change (/opsx:propose, /opsx:apply), when a task fails twice, or when the user asks which model to use or how to spend less.
 metadata:
-  updated: "2026-11-04"
+  updated: "2026-11-05"
 ---
 
 # Model tiering
@@ -50,8 +50,8 @@ only by the escalation rules.
    spec scenario the test comes from.
 3. **Safety code is never below T2**: anything that decides who is master, when the lease
    ends, what the token is, or how a number or a generation is given.
-4. **A review is never below T2.** Use a fresh-context subagent for it (a clean context
-   found issues that the author's context missed in this project).
+4. **A review is never below T2.** Use a fresh-context subagent for it: a clean context
+   does not share the author's blind spots, so it finds problems the author missed.
 5. **Unsure → go up.** If the model says it is not sure about a concurrency or failover
    detail, escalate instead of guessing.
 

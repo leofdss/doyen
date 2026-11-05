@@ -10,9 +10,10 @@ in the usual Node.js style.
 
 Release: v0.2. Depends on: `publish-rust-crate` (v0.1 done).
 
-This change writes the napi-rs proposal of the design notes (tick, process kept alive from
-join to leave, leave never rejects, error codes) as specs. **Approving this change is the
-owner's decision on that proposal.**
+The napi-rs design of this change is a proposal: the tick, the process kept alive from join
+to leave, `leave` that never rejects, the error codes, the platforms and the Node.js
+versions. It is written in full in design.md and in the `node-binding` spec. **Approving
+this change is the owner's decision on it** (task 0.1).
 
 ## What Changes
 

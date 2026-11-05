@@ -9,6 +9,31 @@ already runs (Redis and MongoDB first, PostgreSQL later). One core in Rust; Node
 use it through bindings. Status: planning. The plan is a set of OpenSpec changes; their
 order is in [`TODO.md`](TODO.md).
 
+## The repo is self-contained
+
+Everything needed to work here is in this repo: the rules, the owner's decisions and their
+reasons, and the open questions. A note, a chat or a report kept outside the repo is never a
+source. The repo must keep working, with every rule, even if every outside note is gone.
+
+- Never point outside the repo for a rule, a decision or a detail: no "the design notes",
+  "the sketch", "the earlier plan", "the review found", "as agreed", and no quotes from a
+  chat. Write the content itself, in simple English. An owner decision is a fact with its
+  date: "owner decision 2026-11-05".
+- Do not tie the repo to another project ("the same as project X"). Write the decision and
+  its reason here.
+- A link to a public standard or tool doc (OpenSSF, Conventional Commits, a database manual)
+  is fine as a source, but write the rule itself here: a reader must not need the link to
+  follow it.
+- An owner decision that is not confirmed yet is marked "to confirm (owner)" in the
+  `design.md` of its change, with an `(owner)` task in its `tasks.md` and a note in the
+  *Owner first* column of `TODO.md`. Its open state never lives only outside the repo.
+- When you bring content in from outside, copy what matters and drop the pointer. Before you
+  say the work is done, this search finds nothing:
+
+  ```bash
+  git grep -niE 'design notes|the sketch|earlier plan|the review found|as agreed|same (model|workflow) as' -- ':!AGENTS.md' ':!openspec/config.yaml'
+  ```
+
 ## Layout
 
 | Path | What |
@@ -62,6 +87,11 @@ python3 scripts/check-specs.py
 
 The rules for proposals (the owner's decisions) are in `openspec/config.yaml`. Do not
 change them in a proposal; ask the owner.
+
+**A rule that touches many places** (a data format, a kind of test, a promise in a doc, a
+new owner decision) is applied to every place in the same work: every change it touches,
+every adapter (PostgreSQL too), every binding, the README and `TODO.md`. Find them with
+`git grep` on the concept, and close every "later" or "to confirm" point that it answers.
 
 ## Tests first (TDD)
 
@@ -204,6 +234,8 @@ tests pass at a cheaper one, and when to escalate.
   minor, `fix` or `perf` → patch; other types make no release. Mark every breaking change
   with `!`: `cargo semver-checks` fails the release if you forget.
 - AI help: the trailer `Assisted-by: <tool> (<model>)` (see *AI agents*).
+- Author: the person's own name and personal email. Never an employer's address: this is a
+  personal project. Check `git config user.email` in a new clone before the first commit.
 
 ## Rules
 

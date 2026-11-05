@@ -50,14 +50,19 @@ length.
   stops the event goroutine, waits for it (at most one `next_event` timeout), closes the
   channel and calls `free`. All cleanups share one goroutine, so a cleanup must not block.
 - `Leave(ctx)`: C `leave` (one call timeout at most), then the same steps.
+- `StatusChanges()` gives one channel per object (the same channel on every call), closed
+  after `Leave`: the C ABI has one event queue per handle (`next_event`), read by one
+  goroutine. To confirm (owner).
 - Go version: 1.24 or newer (`runtime.AddCleanup`).
 
 ### Build and release
 
 - `bindings/go` holds the Go code; `bindings/go/lib/` is git-ignored (local builds).
   `#cgo` lines pick the library file for each platform.
+- The static libraries are built with the crate's default features: every adapter of the
+  release, so one module works with every database. To confirm (owner).
 - Release profile with LTO, then `llvm-strip --strip-debug` on each `.a`: Cargo's `strip`
-  does not strip a `staticlib` (a test: 12 MB with debug sections, 3.7 MB after).
+  does not strip a `staticlib` (measured on a test build: 12 MB with debug sections, 3.7 MB after).
 - Jobs `go-build` and `go` in `release.yml` (from `publish-rust-crate`), on a release
   `v<version>`: build the three platforms (linux/amd64, linux/arm64 cross, darwin/arm64 on a
   macOS runner), strip, check sizes (< 100 MiB per file, zip < 500 MiB), run the Go tests

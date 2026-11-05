@@ -70,6 +70,10 @@ renew. With the defaults: blocked < 11 s → nothing; > 13 s → the lease ends.
 - `leave`: the core ends the lease, removes the place (one call timeout at most), never
   rejects on a network error; drop the strong function; a pending `join` rejects with
   `DOYEN_LEFT`; a second `leave` resolves at once.
+- Process exit without `leave`: no hidden `leave` at exit, because `process.exit()` does not
+  wait for a network call. The place expires after `timeoutMs`.
+- The `join` Promise and the first `master` or `slave` callback come through two different
+  queues, so either one can run first. The README says: do not depend on that order.
 - The binding keeps a reference to the JS object while joined (no garbage collection).
 - Worker threads: the thread-safe functions belong to the worker's environment; an env
   cleanup hook stops the core when the worker ends.
@@ -81,6 +85,9 @@ renew. With the defaults: blocked < 11 s → nothing; > 13 s → the lease ends.
   `aarch64-unknown-linux-gnu` (cross), `aarch64-apple-darwin`. Platforms to confirm (owner).
 - Node.js versions: the active and maintenance LTS lines at release time (22 and 24 in
   2026), in the test matrix. To confirm (owner).
+- Each binary is built with the crate's default features: every adapter of the release
+  (Redis and MongoDB in 0.2.0). One package works with every database, so the install stays
+  simple. To confirm (owner).
 - Release: the job `npm` in `release.yml` (from `publish-rust-crate`) runs on a release
   `v<version>`: it builds every platform, runs `napi prepublish` (the platform packages get
   the same version), and runs `npm publish --provenance` for each package, in the
