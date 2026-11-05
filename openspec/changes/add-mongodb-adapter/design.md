@@ -47,6 +47,10 @@ spec.
   "$$NOW" }] }`. Upsert, `returnDocument: "after"`. Two upserts on a new `_id` at the same
   moment: the server retries the one that gets a duplicate key error (the filter is an
   equality on `_id`); the adapter also retries once on a duplicate key error, to be safe.
+- **Data format:** `format: 1` is set with `gen` when the document is created. The join and
+  renew pipelines change nothing when `format` is higher (each `$set` keeps the old value
+  under a `$cond` on `format`); the adapter reads `format` in the returned document and
+  returns the error of `adapter-contract`.
 - **Tag storage:** the 128-bit tag as a 32-character hex string (easy to read in the shell).
 - **Change stream filter:** `$match` on `documentKey._id` = group and
   (`operationType` in insert, delete, replace, or `updateDescription.updatedFields.version`

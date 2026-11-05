@@ -29,6 +29,20 @@ The object SHALL have exactly these public operations: `join(config)` (async, re
 - **WHEN** an app calls `d.join(config).await?`, reads `d.status()` and `d.token()`, and calls `d.leave().await?` at shutdown
 - **THEN** every call compiles and works as the `election-core` capability says
 
+### Requirement: Dropping the last handle stops the membership
+When the app drops the last handle of a joined object (the object and every clone) without
+`leave`, the core SHALL stop at once: no more renews and no more wake-ups. The place SHALL
+expire after `timeoutMs`, and the other members SHALL take over as after a crash. A binding
+that frees its object (the Go binding) SHALL get the same behaviour.
+
+#### Scenario: Object dropped while master
+- **WHEN** a master drops its last handle without `leave`
+- **THEN** no renew is sent after the drop, and with the defaults the next member is master 8 to 12 s later
+
+#### Scenario: Clone still alive
+- **WHEN** the app drops the object but keeps a clone
+- **THEN** the renews go on, and the clone still shows master or slave
+
 ### Requirement: Status type
 `Status` SHALL be an enum with `Master`, `Slave` and `Offline { reason: OfflineReason, error:
 Option<String> }`. `OfflineReason` SHALL have `NotJoined`, `Connecting`, `ConnectionLost`,

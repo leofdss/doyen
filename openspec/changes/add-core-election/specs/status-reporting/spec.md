@@ -109,6 +109,20 @@ shows the name, not a number.
 - **WHEN** an app prints the reason of an offline status
 - **THEN** the text is for example `connectionLost`
 
+### Requirement: Status changes in the log
+In Rust, the core SHALL write each status change as a `tracing` event at level info, target
+`doyen`, with the fields `group`, `state`, `reason`, `number` and `generation` (the last two
+when known), and each failed database call as an event at level debug with the error. Log
+events SHALL follow the `client-config` rule "Secrets are never shown".
+
+#### Scenario: Master change in the log
+- **WHEN** an instance becomes master
+- **THEN** one info event has `state=master`, the group, its number and its generation
+
+#### Scenario: Failed call in the log
+- **WHEN** a renew fails with a network error and the status does not change
+- **THEN** one debug event has the error message, and no info event is written
+
 ### Requirement: Warnings once at connect
 The core SHALL send each warning an adapter returns at connect once, with its `DOYEN_` code
 and a message, through the usual channel of the language. In Rust it SHALL be a `tracing`

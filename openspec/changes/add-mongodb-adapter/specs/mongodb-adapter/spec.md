@@ -36,7 +36,7 @@ and a sharded cluster SHALL be accepted.
 
 ### Requirement: One document per group
 The adapter SHALL keep a group in one document with `_id` = the group name and the fields
-`gen`, `seq`, `version` and `members` (each with `number`, `tag`, `id`, `expiresAt`, in
+`format`, `gen`, `seq`, `version` and `members` (each with `number`, `tag`, `id`, `expiresAt`, in
 number order). Each adapter operation SHALL be one atomic write on that document.
 
 #### Scenario: Two groups
@@ -62,7 +62,7 @@ pipeline, never from the app's clock.
 ### Requirement: Join in one write
 A join SHALL be one `findOneAndUpdate` with upsert on the group document: `seq` + 1 (1 for a
 new document), the live members kept, me added at the end with the new number, `version` + 1,
-and `gen` set only when the document is created. If a live member has my tag, it SHALL add
+and `format` and `gen` set only when the document is created. If a live member has my tag, it SHALL add
 nothing and return that number.
 
 #### Scenario: First join of a group

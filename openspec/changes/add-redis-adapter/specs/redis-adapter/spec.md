@@ -50,8 +50,8 @@ The adapter SHALL refuse a Redis server older than 6.2 with `DOYEN_UNSUPPORTED`.
 - **THEN** `join` fails with `DOYEN_UNSUPPORTED` and the message says that 6.2 or newer is needed
 
 ### Requirement: Keys of a group
-All keys of a group SHALL start with `doyen:{group}:` (`meta` hash with `seq`, `gen`, `runid`,
-`replid`; `line` sorted set; `alive:<number>` strings with an expiry and the value
+All keys of a group SHALL start with `doyen:{group}:` (`meta` hash with `format`, `seq`, `gen`,
+`runid`, `replid`; `line` sorted set; `alive:<number>` strings with an expiry and the value
 `<tag> <instance name>`; `events` channel). Deleting them SHALL be safe: the members join
 again with a higher generation.
 

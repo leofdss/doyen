@@ -76,6 +76,15 @@ time from the config). Native `async fn` in traits is not object-safe.
 - The driver computes the status after each answer and each lease deadline; it sends a
   notification only when the state or the reason changed.
 - A panic in the driver ends it; the lease then ends on its own (safe).
+- The public object holds an `Arc<Handle>`; clones share it. `Handle` keeps a
+  `oneshot::Sender`, and the driver waits on its receiver next to its timers. When the last
+  handle drops, the sender drops, and the driver stops at once (no renew, no `leave`: a
+  `Drop` cannot wait for the database). The driver keeps only `Arc<Shared>`, never the
+  handle, so it cannot keep the object alive. The Go binding's free uses the same path.
+- Data format: the in-memory adapter and every adapter store `format` (1) with the group
+  data; the conformance suite writes format 2 through a test hook of each adapter.
+- Log events (`tracing`, target `doyen`): info for each status change, debug for each
+  failed database call; the URL in an event is redacted like in errors.
 
 ### Clock and schedule
 

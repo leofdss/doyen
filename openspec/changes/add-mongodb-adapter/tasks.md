@@ -14,7 +14,7 @@ make it pass.
 
 ## 2. Operations
 
-- [ ] 2.1 Write the operation tests against a one-node replica set (`DOYEN_TEST_MONGODB_URL`): "Two groups", "Secondary down in a three-node set", "App clock is wrong", "First join of a group", "Retry with the same tag", "Number given twice", "Document deleted", "Leave", "Renew", "Master leaves", plus a test that reads the write options (`w: "majority"`, `wtimeout`, `maxTimeMS` = 90%) from the driver's command monitoring; add the MongoDB adapter to the conformance suite; give the adapter stub bodies and verify every test fails (red)
+- [ ] 2.1 Write the operation tests against a one-node replica set (`DOYEN_TEST_MONGODB_URL`): "Two groups", "Secondary down in a three-node set", "App clock is wrong", "First join of a group", "Retry with the same tag", "Number given twice", "Document deleted", "Leave", "Renew", "Master leaves", plus a test that reads the write options (`w: "majority"`, `wtimeout`, `maxTimeMS` = 90%) from the driver's command monitoring; add the MongoDB adapter to the conformance suite (its test hook writes `format` 2 in the group document); give the adapter stub bodies and verify every test fails (red)
 - [ ] 2.2 Write join (upsert pipeline, `gen` at creation, tag retry, `version`); verify the join tests pass
 - [ ] 2.3 Write renew (the pipeline in design.md, "place gone" rules) and the write options; verify the renew and write-option tests pass
 - [ ] 2.4 Write leave and watch (change stream filter, reopen on error, "no push" when not allowed); verify the remaining tests and the whole conformance suite pass (green)

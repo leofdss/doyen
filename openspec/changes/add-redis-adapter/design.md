@@ -47,10 +47,14 @@ A client that misses one need is rejected. If both pass: the one with fewer depe
   `EXISTS alive:<n>`; `MULTI` `HSET meta …`, `ZADD line n n`, `SET alive:<n> … PX ttl`;
   `EXEC`; `WAIT`; `PUBLISH events`.
 - **Renew:** pipeline `WATCH meta`, `SET alive:<n> … XX PX ttl GET`, `ZRANGE line`, `ZREM` of
-  the last renew's dead numbers, `HMGET meta seq gen runid replid`, `INFO server`,
+  the last renew's dead numbers, `HMGET meta format seq gen runid replid`, `INFO server`,
   `INFO replication`, `TIME`; then `MGET` of the `alive` keys + `UNWATCH`; with a generation
   change, `MULTI` `HSET meta …` `EXEC` + `WAIT` instead of `UNWATCH`.
 - **Leave:** `WATCH alive:<n>`, `GET`; if my tag: `MULTI` `DEL` + `ZREM` `EXEC`; `PUBLISH`.
+- **Data format:** `format` (1) in `meta`, written with the generation. The join reads it
+  before its `MULTI` and writes nothing when it is higher. The renew's `SET … XX` runs in the
+  same pipeline as the `HMGET`, so the first renew after a format change still refreshes its
+  own `alive` key once; then the adapter returns the error and writes nothing more.
 - **State kept by the adapter per group:** the highest generation and the highest number it
   saw. They live as long as the process; they are what makes rule 3 of the generation work.
 

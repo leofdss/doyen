@@ -15,7 +15,7 @@ pass.
 ## 2. Operations
 
 - [ ] 2.1 Add the Compose file for one Redis server (6.2 and latest) in `crates/doyen/tests/redis/`; verify it starts with `distrobox-host-exec podman compose up`
-- [ ] 2.2 Write the operation tests against that server: the scenarios "Shared Redis", "Keys deleted by hand", "Concurrent joins", "Retry with the same tag", "Key expired", "Another tag", "Member expired", the three "When the Redis generation changes" scenarios, the two "Value of a new Redis generation" scenarios, "Replica in a full sync", "No replicas", "Place is not mine" and "Master leaves"; add the Redis adapter to the conformance suite; give the adapter stub bodies and verify every test fails (red)
+- [ ] 2.2 Write the operation tests against that server: the scenarios "Shared Redis", "Keys deleted by hand", "Concurrent joins", "Retry with the same tag", "Key expired", "Another tag", "Member expired", the three "When the Redis generation changes" scenarios, the two "Value of a new Redis generation" scenarios, the data format (the conformance hook writes `format` 2 in `meta`), "Replica in a full sync", "No replicas", "Place is not mine" and "Master leaves"; add the Redis adapter to the conformance suite; give the adapter stub bodies and verify every test fails (red)
 - [ ] 2.3 Write join (transaction, n rule, skip a live number, retry by tag, `WAIT`, `PUBLISH`); verify the join tests pass
 - [ ] 2.4 Write renew (`SET … XX PX … GET`, tag check, live line, `ZREM` of dead numbers in the next renew); verify the renew and live-line tests pass
 - [ ] 2.5 Write the generation rules and value (missing `meta`, `run_id`/`replid`, data went back, `seq` raised, the highest-seen state per group); verify the generation tests pass

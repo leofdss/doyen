@@ -118,6 +118,21 @@ create the adapter's own empty tables or collections.
 - **WHEN** the server is older than the adapter's minimum version
 - **THEN** `connect` fails with `DOYEN_UNSUPPORTED` and the message names the minimum version
 
+### Requirement: Data format of a group
+Each adapter SHALL store a data format number with the group data (format 1 in v0.1) and
+SHALL write only its own format, in a group that has no data or the same format. When the
+stored format is higher, `join` SHALL fail with `DOYEN_UNSUPPORTED` naming both formats, and
+`renew` SHALL return an error, not "place gone", so the instance goes offline at the end of
+its lease; the adapter SHALL write nothing to the group after it saw the newer format.
+
+#### Scenario: Newer format at join
+- **WHEN** the group data has format 2 and the adapter knows format 1
+- **THEN** `join` fails with `DOYEN_UNSUPPORTED` and the message names format 2 and format 1
+
+#### Scenario: Newer format while running
+- **WHEN** a member renews and the group data now has format 2
+- **THEN** the renew returns an error, the instance goes offline when its lease ends, and it writes nothing more to the group
+
 ### Requirement: Conformance suite
 One test suite SHALL check every rule of this capability, and every adapter SHALL pass it in
 CI against a real database. An in-memory adapter with a fake clock SHALL pass the same suite

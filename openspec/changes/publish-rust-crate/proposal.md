@@ -7,8 +7,8 @@ process that every later version repeats without manual steps, except the owner'
 The crate name `doyen` is reserved with a 0.0.1 placeholder; this change replaces it with the
 real 0.1.0.
 
-Release: v0.1 (the release itself). Depends on: `add-redis-adapter` and
-`add-mongodb-adapter`.
+Release: v0.1 (the release itself). Depends on: `add-system-tests` (after the Redis and
+MongoDB adapters).
 
 ## What Changes
 
