@@ -6,12 +6,15 @@ This script checks the rules in TODO.md ("Rules that keep the changes free of co
 
 1. One capability belongs to one open change, and each proposal lists exactly its spec files.
 2. No MODIFIED / REMOVED / RENAMED delta for a capability that is not in openspec/specs/.
-3. Requirement names are unique across the open changes (warning).
+3. Requirement names are unique across the open changes (warning), and scenario names are
+   unique inside a capability (error: tests name their scenario as `<capability> / <scenario>`).
 4. Every DOYEN_* code is in the code table of TODO.md, and its owner capability names it.
 5. Every capability and change named in backticks exists.
 6. The "Depends on" line of each proposal matches TODO.md, has no cycle, and TODO.md lists
    every dependency before the change. The capabilities column matches the spec files.
 7. Minimum versions and default settings have one value everywhere.
+8. A capitalised name in double quotes in a tasks.md ("Master dies") is a scenario or a
+   requirement of some spec (tasks cite the tests they make pass by these names).
 
 Usage: python3 scripts/check-specs.py   (from the repo root; exit code 1 on an error)
 """
@@ -100,6 +103,9 @@ def main() -> int:
             for op in ("MODIFIED", "REMOVED", "RENAMED"):
                 if f"## {op} Requirements" in text and cap not in main_caps:
                     errors.append(f"{rel(spec)}: {op} delta for `{cap}`, which is not in openspec/specs/")
+            scenarios = [s.strip().lower() for s in re.findall(r"^#### Scenario: (.+)$", text, re.M)]
+            for s in sorted({s for s in scenarios if scenarios.count(s) > 1}):
+                errors.append(f"{rel(spec)}: scenario {s!r} appears twice (tests name scenarios per capability)")
             for req in re.findall(r"^### Requirement: (.+)$", text, re.M):
                 key = req.strip().lower()
                 if key in req_seen and req_seen[key] != f"{name}/{cap}":
@@ -199,6 +205,26 @@ def main() -> int:
         if len(values) > 1:
             detail = "; ".join(f"{v} in {', '.join(sorted(fs))}" for v, fs in values.items())
             errors.append(f"{fact} has more than one value: {detail}")
+
+    # 8. scenario and requirement names quoted in tasks.md exist in some spec
+    names: set[str] = set()
+    for spec in list(CHANGES.glob("*/specs/**/spec.md")) + list(MAIN_SPECS.glob("**/spec.md")):
+        if "archive" in spec.parts:
+            continue
+        text = spec.read_text()
+        names |= {n.strip().lower() for n in re.findall(r"^#{3,4} (?:Requirement|Scenario): (.+)$", text, re.M)}
+    for name, path in changes.items():
+        tasks = path / "tasks.md"
+        if not tasks.exists():
+            continue
+        for quoted in re.findall(r"\"([A-Z][^\"\n]+)\"", tasks.read_text()):
+            q = quoted.strip().lower()
+            if q.endswith("…"):
+                ok = any(n.startswith(q[:-1].strip()) for n in names)
+            else:
+                ok = q in names
+            if not ok:
+                errors.append(f"{name}/tasks.md: \"{quoted}\" is not a scenario or requirement name")
 
     for w in warnings:
         print(f"warning: {w}")
