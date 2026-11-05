@@ -1,57 +1,65 @@
 # Tasks
 
-## 1. Crate setup
+Test first: in each group with behaviour, the first task writes the tests (each one names
+its scenario: `// spec: <capability> / <scenario>`) and shows that they fail; the next tasks
+write the code until they pass. Never change a test only to make it pass.
+
+## 1. Crate setup (no behaviour)
 
 - [ ] 1.1 Add the dependencies from design.md and the empty features `redis` and `mongodb` (both default) to `crates/doyen/Cargo.toml`; verify `distrobox enter doyen -- cargo build --all-features` and the CI `msrv` job pass
-- [ ] 1.2 Create the modules `config`, `status`, `token`, `error`, `backend`, `engine`, `clock` with `#![deny(missing_docs)]`; verify `cargo clippy --all-features -- -D warnings` passes
+- [ ] 1.2 Create the modules `config`, `status`, `token`, `error`, `backend`, `engine`, `clock` as empty files with `#![deny(missing_docs)]`; verify `cargo clippy --all-features -- -D warnings` passes
 - [ ] 1.3 Commit as `build(core): set up the crate modules and features`
 
 ## 2. Config and errors
 
-- [ ] 2.1 Write `Error`, `ErrorCode` (the five `client-config` codes) and `Display` with the code first; verify unit tests for `code()` and the message prefix
-- [ ] 2.2 Write `DatabaseConfig`, the config structs with `new(url, group)`, the defaults (10000, 2000, host name) and the shared checks (group, numbers, 3 × rule, URL scheme hook per adapter); verify one unit test per scenario of `client-config` and the "Config type" scenario of `rust-api`
-- [ ] 2.3 Make a config for a database whose feature is off fail with `DOYEN_UNSUPPORTED`; verify with `cargo test --no-default-features`
-- [ ] 2.4 Write the rustdoc of the config and error types with one example each; verify `cargo test --doc`
-- [ ] 2.5 Commit as `feat(core): add the config, its checks and the error codes`
+- [ ] 2.1 Write the tests: every scenario of `client-config`, and the `rust-api` scenarios "Build a config", "Match a code" and "Feature off"; declare only the public types they need (no logic) and verify the tests fail (red)
+- [ ] 2.2 Write `Error`, `ErrorCode` (the five codes), the config structs with `new(url, group)`, the defaults, the shared checks and the feature-off rule; verify the tests pass (green), also with `cargo test --no-default-features --features redis`
+- [ ] 2.3 Write the rustdoc of the config and error types with one example each; verify `cargo test --doc`
+- [ ] 2.4 Commit the tests (`test(core): add the tests for the config and the error codes`), then the code (`feat(core): add the config, its checks and the error codes`)
 
 ## 3. Status and token types
 
-- [ ] 3.1 Write `Status`, `OfflineReason` (camelCase `Display`) and `Token` (`Ord` generation first); verify unit tests for the `rust-api` "Status type" and "Token type" scenarios and the `status-reporting` string values
-- [ ] 3.2 Commit as `feat(core): add the status and token types`
+- [ ] 3.1 Write the tests for the `rust-api` scenarios "Display a reason" and "Compare tokens" and the `status-reporting` scenario "Log a reason"; verify they fail (red)
+- [ ] 3.2 Write `Status`, `OfflineReason` (camelCase `Display`) and `Token` (`Ord`, generation first); verify the tests pass (green)
+- [ ] 3.3 Commit the tests (`test(core): add the tests for the status and token types`), then the code (`feat(core): add the status and token types`)
 
 ## 4. Clock
 
-- [ ] 4.1 Write the `Clock` trait, the real clock (Linux `CLOCK_BOOTTIME` through `rustix`) and the fake clock on `tokio::time::Instant`; verify a test with the real clock and a real 2 s sleep, and a paused-time test with the fake clock
-- [ ] 4.2 Choose the suspend-aware clock for macOS (and note Windows) and record it in design.md; verify `cargo check --target aarch64-apple-darwin` (or the CI macOS job when it exists)
-- [ ] 4.3 Commit as `feat(core): add a clock that counts suspend time`
+- [ ] 4.1 Write the clock tests: the real clock against a real 2 s sleep, the fake clock in paused Tokio time; verify they fail (red)
+- [ ] 4.2 Write the `Clock` trait, the real clock (Linux `CLOCK_BOOTTIME` through `rustix`) and the fake clock on `tokio::time::Instant`; verify the tests pass (green)
+- [ ] 4.3 Choose the suspend-aware clock for macOS (and note Windows) and record it in design.md; verify `cargo check --target aarch64-apple-darwin` (or the CI macOS job when it exists)
+- [ ] 4.4 Commit the tests (`test(core): add the clock tests`), then the code (`feat(core): add a clock that counts suspend time`)
 
-## 5. Adapter contract, in-memory adapter, conformance suite
+## 5. Adapter contract and conformance suite
 
-- [ ] 5.1 Write the `Backend` trait, `Membership`, `View` and `Warning`; verify it compiles behind `pub(crate)`
-- [ ] 5.2 Write the in-memory adapter on the fake clock (counter, line, places with expiry, tags, wake-ups, a switch to "lose all data"); verify its own unit tests
-- [ ] 5.3 Write the conformance suite: one test per requirement of `adapter-contract` (number identity, tag, atomic join with concurrent joins, counter back, idempotent join, generation never back, live line, dead membership, cancel, connect writes no group data); verify the in-memory adapter passes all of it
-- [ ] 5.4 Add the database test switch (`DOYEN_TEST_*_URL`, `DOYEN_TEST_REQUIRE_DB`); verify a run without variables skips and a run with `DOYEN_TEST_REQUIRE_DB=1` and no URL fails
-- [ ] 5.5 Commit as `feat(core): add the adapter contract and its conformance suite`
+- [ ] 5.1 Write the `Backend` trait, `Membership`, `View` and `Warning` (types only); verify it compiles behind `pub(crate)`
+- [ ] 5.2 Write the conformance suite, generic over `Backend`: one test per scenario of `adapter-contract`; run it against a stub adapter whose methods return an error and verify every test fails (red)
+- [ ] 5.3 Write the in-memory adapter on the fake clock (counter, line, places with expiry, tags, wake-ups, a switch to "lose all data"); verify the whole conformance suite passes (green)
+- [ ] 5.4 Write the tests of the database test switch (no `DOYEN_TEST_*_URL` → skipped; `DOYEN_TEST_REQUIRE_DB=1` and no URL → failure), see them fail, then write the switch; verify they pass
+- [ ] 5.5 Commit the tests (`test(core): add the conformance suite of the adapter contract`), then the code (`feat(core): add the in-memory adapter and the database test switch`)
 
 ## 6. Engine
 
-- [ ] 6.1 Write the driver: `connect` once, join with retries and backoff, tag kept until a place, join lease from the first send; verify the `election-core` scenarios "Join takes a place…", "Join retries…", "Lease of a join" and "Membership tag" with the in-memory adapter
-- [ ] 6.2 Write the lease and the fixed-rate schedule with the call timeout; verify the "Local lease", "Renews at a fixed rate" and "Takeover times with the defaults" scenarios (7–9 s offline, 8–12 s takeover with three instances, a 5 s problem changes nothing)
-- [ ] 6.3 Write the snapshot, `status()`, `token()` at call time, lost place → new membership, after-join retries with the last error; verify the "Master is the oldest live member", "Fencing token", "Tokens of later masters are higher", "Status and token at the moment of the call" and "After join the core never gives up" scenarios
-- [ ] 6.4 Write `leave` (lease first, cancel a pending join, one call timeout, no network error) and the one-life rules; verify the "Leave stops first…" and "One object, one life" scenarios
-- [ ] 6.5 Write the subscribers (one unbounded queue per stream, every change, error alone is not a change, `left` last) and the warnings through `tracing`; verify every scenario of `status-reporting` and the `rust-api` "Status changes as a stream" scenarios
-- [ ] 6.6 Make a dropped `join` future go back to `notJoined` and keep the tag; verify the `rust-api` "Cancel a join by dropping it" scenario
-- [ ] 6.7 Check the Tokio runtime rule; verify the `rust-api` "Tokio runtime" scenario (runtime shut down → not master after the lease)
-- [ ] 6.8 Commit as `feat(core): add the election engine`
+- [ ] 6.1 Write the engine tests with the in-memory adapter and the fake clock: every scenario of `election-core` and `status-reporting` (except "Log a reason", done in group 3), and the `rust-api` scenarios "New object", "Clone", "Typical use", "Two streams", "End of the stream", "Join with a timeout" and "Runtime shut down"; give the engine stub bodies and verify the tests compile and fail (red)
+- [ ] 6.2 Write the join path (`connect` once, retries with backoff, tag kept until a place, join lease from the first send); verify the join, retry, lease-of-a-join and tag tests pass
+- [ ] 6.3 Write the lease and the fixed-rate schedule with the call timeout; verify the "Local lease", "Renews at a fixed rate" and "Takeover times with the defaults" tests pass (7–9 s offline, 8–12 s takeover with three instances, a 5 s problem changes nothing)
+- [ ] 6.4 Write the snapshot, `status()` / `token()` at call time, the lost place → new membership, the after-join retries with the last error; verify the master rule, token, status-at-call-time and never-give-up tests pass
+- [ ] 6.5 Write `leave` (lease first, cancel a pending join, one call timeout, no network error) and the one-life rules; verify their tests pass
+- [ ] 6.6 Write the subscribers (one unbounded queue per stream, error alone is not a change, `left` last) and the warnings through `tracing`; verify every `status-reporting` test and the stream tests pass
+- [ ] 6.7 Make a dropped `join` future go back to `notJoined` with the tag kept, and check the Tokio runtime rule; verify the last two `rust-api` tests pass
+- [ ] 6.8 Refactor with every test green; verify `cargo clippy -- -D warnings` and that no test changed
+- [ ] 6.9 Commit the tests (`test(core): add the engine tests from the specs`), then the code (`feat(core): add the election engine`)
 
 ## 7. Binding hooks
 
-- [ ] 7.1 Write `__binding::set_liveness` and `__binding::warnings`; verify a test where a false liveness check skips the renews and the status turns offline `connectionLost`
-- [ ] 7.2 Commit as `feat(core): add the hidden hooks for the bindings`
+- [ ] 7.1 Write the tests: a false liveness check skips the renews and the status turns offline `connectionLost`; the warnings stream gets each connect warning once; verify they fail (red)
+- [ ] 7.2 Write `__binding::set_liveness` and `__binding::warnings`; verify the tests pass (green)
+- [ ] 7.3 Commit the tests (`test(core): add the tests for the binding hooks`), then the code (`feat(core): add the hidden hooks for the bindings`)
 
 ## 8. Integration check
 
-- [ ] 8.1 Run the whole suite with coverage (`cargo llvm-cov --all-features`); verify the CI passes and the coverage report shows the engine and the conformance suite covered
+- [ ] 8.1 Run `python3 scripts/check-scenario-tests.py --change add-core-election`; verify every scenario of the five capabilities is named by a test
+- [ ] 8.2 Run the whole suite with coverage (`cargo llvm-cov --all-features`); verify the CI passes and the report shows the engine and the conformance suite covered
 
 ## Workflow follow-up
 

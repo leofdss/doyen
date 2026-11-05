@@ -48,6 +48,31 @@ python3 scripts/check-specs.py
 The rules for proposals (the owner's decisions) are in `openspec/config.yaml`. Do not
 change them in a proposal; ask the owner.
 
+## Tests first (TDD)
+
+The tests are the source of truth. The specs say what doyen must do; the tests check it; the
+code only makes the tests pass.
+
+1. **Red:** write the tests for the scenarios of the task group, and see them fail. Each test
+   names its scenario in a comment: `// spec: election-core / Master dies` (`#` in Python).
+2. **Green:** write the code until the tests pass.
+3. **Refactor:** clean up with every test green. No test changes in this step.
+
+- Commit the red tests first (`test(core): add the tests for the local lease`), then the code
+  (`feat(core): add the local lease`). `main` stays green at every merge.
+- To change a behaviour, change its test first, and the spec in the same change.
+- Never change a test only to make it pass. A test that looks wrong goes back to the spec:
+  ask the owner.
+- `python3 scripts/check-scenario-tests.py` (from `add-ci-baseline`) fails when a scenario has
+  no test, or a test names a scenario that no longer exists. A scenario that can only be
+  checked by hand (for example a CI failure path) goes in `openspec/manual-checks.md`.
+
+## Choosing the model
+
+Use the skill `model-tiering` (`.agents/skills/model-tiering/`, also in `.claude/skills/`):
+the tests and the safety code at the strongest everyday model, the work that makes existing
+tests pass at a cheaper one, and when to escalate.
+
 ## Commits
 
 [Conventional Commits](https://www.conventionalcommits.org/): `type(scope): subject`.
@@ -66,4 +91,6 @@ change them in a proposal; ask the owner.
   release tag (`v*`, `node-v*`, `go-v*`) without the owner's go.
 - Do not edit the generated OpenSpec files (`.claude/commands/opsx/`,
   `.claude/skills/openspec-*`, `.agents/skills/openspec-*`): `openspec update` writes them.
+- The repo's own skills live in `.agents/skills/<name>/SKILL.md`; `.claude/skills/<name>` is a
+  relative symlink to that folder.
 - Keep the English simple: short sentences, common words.

@@ -18,8 +18,8 @@ own toolchains, so the CI does not depend on the image.
 
 ## Decisions
 
-- **Jobs:** `fmt`, `clippy`, `test`, `msrv`, `coverage`, `commits`, in parallel. One job per
-  check gives a clear failure name. Alternative: one job with many steps; rejected, a
+- **Jobs:** `fmt`, `clippy`, `test`, `msrv`, `coverage`, `commits`, `scenarios`, `specs`, in
+  parallel. One job per check gives a clear failure name. Alternative: one job with many steps; rejected, a
   failure hides the next checks.
 - **Toolchains:** `dtolnay/rust-toolchain` (stable, and `1.85` for `msrv`), plus
   `Swatinem/rust-cache`. Alternative: the dev image as a container job; rejected for now,
@@ -32,6 +32,17 @@ own toolchains, so the CI does not depend on the image.
   and checks each subject with one regular expression. The same script runs locally. For a
   push to `main` the range is the push (`before..after`); for a pull request, base..head.
 - **Branch names** are not checked; `TODO.md` asks for `<type>/<change-name>`.
+- **Scenario check: `scripts/check-scenario-tests.py`** (Python, standard library). It reads
+  the scenarios of `openspec/specs/**/spec.md` (or of one open change with `--change`), and
+  searches `crates/`, `bindings/` and `scripts/tests/` for comments
+  `spec: <capability> / <scenario>` (any comment style: `//`, `#`). A scenario that CI checks
+  by hand (for example "Unformatted file") goes in `openspec/manual-checks.md` as
+  `- <capability> / <scenario>: <how and when it was checked>`. Scenario names must be unique
+  inside one capability (`scripts/check-specs.py` checks it), so a test can name them.
+- **Specs job:** installs `@fission-ai/openspec@1.15.0` (the version in the dev image) and runs
+  `openspec validate --all --strict` and `python3 scripts/check-specs.py`.
+- **TDD for the scripts too:** the tests of `check-commits.sh` and `check-scenario-tests.py`
+  (in `scripts/tests/`, run with `python3 -m unittest`) come before the scripts.
 
 ## Risks / Trade-offs
 

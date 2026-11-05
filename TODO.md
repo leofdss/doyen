@@ -12,6 +12,11 @@ change.
 - **Commits:** [Conventional Commits](https://www.conventionalcommits.org/) —
   `type(scope): subject`, scopes `core`, `redis`, `mongodb`, `postgresql`, `node`, `go`, `ci`,
   `release`, `docs`. Each task group in a `tasks.md` names its commit.
+- **Tests first (TDD):** the tests are the source of truth. Each task group writes the tests
+  for its scenarios, sees them fail, then writes the code until they pass (see `AGENTS.md`).
+  A change is done when every scenario of its specs is named by a test (or by
+  `openspec/manual-checks.md` when only a person can check it).
+- **Model:** the skill `model-tiering` says which model and effort each task group needs.
 - **Start:** `/opsx:apply <change>` in Claude Code (other agents: the skill
   `openspec-apply-change`). Tick the tasks in the change's `tasks.md` as they are done.
 - **Finish:** pull request, CI green, merge, then `/opsx:archive <change>`: its specs move to

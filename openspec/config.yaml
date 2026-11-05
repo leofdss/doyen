@@ -26,6 +26,11 @@ context: |
     (DOYEN_UNSUPPORTED); a known, bounded risk -> a warning, once, at connect.
   - Releases: v0.1 = Rust crate + Redis + MongoDB; v0.2 = npm; v0.3 = Go; v0.4 = PostgreSQL.
   - The owner publishes (crates.io, npm need 2FA) and makes the decisions marked "owner".
+  - Tests are the source of truth (TDD, owner decision 2026-11-04): every spec scenario
+    becomes an automated test, written and seen failing before the code that makes it pass.
+    A test names its scenario in a comment: `spec: <capability> / <scenario>`. To change a
+    behaviour, change its test first (and the spec in the same change). Never change a test
+    only to make it pass.
 
   Repo: Cargo workspace (edition 2024, MSRV Rust 1.85, resolver 3). Crate crates/doyen
   (core + adapters behind cargo features), npm package bindings/node (@leofdss/doyen), Go
@@ -41,10 +46,14 @@ rules:
     - One capability belongs to one change. Never write a delta for a capability that another
       open change adds; refer to it by name instead.
     - Error and warning codes start with DOYEN_. Each code is defined in one capability only.
+    - Write each scenario so it can become one automated test (clear WHEN and THEN).
   design:
     - Record every assumption the owner has not confirmed under "Decisions" with the words
       "to confirm (owner)".
   tasks:
+    - "TDD: a task group with behaviour starts with a task that writes the tests for its scenarios and checks that they fail (red); the next tasks write the code until they pass (green), then clean up (refactor)."
+    - "Commit the red tests first (test(scope) subject), then the code (feat or fix); main stays green at every merge."
+    - Use the model-tiering skill to choose the model and effort of each task group.
     - Commits follow Conventional Commits, type(scope) subject; scopes core, redis, mongodb,
       postgresql, node, go, ci, release, docs.
     - Mark the tasks that only the owner can do (publish, 2FA, a decision) with "(owner)".

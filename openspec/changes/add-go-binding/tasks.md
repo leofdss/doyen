@@ -1,25 +1,34 @@
 # Tasks
 
+Test first: in each group with behaviour, the first task writes the tests (C test program and
+`go test -race`; each test names its scenario: `// spec: go-binding / <scenario>`) and shows
+that they fail; the next tasks write the code until they pass. Never change a test only to
+make it pass.
+
 ## 1. C ABI
 
-- [ ] 1.1 Create the crate `crates/doyen-ffi` (`staticlib`, `publish = false`) with the 9 functions, the `Arc` handle and the `DoyenError` out-parameter; verify a C test program (built in CI) joins a local Redis, reads the status and leaves
-- [ ] 1.2 Generate the header with cbindgen and check it in CI; verify the CI fails when the header is out of date
-- [ ] 1.3 Commit as `feat(go): add the C ABI for the Go binding`
+- [ ] 1.1 Write the C test program (built in CI): join a local Redis, read the status, read a status change with `next_event`, cancel a blocked join, leave, `free` while another thread is in `status`; verify it fails to link or fails (red)
+- [ ] 1.2 Create the crate `crates/doyen-ffi` (`staticlib`, `publish = false`) with the 9 functions, the `Arc` handle and the `DoyenError` out-parameter; verify the C test passes (green) under AddressSanitizer
+- [ ] 1.3 Generate the header with cbindgen and check it in CI; verify the CI fails when the header is out of date
+- [ ] 1.4 Commit the tests (`test(go): add the C ABI test program`), then the code (`feat(go): add the C ABI for the Go binding`)
 
 ## 2. Go package
 
-- [ ] 2.1 Write `bindings/go` (`New`, `Join` with `cancel` on `ctx` end, `Status`, `Token`, `Leave`, the config structs, the `error` type with `Code`); verify the "Go public API", "Go types", "Cancel a join with the context" and "Go errors" scenarios with `go test` against a local Redis
-- [ ] 2.2 Write the event goroutine (`select` on stop), `StatusChanges()`, the warnings to `slog`, `AddCleanup` and the `Leave` steps; verify the "Status changes on a channel", "Nothing waits for the channel reader", "Object collected without Leave" (with `runtime.GC()`) and "Warnings through slog" scenarios, all with `go test -race`
-- [ ] 2.3 Write the package docs (cgo needs, cross-compiling, platforms) and a README with a quick start; verify `go vet` and that the quick start runs
-- [ ] 2.4 Commit as `feat(go): add the Go package`
+- [ ] 2.1 Write the Go tests against a local Redis: "Typical use", "Print a reason", "Join with a deadline", "Read changes", "Channel after Leave", "App stopped reading", "Forgotten object" (with `runtime.GC()`), "Concurrent calls", "Bad config", "PSA replica set" (MongoDB); verify they fail with `go test -race` (red)
+- [ ] 2.2 Write `New`, `Join` with `cancel` on `ctx` end, `Status`, `Token`, `Leave`, the config structs and the `error` type with `Code`; verify the API, cancel and error tests pass
+- [ ] 2.3 Write the event goroutine (`select` on stop), `StatusChanges()` (one channel per object), the warnings to `slog`, `AddCleanup` and the `Leave` steps; verify the remaining tests pass (green) with `go test -race`
+- [ ] 2.4 Write the package docs (cgo needs, cross-compiling, platforms) and a README with a quick start; verify `go vet` and that the quick start runs
+- [ ] 2.5 Commit the tests (`test(go): add the Go package tests`), then the code (`feat(go): add the Go package`)
 
 ## 3. CI and release
 
-- [ ] 3.1 Add the CI job `go` (build the static library on Linux x64, `go test -race` with Redis and MongoDB services); verify it passes
+- [ ] 3.1 Add the CI job `go` (build the static library on Linux x64, the C test, `go test -race` with Redis and MongoDB services); verify it passes
 - [ ] 3.2 (owner) Create the repo `leofdss/doyen-go` and a deploy key with write access; add the private key as the secret `DOYEN_GO_DEPLOY_KEY`
-- [ ] 3.3 Add the workflow for tags `go-v*` (three platforms, `llvm-strip --strip-debug`, size checks, Go tests, push and tag in `leofdss/doyen-go`); verify it on a test tag against a test branch of `doyen-go`, then delete the tag and the branch
-- [ ] 3.4 Commit as `ci(go): build, strip and publish the Go module`
-- [ ] 3.5 Update `CHANGELOG.md` and the main README (Go quick start), tag `go-v0.3.0`; verify `go get github.com/leofdss/doyen-go@v0.3.0` and a build work in a clean module on linux/amd64
+- [ ] 3.3 Write the release check test "Library too large" (the size check script fails on a file over 100 MiB); verify it fails, then write `scripts/check-go-libs.sh` and verify it passes
+- [ ] 3.4 Add the workflow for tags `go-v*` (three platforms, `llvm-strip --strip-debug`, the size check, Go tests, push and tag in `leofdss/doyen-go`); verify it on a test tag against a test branch of `doyen-go`, then delete the tag and the branch
+- [ ] 3.5 Commit the tests (`test(go): add the release size check test`), then the code (`ci(go): build, strip and publish the Go module`)
+- [ ] 3.6 Run `python3 scripts/check-scenario-tests.py --change add-go-binding`; add "go get", "cgo off" and "Release 0.3.0" to `openspec/manual-checks.md` once checked; verify every `go-binding` scenario is named by a test or a manual check
+- [ ] 3.7 Update `CHANGELOG.md` and the main README (Go quick start), tag `go-v0.3.0` (owner's go); verify `go get github.com/leofdss/doyen-go@v0.3.0` and a build work in a clean module on linux/amd64
 
 ## Workflow follow-up
 

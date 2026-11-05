@@ -73,3 +73,33 @@ test, build, ci, chore, revert, and `(scope)` and `!` are optional.
 #### Scenario: Merge commit
 - **WHEN** a pull request contains a merge commit made by Git (subject starts with `Merge`)
 - **THEN** the check skips it
+
+### Requirement: Every scenario has a test
+The CI SHALL fail when a scenario of a spec in `openspec/specs/` is named by no test (a
+comment `spec: <capability> / <scenario>`) and by no line of `openspec/manual-checks.md`, and
+when a test names a scenario that no spec has. The same check SHALL run on the delta specs of
+one open change with `--change <name>`.
+
+#### Scenario: Missing test
+- **WHEN** a spec in `openspec/specs/` has the scenario "Master dies" and no test names it
+- **THEN** the check fails and names the capability and the scenario
+
+#### Scenario: Stale test
+- **WHEN** a test names `election-core / Old name` and no spec has that scenario
+- **THEN** the check fails and names the test file
+
+#### Scenario: Checked by hand
+- **WHEN** a CI scenario is listed in `openspec/manual-checks.md` with how and when it was checked
+- **THEN** the check accepts it without a test
+
+#### Scenario: Open change
+- **WHEN** the check runs with `--change add-core-election` before the archive
+- **THEN** it checks the scenarios of that change's delta specs
+
+### Requirement: Specs are checked
+The CI SHALL run `openspec validate --all --strict` and `scripts/check-specs.py`, and SHALL
+fail when either reports an error.
+
+#### Scenario: Conflict between changes
+- **WHEN** a commit adds a capability that another open change already has
+- **THEN** the specs check fails
