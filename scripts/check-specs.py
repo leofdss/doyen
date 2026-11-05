@@ -33,7 +33,7 @@ TODO = ROOT / "TODO.md"
 CAP_SUFFIXES = ("-core", "-reporting", "-config", "-contract", "-api", "-adapter", "-binding",
                 "-release", "-checks")
 NOT_CODES = re.compile(r"^DOYEN_(TEST_\w*|GO_DEPLOY_KEY)$")
-NOT_CAPS = {"futures-core"}  # crate names that look like capabilities
+NOT_CAPS = {"futures-core", "cargo-semver-checks", "doyen-release"}  # crate, tool and app names that look like capabilities
 
 errors: list[str] = []
 warnings: list[str] = []

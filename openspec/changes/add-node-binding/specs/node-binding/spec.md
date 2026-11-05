@@ -142,10 +142,11 @@ exact below 2^53, far above a time in ms or a member number.
 - **THEN** `typeof token.generation === "number"`
 
 ### Requirement: Release of the package
-Each release SHALL publish `@leofdss/doyen` and its platform packages with the same version,
-built by CI from one tagged commit. The owner SHALL run the publish (npm login with 2FA).
-`publishConfig.registry` SHALL be `https://registry.npmjs.org/`.
+Each release `v<version>` (see `release-process`) SHALL publish `@leofdss/doyen` and its
+platform packages with that version, built by CI from the tagged commit, in the GitHub
+environment `release` after the owner's approval, with npm Trusted Publishing and
+provenance. `publishConfig.registry` SHALL be `https://registry.npmjs.org/`.
 
 #### Scenario: Release 0.2.0
-- **WHEN** the tag `node-v0.2.0` passed the CI
-- **THEN** the owner publishes the main package and every platform package as 0.2.0
+- **WHEN** the release `v0.2.0` is made and the owner approves the environment `release`
+- **THEN** the main package and every platform package are on npm as 0.2.0, with provenance

@@ -35,12 +35,12 @@ make it pass.
 
 - [ ] 4.1 Add the CI job `node` (matrix: the three platforms × the Node.js LTS lines; Redis and MongoDB services on Linux x64); verify it runs the type test and every runtime test, and passes
 - [ ] 4.2 Write the platform test "Unsupported platform" (import on Linux musl in a container fails with the platform name); verify it passes with the napi-rs loader, and add "Install on Linux x64" to `openspec/manual-checks.md` after a clean install
-- [ ] 4.3 Add the workflow for tags `node-v*` (build all platforms, pack, upload artifacts); verify it on a throwaway tag, then delete the tag
+- [ ] 4.3 Add the job `npm` to `release.yml` (build all platforms, `napi prepublish`, `npm publish --provenance` per package, environment `release`, `id-token: write`) and a `workflow_dispatch` dry run (`npm publish --dry-run`); verify the dry run builds and packs every package, and zizmor passes
 - [ ] 4.4 Write the Node.js README (`bindings/node/README.md`: install, quick start, status, token, `SIGTERM`, warnings, platforms) and link it from the main README; verify the quick start runs against a local Redis
-- [ ] 4.5 Commit as `ci(node): build and pack the npm packages`
+- [ ] 4.5 Commit as `ci(node): build and publish the npm packages`
 - [ ] 4.6 Run `python3 scripts/check-scenario-tests.py --change add-node-binding`; verify every `node-binding` scenario is named by a test or a manual check
-- [ ] 4.7 Set the version 0.2.0, update `CHANGELOG.md`, tag `node-v0.2.0` (owner's go); verify the workflow passes
-- [ ] 4.8 (owner) Publish `@leofdss/doyen` 0.2.0 and the platform packages (`npm publish`, 2FA); verify `npm install @leofdss/doyen` works in a clean folder on Linux x64, and add "Release 0.2.0" to `openspec/manual-checks.md`
+- [ ] 4.7 (owner) Add the npm Trusted Publisher (repository `leofdss/doyen`, workflow `release.yml`, environment `release`) to `@leofdss/doyen` and to each platform package (design.md: a placeholder first if npm needs it); verify the npm settings page of each package shows it
+- [ ] 4.8 (owner) After the merge of this change, merge the release pull request (0.2.0) and approve the environment `release`; verify `npm install @leofdss/doyen` works in a clean folder on Linux x64 and npm shows the provenance, and add "Release 0.2.0" to `openspec/manual-checks.md`
 
 ## Workflow follow-up
 

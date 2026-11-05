@@ -23,8 +23,9 @@ change.
 - **Model:** the skill `model-tiering` says which model and effort each task group needs.
 - **Start:** `/opsx:apply <change>` in Claude Code (other agents: the skill
   `openspec-apply-change`). Tick the tasks in the change's `tasks.md` as they are done.
-- **Finish:** pull request, CI green, merge, then `/opsx:archive <change>`: its specs move to
-  `openspec/specs/`. Mark the row below as done.
+- **Finish:** pull request, CI green, rebase merge (GitHub Flow), then `/opsx:archive
+  <change>`: its specs move to `openspec/specs/`. Mark the row below as done. A release is
+  made only when the owner merges the release pull request of release-please.
 - **New work:** `/opsx:propose <idea>`, then add a row to the table.
 - **Before a commit that changes `openspec/`:**
 
@@ -41,10 +42,10 @@ change.
 | 2 | `add-core-election` | v0.1 | 1 | `election-core`, `status-reporting`, `client-config`, `adapter-contract`, `rust-api` | — | todo |
 | 3 | `add-redis-adapter` | v0.1 | 2 | `redis-adapter` | choose the Redis client (task 1.1) | todo |
 | 4 | `add-mongodb-adapter` | v0.1 | 2 | `mongodb-adapter` | — | todo |
-| 5 | `publish-rust-crate` | v0.1 | 3, 4 | `crate-release` | pick the use cases (task 1.3); publish | todo |
-| 6 | `add-node-binding` | v0.2 | 5 | `node-binding` | approve the napi-rs design (task 0.1); publish | todo |
+| 5 | `publish-rust-crate` | v0.1 | 3, 4 | `release-process` | pick the use cases (task 1.3); GitHub App, environment, crates.io publisher (task 3.1); approve the release | todo |
+| 6 | `add-node-binding` | v0.2 | 5 | `node-binding` | approve the napi-rs design (task 0.1); npm publishers (task 4.7); approve the release | todo |
 | 7 | `add-go-binding` | v0.3 | 6 | `go-binding` | create `leofdss/doyen-go` and its deploy key (task 3.2) | todo |
-| 8 | `add-postgresql-adapter` | v0.4 | 7 | `postgresql-adapter` | approve the design (task 0.1); publish | todo |
+| 8 | `add-postgresql-adapter` | v0.4 | 7 | `postgresql-adapter` | approve the design (task 0.1); approve the release | todo |
 
 Changes 3 and 4 depend only on 2, but both edit `Cargo.toml`, the CI workflow and the
 README: do them one after the other (Redis first, the first database the owner chose).
@@ -76,8 +77,10 @@ README: do them one after the other (Redis first, the first database the owner c
   by default; `timeoutMs` ≥ 3 × `renewIntervalMs`; lease margin 10%; one call timeout =
   `renewIntervalMs`; Redis `WAIT` timeout 25% and MongoDB `wtimeout` 90% of the interval;
   Rust 1.85, Redis 6.2, MongoDB 5.0, PostgreSQL 14, Go 1.24 as the minimum versions.
-- **Tags:** the crate `v<version>`, the npm package `node-v<version>`, the Go module
-  `go-v<version>` here and `v<version>` in `leofdss/doyen-go`.
+- **Versions and tags:** one SemVer version for the crate, the npm packages and the Go
+  module; one tag `v<version>`, here and in `leofdss/doyen-go`. release-please computes the
+  version from the commits and makes the tag when the owner merges the release pull request
+  (`release-process`).
 
 ## Other tasks
 
@@ -92,7 +95,8 @@ README: do them one after the other (Redis first, the first database the owner c
   (never by an agent, see `AI_POLICY.md`). If yes, the commit check of `add-ci-baseline`
   checks it.
 - [ ] (owner) After `add-ci-baseline`: protect `main` with a ruleset (pull request and green
-  CI before a merge, no force push), as the OpenSSF SCM guide asks.
+  CI before a merge, rebase merge only, linear history, no force push), as the OpenSSF SCM
+  guide asks and GitHub Flow needs.
 - [ ] (owner) The dev image downloads VS Code "latest" with no checksum: pin a version with
   its SHA-256, or take VS Code out of the image.
 - [ ] (owner, optional) Get the OpenSSF Best Practices badge (bestpractices.dev) and add the

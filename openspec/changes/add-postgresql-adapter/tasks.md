@@ -42,8 +42,7 @@ make it pass.
 - [ ] 5.2 Add `postgresql` to the Node.js `DatabaseType` and its config shape, and `PostgresConfig` to the Go package; verify both tests pass (green)
 - [ ] 5.3 Commit the group in one commit (tests, code, spec changes, ticks): `feat(node,go): add the postgresql database type`
 - [ ] 5.4 Run `python3 scripts/check-scenario-tests.py --change add-postgresql-adapter`; verify every `postgresql-adapter` scenario is named by a test or a manual check
-- [ ] 5.5 Release the crate (next minor version), the npm package and the Go module with the release processes of `crate-release`, `node-binding` and `go-binding`; verify each one installs in a clean project
-- [ ] 5.6 (owner) Publish the crate and the npm packages (2FA)
+- [ ] 5.5 (owner) After the merge of this change, merge the release pull request (0.4.0 by the plan) and approve the environment `release` (`release-process`); verify the crate, the npm package and the Go module install in a clean project
 
 ## Workflow follow-up
 

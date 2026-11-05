@@ -81,9 +81,14 @@ renew. With the defaults: blocked < 11 s → nothing; > 13 s → the lease ends.
   `aarch64-unknown-linux-gnu` (cross), `aarch64-apple-darwin`. Platforms to confirm (owner).
 - Node.js versions: the active and maintenance LTS lines at release time (22 and 24 in
   2026), in the test matrix. To confirm (owner).
-- Tags `node-v<version>` start the build workflow; it uploads the packed packages as
-  artifacts; the owner runs `npm publish` for each (2FA). The first version is 0.2.0 (the
-  release plan), while the crate can stay at 0.1.x.
+- Release: the job `npm` in `release.yml` (from `publish-rust-crate`) runs on a release
+  `v<version>`: it builds every platform, runs `napi prepublish` (the platform packages get
+  the same version), and runs `npm publish --provenance` for each package, in the
+  environment `release`, with npm Trusted Publishing (`id-token: write`, npm 11.5.1 or
+  newer). One version for every package (`release-process`): the first npm release is the
+  release that ends this change, 0.2.0 by the plan. To confirm while applying: whether npm
+  needs each platform package to exist before a Trusted Publisher can be added to it (then
+  the owner publishes a placeholder of each by hand once).
 
 ## Risks / Trade-offs
 

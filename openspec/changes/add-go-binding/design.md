@@ -58,11 +58,13 @@ length.
   `#cgo` lines pick the library file for each platform.
 - Release profile with LTO, then `llvm-strip --strip-debug` on each `.a`: Cargo's `strip`
   does not strip a `staticlib` (a test: 12 MB with debug sections, 3.7 MB after).
-- Workflow on tags `go-v*`: build the three platforms (linux/amd64, linux/arm64 cross,
-  darwin/arm64 on a macOS runner), strip, check sizes (< 100 MiB per file, zip < 500 MiB),
-  run the Go tests with the built libraries, then push the code + libraries to
-  `leofdss/doyen-go` with a deploy key (secret `DOYEN_GO_DEPLOY_KEY`) and tag `v<version>`
-  there. The owner creates the repo and the key.
+- Jobs `go-build` and `go` in `release.yml` (from `publish-rust-crate`), on a release
+  `v<version>`: build the three platforms (linux/amd64, linux/arm64 cross, darwin/arm64 on a
+  macOS runner), strip, check sizes (< 100 MiB per file, zip < 500 MiB), run the Go tests
+  with the built libraries, then, in the environment `release`, push the code + libraries to
+  `leofdss/doyen-go` with a deploy key (secret `DOYEN_GO_DEPLOY_KEY`, stored in the
+  environment `release` only) and the same tag `v<version>` there. The owner creates the
+  repo and the key. Go has no Trusted Publishing: the module is a git repo.
 - The Go package docs say: `CGO_ENABLED=1` and a C compiler are needed; cgo is off by default
   when cross-compiling.
 

@@ -17,8 +17,9 @@ Release: v0.3. Depends on: `add-node-binding` (v0.2 done; the release process is
   `StatusChanges()`, `Token()`, `Leave(ctx)`), with events by pull, never callbacks from Rust.
 - Warnings through `slog`; errors as Go `error` values with a code; `DOYEN_CANCELLED` when
   the `context` ends a join.
-- A release workflow that builds and strips the static libraries per platform, copies the Go
-  code to `github.com/leofdss/doyen-go`, commits and tags the version there.
+- Release jobs in `release.yml` that build and strip the static libraries per platform,
+  copy the Go code to `github.com/leofdss/doyen-go`, and commit and tag the release version
+  there (the same tag `v<version>`).
 
 ## Capabilities
 

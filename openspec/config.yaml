@@ -25,7 +25,13 @@ context: |
   - Unsafe setups: a risk beyond what is documented for that database -> refuse
     (DOYEN_UNSUPPORTED); a known, bounded risk -> a warning, once, at connect.
   - Releases: v0.1 = Rust crate + Redis + MongoDB; v0.2 = npm; v0.3 = Go; v0.4 = PostgreSQL.
-  - The owner publishes (crates.io, npm need 2FA) and makes the decisions marked "owner".
+  - Releases (owner decision 2026-11-05): GitHub Flow (short branches, pull request, rebase
+    merge into main). One SemVer version and one tag v<version> for the crate, the npm
+    packages and the Go module. release-please computes the version from the Conventional
+    Commits (before 1.0: ! or feat -> minor, fix or perf -> patch) and keeps a release pull
+    request. The owner merges it and approves the GitHub environment `release`; CI then
+    publishes with Trusted Publishing (no stored tokens).
+  - The owner makes the decisions marked "owner".
   - Tests are the source of truth (TDD, owner decision 2026-11-04): every spec scenario
     becomes an automated test, written and seen failing before the code that makes it pass.
     A test names its scenario in a comment: `spec: <capability> / <scenario>`. To change a
@@ -72,5 +78,5 @@ rules:
     - Commits follow Conventional Commits, type(scope) subject; scopes core, redis, mongodb,
       postgresql, node, go, ci, release, docs, deps.
     - "A task that adds a dependency says why and checks that it is the real package (AGENTS.md, Security)."
-    - Mark the tasks that only the owner can do (publish, 2FA, a decision) with "(owner)".
+    - Mark the tasks that only the owner can do (merge a release pull request, approve a release, a setting, a decision) with "(owner)".
     - "Run Rust, Node.js and Go commands inside the container (distrobox enter doyen -- <command>)."

@@ -196,12 +196,20 @@ tests pass at a cheaper one, and when to escalate.
   update) has no spec. `scripts/check-commit-specs.py` (from `add-ci-baseline`) checks it on
   the change branches.
 - Branch: `<type>/<change-name>`, for example `feat/add-core-election`.
+- The commit type sets the next version (`release-process`): before 1.0, `!` or `feat` →
+  minor, `fix` or `perf` → patch; other types make no release. Mark every breaking change
+  with `!`: `cargo semver-checks` fails the release if you forget.
 - AI help: the trailer `Assisted-by: <tool> (<model>)` (see *AI agents*).
 
 ## Rules
 
-- **The owner publishes.** Never run `cargo publish` or `npm publish`, and never push a
-  release tag (`v*`, `node-v*`, `go-v*`) without the owner's go.
+- **Branches and releases (GitHub Flow):** `main` is always green; short branches; pull
+  request; rebase merge. One version for every package, one tag `v<version>`. release-please
+  keeps the release pull request; **only the owner merges it and approves the environment
+  `release`**, and then CI publishes with Trusted Publishing. An agent never runs
+  `cargo publish` or `npm publish`, never creates or pushes a tag `v*`, and never merges the
+  release pull request. If Trusted Publishing is down, the owner can publish by hand with
+  2FA.
 - Do not edit the generated OpenSpec files (`.claude/commands/opsx/`,
   `.claude/skills/openspec-*`, `.agents/skills/openspec-*`): `openspec update` writes them.
 - The repo's own skills live in `.agents/skills/<name>/SKILL.md`; `.claude/skills/<name>` is a

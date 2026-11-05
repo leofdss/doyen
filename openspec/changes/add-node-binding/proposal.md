@@ -23,7 +23,8 @@ owner's decision on that proposal.**
 - An event loop check (tick): a blocked event loop stops the renews, so a stuck process does
   not stay master.
 - Warnings through `process.emitWarning`; errors with `error.code`.
-- CI: build and test on each platform, a type test and runtime tests; the owner publishes.
+- CI: build and test on each platform, a type test and runtime tests; a job `npm` in
+  `release.yml` publishes with Trusted Publishing after the owner's approval.
 
 ## Capabilities
 
@@ -42,4 +43,5 @@ owner's decision on that proposal.**
   package; new crate `doyen-node` (workspace member, `publish = false`).
 - The core's hidden hooks (`__binding::set_liveness`, `__binding::warnings`) from
   `add-core-election` are used here.
-- npm: `@leofdss/doyen` 0.2.0 and the platform packages (the owner publishes).
+- npm: `@leofdss/doyen` 0.2.0 and the platform packages (CI publishes after the owner's
+  approval).

@@ -103,10 +103,12 @@ attribute `code`.
 ### Requirement: Release of the module
 Each release SHALL build the static library per platform with debug sections removed, check
 that each file is below 100 MiB and the module zip below 500 MiB, commit the Go code and the
-libraries to `leofdss/doyen-go`, and tag the version there (`v0.3.0` first).
+libraries to `leofdss/doyen-go`, and tag the version there with the tag of the release
+`v<version>` (see `release-process`), in the GitHub environment `release` after the owner's
+approval.
 
 #### Scenario: Release 0.3.0
-- **WHEN** the tag `go-v0.3.0` is pushed in the doyen repo and the CI is green
+- **WHEN** the release `v0.3.0` is made and the owner approves the environment `release`
 - **THEN** `leofdss/doyen-go` gets a commit with the code and three libraries, and the tag `v0.3.0`
 
 #### Scenario: Library too large
