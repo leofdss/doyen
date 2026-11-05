@@ -1,0 +1,9 @@
+{
+  "name": "doyen-ci-tools",
+  "private": true,
+  "description": "Tools that the CI installs with `npm ci` from this lockfile (checked versions and hashes). Keep @fission-ai/openspec at the version of distrobox/Containerfile.",
+  "license": "MIT OR Apache-2.0",
+  "devDependencies": {
+    "@fission-ai/openspec": "1.15.0"
+  }
+}

@@ -1,3 +1,4 @@
+// SPDX-License-Identifier: MIT OR Apache-2.0
 //! # doyen
 //!
 //! Pick one master among the instances of a service, through the database you already run.

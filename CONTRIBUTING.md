@@ -25,6 +25,19 @@
 5. **Pull request** with the template. The CI must be green. The maintainer reviews it and
    merges it with a rebase merge.
 
+### Commit messages
+
+The CI checks the subject of every commit with `scripts/check-commits.sh`. Run the same
+check before you push: `scripts/check-commits.sh origin/main HEAD`. The form is
+`type(scope)!: subject`; the types are `feat`, `fix`, `docs`, `style`, `refactor`, `perf`,
+`test`, `build`, `ci`, `chore` and `revert`, and the scope and `!` are optional. Two good
+subjects:
+
+- `feat(core): add the local lease`
+- `fix(redis): renew on time`
+
+A subject such as `Added lease` fails. Merge commits made by Git are skipped.
+
 ## Build and test
 
 The commands are in [AGENTS.md](AGENTS.md) (*Commands*). The development container is

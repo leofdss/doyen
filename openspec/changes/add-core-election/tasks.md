@@ -63,7 +63,7 @@ write the code until they pass. Never change a test only to make it pass.
 ## 8. Integration check
 
 - [ ] 8.1 Run `python3 scripts/check-scenario-tests.py --change add-core-election`; verify every scenario of the five capabilities is named by a test
-- [ ] 8.2 Run the whole suite with coverage (`cargo llvm-cov --all-features`); verify the CI passes and the report shows the engine and the conformance suite covered
+- [ ] 8.2 Remove the placeholder case ("no coverage data found" → empty report) from the `coverage` job of `ci.yml`: the crate has code now; run the whole suite with coverage (`cargo llvm-cov --all-features`); verify the CI passes and the report shows the engine and the conformance suite covered
 
 ## Workflow follow-up
 
