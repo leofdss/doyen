@@ -9,7 +9,7 @@ make it pass.
 
 - [ ] 1.1 Write the C test program (built in CI): join a local Redis, read the status, read a status change with `next_event`, cancel a blocked join, leave, `free` while another thread is in `status`; verify it fails to link or fails (red)
 - [ ] 1.2 Create the crate `crates/doyen-ffi` (`staticlib`, `publish = false`) with the 9 functions, the `Arc` handle and the `DoyenError` out-parameter; verify the C test passes (green) under AddressSanitizer
-- [ ] 1.3 Generate the header with cbindgen and check it in CI; verify the CI fails when the header is out of date
+- [ ] 1.3 Generate the header with cbindgen (its `header` setting writes the `SPDX-License-Identifier` line) and check it in CI; verify the CI fails when the header is out of date
 - [ ] 1.4 Commit the group in one commit (tests, code, spec changes, ticks): `feat(go): add the C ABI for the Go binding`
 
 ## 2. Go package

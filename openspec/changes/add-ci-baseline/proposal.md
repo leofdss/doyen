@@ -39,7 +39,7 @@ Release: v0.1 (groundwork). Depends on: nothing.
 
 - `ci-checks`: the checks that every push and pull request must pass: build, lint, tests,
   the commit message rule, the commit-spec rule, the scenario-test check, the specs check,
-  the workflow check and the dependency check.
+  the workflow check, the dependency check and the license header check.
 
 ### Modified Capabilities
 

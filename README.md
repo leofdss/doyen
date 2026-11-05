@@ -272,7 +272,8 @@ cargo build
 | `distrobox/` | The development image and container |
 
 The work is planned as OpenSpec changes, applied one at a time in the order of
-[TODO.md](TODO.md). How to work here (also for AI agents): [AGENTS.md](AGENTS.md).
+[TODO.md](TODO.md). How to work here (also for AI agents): [AGENTS.md](AGENTS.md); how to
+contribute: [CONTRIBUTING.md](CONTRIBUTING.md); who decides: [GOVERNANCE.md](GOVERNANCE.md).
 Commits follow [Conventional Commits](https://www.conventionalcommits.org/); the release
 number comes from them (SemVer, [release-please](https://github.com/googleapis/release-please)),
 one version for the crate, the npm package and the Go module. Contributions

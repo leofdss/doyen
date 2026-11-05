@@ -43,9 +43,9 @@ not its author.
 
 ## Secrets
 
-- Secrets live only in GitHub secrets, in the environment `release` when a job there needs
-  them: `RELEASE_APP_ID`, `RELEASE_APP_KEY`, `DOYEN_GO_DEPLOY_KEY`. There are no registry
-  tokens: crates.io and npm use Trusted Publishing.
+- Secrets live only in GitHub secrets: `RELEASE_APP_ID` and `RELEASE_APP_KEY` as repository
+  secrets (the release-please job), `DOYEN_GO_DEPLOY_KEY` only in the environment `release`.
+  There are no registry tokens: crates.io and npm use Trusted Publishing.
 - The app key and the deploy key are rotated once a year, and at once when a leak is
   suspected or a person with access leaves.
 
