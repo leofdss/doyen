@@ -35,6 +35,10 @@ context: |
     included) belongs to an open change, the commit that adds or changes it also holds the
     spec changes it needs and the ticks in that change's tasks.md. Never code in one commit
     and its spec in another.
+  - Code style (owner decision 2026-11-05): write code that TypeScript programmers can
+    follow (Rust and Go too), and that people read and understand fast: not too short
+    (clever one-liners, one-letter names), not too long (extra layers, comments that repeat
+    the code). The rules are in AGENTS.md, "Code style".
 
   Repo: Cargo workspace (edition 2024, MSRV Rust 1.85, resolver 3). Crate crates/doyen
   (core + adapters behind cargo features), npm package bindings/node (@leofdss/doyen), Go
@@ -54,9 +58,11 @@ rules:
   design:
     - Record every assumption the owner has not confirmed under "Decisions" with the words
       "to confirm (owner)".
+    - "Prefer the plain design a TypeScript programmer knows. When a Rust- or Go-only feature is needed (lifetimes, own macros, generics with many bounds, unsafe), say why."
   tasks:
     - "TDD: a task group with behaviour starts with a task that writes the tests for its scenarios and checks that they fail (red); the next tasks write the code until they pass (green), then clean up (refactor)."
     - "One task group is one commit: its tests, its code, the spec changes they need and its ticks in tasks.md (code goes with its spec). Stage the red tests (git add) before writing the code; every commit is green."
+    - "The refactor step checks the code style rules of AGENTS.md (familiar to TypeScript programmers; not too short, not too long). Tests follow them too."
     - Use the model-tiering skill to choose the model and effort of each task group.
     - Commits follow Conventional Commits, type(scope) subject; scopes core, redis, mongodb,
       postgresql, node, go, ci, release, docs.

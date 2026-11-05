@@ -58,7 +58,8 @@ code only makes the tests pass.
    Stage them (`git add`).
 2. **Green:** write the code until the tests pass. The staged tests do not change: `git diff`
    on the test files stays empty.
-3. **Refactor:** clean up with every test green. No test changes in this step.
+3. **Refactor:** clean up with every test green, following *Code style*. No test changes in
+   this step.
 4. **Commit** the task group as one commit: its tests, its code, the spec changes and the
    ticks in `tasks.md` (see *Commits*). Every commit is green.
 
@@ -68,6 +69,49 @@ code only makes the tests pass.
 - `python3 scripts/check-scenario-tests.py` (from `add-ci-baseline`) fails when a scenario has
   no test, or a test names a scenario that no longer exists. A scenario that can only be
   checked by hand (for example a CI failure path) goes in `openspec/manual-checks.md`.
+
+## Code style
+
+Owner rules (2026-11-05). Most readers know TypeScript, and every reader is a person.
+
+**1. Familiar to TypeScript programmers.** Write Rust and Go with the parts a TypeScript
+programmer already knows:
+
+| TypeScript | Rust | Go |
+|---|---|---|
+| class with methods | `struct` + `impl` | `struct` + methods |
+| `interface` | `trait` (like `Backend`) | `interface` |
+| union type + `switch` | `enum` + `match` | typed constants + `switch` |
+| `T \| null` + `if (x !== null)` | `Option<T>` + `if let Some(x)` | a pointer, or a second `ok` value |
+| `throw` / `try` | `Result` + `?` | `if err != nil { return err }` |
+| `async` / `await` | `async fn` / `.await` | a goroutine + a channel, only where the spec asks |
+| `array.map` / `filter` / `find` | iterator `map` / `filter` / `find` | a `for` loop |
+
+- Use a Rust- or Go-only feature only when the code needs it, with a comment that says why:
+  lifetimes (a clone or an owned value often removes them), your own macros
+  (`macro_rules!`), generics with many bounds, type-level tricks, `unsafe` (only in the
+  C ABI).
+- Use the names of the specs and the API, in full words: `renew_interval_ms`, `member`,
+  `generation`; not `ri`, `m`, `g`.
+- The Node.js binding is plain TypeScript for its users: camelCase, Promises, string unions,
+  `Error` with a `code`.
+
+**2. Easy to read: not too short, not too long.** A person reads the code once and
+understands it.
+
+- Too short (avoid): one-letter names, clever one-liners, long call chains, a closure inside
+  a closure, `map_or_else` where an `if let` or a `match` reads better.
+- Too long (avoid): a comment that repeats the code, a layer "for later" (a trait, generic,
+  builder or module with one user), a function that only calls another one, checks for
+  cases the types already rule out, the same block copied three times.
+- One function does one thing and fits on one screen. Return early instead of nesting deep.
+- Give each step a name: a well-named variable or small function beats a clever expression.
+- Comments say *why* (the rule, the spec, the risk), not *what*. Each public item has a doc
+  comment.
+- Write the type when a reader would have to guess it (a function's return, a `let` from a
+  long expression).
+- Tests follow these rules too. The refactor step of TDD and the review before the merge
+  check them.
 
 ## Choosing the model
 

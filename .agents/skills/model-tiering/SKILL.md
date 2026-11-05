@@ -37,7 +37,7 @@ only by the escalation rules.
 | Conformance suite and the in-memory adapter | T2 (they define what every adapter must do) |
 | Bindings (`bindings/node`, `bindings/go`, `crates/doyen-ffi`) | T2 for the C ABI and the thread rules; T1 for the rest, after the tests exist |
 | CI red: find the failing step | T0, then the tier of the failing code to fix it |
-| Review of a change before the merge | T2 in a fresh-context subagent; T3 before a release |
+| Review of a change before the merge (correctness, then the code style of `AGENTS.md`) | T2 in a fresh-context subagent; T3 before a release |
 | `/opsx:archive`, `TODO.md` rows, changelog | T0 |
 | `scripts/check-specs.py` errors | T1 |
 
