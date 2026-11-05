@@ -15,9 +15,9 @@
 
 ## 3. License header check (test first)
 
-- [ ] 3.1 Write `scripts/tests/test_check_license_headers.py` (a fixture tree with a file with the line, one without it, a shebang script and a generated file on the list) for the scenario "File without a header"; verify it fails (red), then stage the tests
-- [ ] 3.2 Write `scripts/check-license-headers.py` and add the license line to the files that lack it (`crates/doyen/src/lib.rs`, `bindings/node/index.js`, `scripts/*.py`); verify the tests pass (green) and the check passes on the repo
-- [ ] 3.3 Commit the group in one commit (tests, code, ticks): `ci: add the license header check`
+- [x] 3.1 Write `scripts/tests/test_check_license_headers.py` (a fixture tree with a file with the line, one without it, a shebang script and a generated file on the list) for the scenario "File without a header"; verify it fails (red), then stage the tests
+- [x] 3.2 Write `scripts/check-license-headers.py` and add the license line to the files that lack it (`crates/doyen/src/lib.rs`, `bindings/node/index.js`, `scripts/*.py`); verify the tests pass (green) and the check passes on the repo
+- [x] 3.3 Commit the group in one commit (tests, code, ticks): `ci: add the license header check`
 
 ## 4. Scenario-test check (test first)
 

@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+# SPDX-License-Identifier: MIT OR Apache-2.0
 """Check the OpenSpec changes against each other (conflicts that `openspec validate` cannot see).
 
 `openspec validate --all --strict` checks each change alone (format, scenarios, lengths).
