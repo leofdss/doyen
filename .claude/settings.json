@@ -9,11 +9,20 @@
       "Bash(cargo publish *)",
       "Bash(* cargo publish *)",
       "Bash(npm publish *)",
-      "Bash(* npm publish *)"
+      "Bash(* npm publish *)",
+      "Bash(npm unpublish *)",
+      "Bash(* npm unpublish *)",
+      "Bash(npm deprecate *)",
+      "Bash(* npm deprecate *)",
+      "Bash(cargo yank *)",
+      "Bash(* cargo yank *)",
+      "Bash(cargo owner *)",
+      "Bash(* cargo owner *)"
     ],
     "ask": [
       "Bash(git push *)",
-      "Bash(gh release *)"
+      "Bash(gh release *)",
+      "Bash(gh pr merge *)"
     ]
   }
 }

@@ -21,6 +21,11 @@ own toolchains, so the CI does not depend on the image.
 - **Jobs:** `fmt`, `clippy`, `test`, `msrv`, `coverage`, `commits`, `scenarios`, `specs`,
   `workflows`, `deps`, in parallel. One job per check gives a clear failure name. Alternative: one job with many steps; rejected, a
   failure hides the next checks.
+- **Filters at job level only:** a job that runs only for some changes (the database jobs,
+  `system`, `semver`) lives in `ci.yml` with an `if:` on the output of a small `changes` job,
+  never with a workflow-level `paths:` filter. A skipped job counts as passed, so every job
+  can be a required check of the `main` ruleset, and no pull request waits for a check that
+  never starts.
 - **Toolchains:** `dtolnay/rust-toolchain` (stable, and `1.85` for `msrv`), plus
   `Swatinem/rust-cache`. Alternative: the dev image as a container job; rejected for now,
   the image is large and built weekly.

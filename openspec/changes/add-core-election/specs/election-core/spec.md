@@ -114,6 +114,15 @@ change the master.
 - **WHEN** the database does not answer for 5 s and then answers again
 - **THEN** the master stays the same and no member goes offline
 
+### Requirement: Wake-ups come back after an error
+When the adapter's `watch` stream ends or fails, the core SHALL open it again with the same
+backoff as a join retry, and SHALL use only its timer meanwhile. This SHALL NOT change the
+status.
+
+#### Scenario: Watch stream ends
+- **WHEN** the watch stream of a slave ends
+- **THEN** the core opens it again, the status stays slave, and a later `leave` of the master still wakes this member at once
+
 ### Requirement: A lost place means a new join at the end
 When a renew says the place is gone (it expired, or it has another tag), or the instance's
 number is not in the live line, the core SHALL join again with a new membership, at the end

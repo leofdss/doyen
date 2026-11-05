@@ -22,12 +22,12 @@ make it pass.
 
 ## 3. CI and release
 
-- [ ] 3.1 Add the CI job `go` (build the static library on Linux x64, the C test, `go test -race` with Redis and MongoDB services); verify it passes
+- [ ] 3.1 Add the CI job `go` (build the static library on Linux x64, the C test, `go test -race` with Redis and MongoDB services) and the `gomod` ecosystem (`/bindings/go`) to `.github/dependabot.yml`; verify the job passes
 - [ ] 3.2 (owner) Create the repo `leofdss/doyen-go` and a deploy key with write access; add the private key as the secret `DOYEN_GO_DEPLOY_KEY` of the environment `release`
 - [ ] 3.3 Write the release check test "Library too large" (the size check script fails on a file over 100 MiB); verify it fails, then write `scripts/check-go-libs.sh` and verify it passes
-- [ ] 3.4 Add the jobs `go-build` and `go` to `release.yml` (three platforms, `llvm-strip --strip-debug`, the size check, Go tests, push and tag in `leofdss/doyen-go` in the environment `release`) and a `workflow_dispatch` dry run that pushes to a test branch of `doyen-go` without a tag; verify the dry run, then delete the test branch
+- [ ] 3.4 Add the jobs `go-build` and `go` to `release.yml` (three platforms, `llvm-strip --strip-debug`, the size check, Go tests, an attestation of each library with `actions/attest-build-provenance`, push and tag in `leofdss/doyen-go` in the environment `release`) and a `workflow_dispatch` dry run that pushes to a test branch of `doyen-go` without a tag; verify the dry run, then delete the test branch
 - [ ] 3.5 Commit the group in one commit (tests, code, spec changes, ticks): `ci(go): build, strip and publish the Go module`
-- [ ] 3.6 Run `python3 scripts/check-scenario-tests.py --change add-go-binding`; add "go get", "cgo off" and "Release 0.3.0" to `openspec/manual-checks.md` once checked; verify every `go-binding` scenario is named by a test or a manual check
+- [ ] 3.6 Run `python3 scripts/check-scenario-tests.py --change add-go-binding`; add "go get", "cgo off", "Release 0.3.0" and "Library provenance" to `openspec/manual-checks.md` once checked; verify every `go-binding` scenario is named by a test or a manual check
 - [ ] 3.7 Write the Go quick start in the main README; then (owner) after the merge of this change, merge the release pull request (0.3.0) and approve the environment `release`; verify `go get github.com/leofdss/doyen-go@v0.3.0` and a build work in a clean module on linux/amd64
 
 ## Workflow follow-up

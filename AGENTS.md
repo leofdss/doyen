@@ -163,8 +163,9 @@ Agents follow [`AI_POLICY.md`](AI_POLICY.md), like people. Also:
 
 - **A person decides.** An agent never pushes, merges, publishes, creates a tag or a release, changes
   GitHub settings, or sends anything outside the repo (issues, comments, security reports,
-  emails) without the owner's go. `.claude/settings.json` blocks `cargo publish` and
-  `npm publish`, and asks before `git push` and `gh release`.
+  emails) without the owner's go. `.claude/settings.json` blocks `cargo publish`,
+  `cargo yank`, `cargo owner`, `npm publish`, `npm unpublish` and `npm deprecate`, and asks
+  before `git push`, `gh release` and `gh pr merge`.
 - **Commits:** end the message with `Assisted-by: <tool> (<model>)`, for example
   `Assisted-by: Claude Code (claude-opus-5-5)`. Never add `Signed-off-by` or
   `Co-authored-by` for an agent: only a person can sign.

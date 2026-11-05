@@ -30,7 +30,8 @@ that the team already runs. It has no server and opens no port.
 
 - At most one master per group at a time, as long as the database keeps the guarantees that
   its documentation describes and the setup passes doyen's checks without a warning.
-- The fencing token (`token()`) never goes back, also after the database loses its data.
+- The fencing token (`token()`) never goes back, also after the database loses its data,
+  except in the cases that the README documents for each database (*Using the token*).
 - An instance that cannot reach the database stops being master when its local lease ends,
   before another instance can take its place.
 

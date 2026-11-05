@@ -41,6 +41,7 @@ them by hand.
 A join SHALL run in one transaction that locks the group row: it SHALL remove dead members,
 return my place if a live member has my tag, else insert me with number max(`seq`, highest
 live number) + 1 and update `seq`, then notify. Numbers SHALL enter the line in commit order.
+The group row SHALL hold the data format (`format`, see `adapter-contract`).
 
 #### Scenario: Concurrent joins
 - **WHEN** ten instances join at the same moment

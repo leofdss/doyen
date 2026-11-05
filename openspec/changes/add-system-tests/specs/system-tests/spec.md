@@ -8,11 +8,11 @@ real clocks and real faults, and check the promises of `election-core` from the 
 ## ADDED Requirements
 
 ### Requirement: Real members and a real database
-The system tests SHALL run three member processes of a test program against a real Redis
-server and against a real MongoDB replica set, with the default settings. Each member SHALL
-write every status and token it sees on a timeline, with the time of a clock that every
-process on the host shares (Linux `CLOCK_BOOTTIME`), and SHALL read its status at least
-every 10 ms.
+The system tests SHALL run three member processes of a test program against a real database
+of every adapter (in v0.1: a Redis server and a MongoDB replica set), with the default
+settings. Each member SHALL read its status at least every 10 ms and write every status and
+token it sees on a timeline, with the time of a clock that every process on the host shares
+(Linux `CLOCK_BOOTTIME`).
 
 #### Scenario: Timeline
 - **WHEN** a system test ends
@@ -56,9 +56,9 @@ After the master calls `leave`, the next member SHALL be master within 1 s.
 - **THEN** member 2 is master less than 1 s later
 
 ### Requirement: System tests in CI
-The system tests SHALL run in CI against Redis and MongoDB on every pull request that
-changes `crates/`, and every night. A failed check SHALL fail the run.
+The system tests SHALL run in CI against the database of every adapter on every pull request
+that changes `crates/`, and every night. A failed check SHALL fail the run.
 
 #### Scenario: Pull request
 - **WHEN** a pull request changes a file in `crates/doyen/src/`
-- **THEN** the CI job `system` runs the system tests for Redis and MongoDB
+- **THEN** the CI job `system` runs the system tests for every adapter

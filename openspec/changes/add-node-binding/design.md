@@ -86,7 +86,9 @@ renew. With the defaults: blocked < 11 s → nothing; > 13 s → the lease ends.
   the same version), and runs `npm publish --provenance` for each package, in the
   environment `release`, with npm Trusted Publishing (`id-token: write`, npm 11.5.1 or
   newer). One version for every package (`release-process`): the first npm release is the
-  release that ends this change, 0.2.0 by the plan. To confirm while applying: whether npm
+  release that ends this change, 0.2.0 by the plan. The platform package folders
+  (`npm/<platform>/`) are made in CI and not committed, so their versions never drift from
+  the main `package.json` (the `@napi-rs/cli` v3 command for it: to confirm while applying). To confirm while applying: whether npm
   needs each platform package to exist before a Trusted Publisher can be added to it (then
   the owner publishes a placeholder of each by hand once).
 

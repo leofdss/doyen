@@ -34,6 +34,7 @@ after `timeoutMs`, like the other adapters, and the conformance suite is the sam
 ```sql
 CREATE TABLE IF NOT EXISTS doyen_group (
   grp      text PRIMARY KEY,
+  format   integer NOT NULL DEFAULT 1,
   seq      bigint NOT NULL,
   gen      bigint NOT NULL,
   timeline integer NOT NULL

@@ -66,7 +66,7 @@ alone give no release.
 release-please SHALL keep one open release pull request with the next version in every
 version file and a new `CHANGELOG.md` section: breaking changes, features, fixes and
 performance, from the commits since the last release. The CI SHALL fail on that pull request
-when its version is not the one the version rules give. Only the owner SHALL merge it.
+when its version is not the one the version rules give (or the one set with `Release-As`). Only the owner SHALL merge it.
 Merging it SHALL create the tag `v<version>` and a GitHub release with that section.
 
 #### Scenario: New version
@@ -105,6 +105,15 @@ database jobs) SHALL be green on the release commit.
 #### Scenario: File missing from the package
 - **WHEN** the crate's `include` list misses a needed file
 - **THEN** `cargo package` fails in the release workflow
+
+### Requirement: SBOM and provenance
+The release workflow SHALL add to each GitHub release the packaged crate
+(`doyen-<version>.crate`), an SBOM of the crate and its dependencies in CycloneDX format, and
+a GitHub artifact attestation (SLSA build provenance) of the packaged crate.
+
+#### Scenario: Release assets
+- **WHEN** the release `v0.1.0` is made
+- **THEN** its GitHub release has `doyen-0.1.0.crate` and `doyen-0.1.0.cdx.json`, and `gh attestation verify doyen-0.1.0.crate -R leofdss/doyen` passes
 
 ### Requirement: Publishing needs the owner's approval
 Publishing SHALL run only in the release workflow, in the GitHub environment `release`, which

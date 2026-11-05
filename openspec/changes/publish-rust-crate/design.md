@@ -67,16 +67,23 @@ recomendações"), except the points marked "to confirm while applying".
   - `next`: on the release pull request, the proposed version equals the version that the
     version rules give from the commits since the last tag (`git log <tag>..HEAD`; subject
     `type(scope)!:` or a `BREAKING CHANGE:` footer). It checks release-please against the
-    rules of this spec.
+    rules of this spec. When the config has `release-as` or a commit has a
+    `Release-As: x.y.z` footer, that version is the expected one.
   - `tag <tag>`: the tag equals the versions (release workflow, before any publish).
 - **Workflow `release.yml`** on push to `main`: job `release-please` (outputs
   `release_created`, `tag_name`); if a release was created: job `check`
   (`check-versions.py tag`, `cargo package -p doyen`), then job `crates` in the environment
   `release` (`permissions: id-token: write`, `rust-lang/crates-io-auth-action` for a
-  short-lived token, `cargo publish -p doyen`). The publish jobs live in the same workflow
+  short-lived token, `cargo publish -p doyen`).
+- **SBOM and provenance (OpenSSF):** the job `check` also runs `cargo cyclonedx` (tool
+  `cargo-cyclonedx`, version pinned) and `actions/attest-build-provenance` (pinned;
+  `attestations: write`, `id-token: write`) on the `.crate` file, and uploads the `.crate`
+  and the SBOM to the GitHub release (`gh release upload`). npm gets its provenance from
+  Trusted Publishing; the Go libraries get attestations in `add-go-binding`. The publish jobs live in the same workflow
   because a tag made with a workflow token starts no other workflow.
 - **API check:** job `semver` in `ci.yml`, only on the release branch
-  (`release-please--branches--main`): `obi1kenobi/cargo-semver-checks-action` (pinned)
+  (`release-please--branches--main`; to confirm while applying: the branch name of a manifest
+  release pull request): `obi1kenobi/cargo-semver-checks-action` (pinned)
   against the last version on crates.io.
 - **Trusted Publishing on crates.io:** the owner adds the publisher on crates.io (repository
   `leofdss/doyen`, workflow `release.yml`, environment `release`). It needs a crate that

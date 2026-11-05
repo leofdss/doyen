@@ -41,6 +41,7 @@ make it pass.
 - [ ] 4.6 Run `python3 scripts/check-scenario-tests.py --change add-node-binding`; verify every `node-binding` scenario is named by a test or a manual check
 - [ ] 4.7 (owner) Add the npm Trusted Publisher (repository `leofdss/doyen`, workflow `release.yml`, environment `release`) to `@leofdss/doyen` and to each platform package (design.md: a placeholder first if npm needs it); verify the npm settings page of each package shows it
 - [ ] 4.8 (owner) After the merge of this change, merge the release pull request (0.2.0) and approve the environment `release`; verify `npm install @leofdss/doyen` works in a clean folder on Linux x64 and npm shows the provenance, and add "Release 0.2.0" to `openspec/manual-checks.md`
+- [ ] 4.9 (owner) Deprecate the npm placeholders: `npm deprecate @leofdss/doyen@"<0.1.0" "placeholder: use 0.2.0 or newer"`; verify `npm view @leofdss/doyen@0.0.2` shows the note
 
 ## Workflow follow-up
 

@@ -51,6 +51,9 @@ spec.
   renew pipelines change nothing when `format` is higher (each `$set` keeps the old value
   under a `$cond` on `format`); the adapter reads `format` in the returned document and
   returns the error of `adapter-contract`.
+- **CI replica sets:** GitHub service containers cannot pass `--replSet`, so the jobs start
+  `mongod --replSet rs0` with `docker run` in a step and call `rs.initiate()`. The system
+  tests (`add-system-tests`) use the same container.
 - **Tag storage:** the 128-bit tag as a 32-character hex string (easy to read in the shell).
 - **Change stream filter:** `$match` on `documentKey._id` = group and
   (`operationType` in insert, delete, replace, or `updateDescription.updatedFields.version`

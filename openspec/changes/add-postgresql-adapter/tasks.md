@@ -18,7 +18,7 @@ make it pass.
 
 ## 2. Operations
 
-- [ ] 2.1 Write the operation tests (`DOYEN_TEST_POSTGRESQL_URL`): "Concurrent joins", "Retry with the same tag", "Process crash", "Network partition", "Master leaves", "Pooler in transaction mode" (PgBouncer), "Failover to a standby", "Dump and restore into a new cluster"; add the PostgreSQL adapter to the conformance suite; give the adapter stub bodies and verify every test fails (red)
+- [ ] 2.1 Write the operation tests (`DOYEN_TEST_POSTGRESQL_URL`): "Concurrent joins", "Retry with the same tag", "Process crash", "Network partition", "Master leaves", "Pooler in transaction mode" (PgBouncer), "Failover to a standby", "Dump and restore into a new cluster"; add the PostgreSQL adapter to the conformance suite (its test hook writes `format` 2 in the group row); give the adapter stub bodies and verify every test fails (red)
 - [ ] 2.2 Write join (transaction, row lock, tag retry, n rule, `NOTIFY`); verify the join tests pass
 - [ ] 2.3 Write renew (one statement, `clock_timestamp()`, live line, timeline) and the generation rules; verify the expiry and generation tests pass
 - [ ] 2.4 Write leave and watch (`LISTEN doyen`, payload filter); verify the remaining tests and the whole conformance suite pass (green)
@@ -27,7 +27,8 @@ make it pass.
 ## 3. CI
 
 - [ ] 3.1 Add the CI jobs `postgresql` (14 / latest), a primary + standby failover (promote the standby) and the dump/restore test, with `DOYEN_TEST_REQUIRE_DB=1`; verify they pass and the failover test shows a new, higher generation
-- [ ] 3.2 Commit as `test(postgresql): run the adapter on PostgreSQL in CI`
+- [ ] 3.2 Add PostgreSQL to the system tests of `system-tests` (member type `postgresql`, a pause of the PostgreSQL container, the job `system`); verify the four scenarios and "Timelines checked" pass on PostgreSQL
+- [ ] 3.3 Commit as `test(postgresql): run the adapter and the system tests on PostgreSQL in CI`
 
 ## 4. Managed services and documentation
 

@@ -11,5 +11,6 @@
   (alias only) and `effort` for one subagent call.
 - `.claude/settings.json` turns off Claude Code's default `Co-Authored-By` trailer and pull
   request line (`attribution`): add the `Assisted-by` trailer yourself, with the model you
-  run on (see *AI agents* in `AGENTS.md`). It also blocks `cargo publish` and `npm publish`
-  and asks before `git push` and `gh release`.
+  run on (see *AI agents* in `AGENTS.md`). It also blocks the registry commands (`cargo publish`,
+  `yank`, `owner`; `npm publish`, `unpublish`, `deprecate`) and asks before `git push`,
+  `gh release` and `gh pr merge`.

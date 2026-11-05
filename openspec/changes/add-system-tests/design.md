@@ -34,7 +34,8 @@ whole processes, real clocks, real timeouts, real faults.
   compared. The tests run on Linux only.
 - **Faults:** kill = `SIGKILL` of the member process; pause = `docker pause` /
   `docker unpause` of the database container (locally `distrobox-host-exec podman pause`),
-  given by `DOYEN_TEST_SYSTEM_PAUSE` and `DOYEN_TEST_SYSTEM_UNPAUSE`. A paused database
+  given by `DOYEN_TEST_SYSTEM_PAUSE` and `DOYEN_TEST_SYSTEM_UNPAUSE` (in CI: the Redis service
+  by `${{ job.services.redis.id }}`, the MongoDB container by its name). A paused database
   keeps its TCP connections but answers nothing, like a hung server. Its expiry uses the wall clock, so
   after a long pause every place has expired.
 - **Members start one after the other** (1 s apart), so their numbers are 1, 2 and 3 and
@@ -46,8 +47,9 @@ whole processes, real clocks, real timeouts, real faults.
   (`DOYEN_TEST_REDIS_URL`, `DOYEN_TEST_MONGODB_URL`), and use the database test switch of
   `add-core-election` (`DOYEN_TEST_REQUIRE_DB=1` makes a missing URL a failure).
 - **Time:** about 40 s per scenario, 4 scenarios × 2 databases: about 5 minutes. The CI job
-  `system` runs on pull requests that change `crates/`, and every night (`schedule`), so a
-  slow CI runner is found early.
+  `system` runs on pull requests that change `crates/` (a job-level filter, see the
+  `add-ci-baseline` design), and every night (`schedule`), so a slow CI runner is found
+  early.
 - **TDD note:** these tests check code that already exists, so they may pass at once. Each
   test is then checked by breaking the code on purpose once (for example a lease margin of
   0, or no `PUBLISH` on leave), seeing the test fail, and putting the code back.

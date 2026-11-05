@@ -31,6 +31,9 @@ here:
 
 A client that misses one need is rejected. If both pass: the one with fewer dependencies.
 
+TLS: rustls with the system root certificates, like the MongoDB driver; no OpenSSL. Task 1.1
+checks that the chosen client has it.
+
 ### Connections
 
 - One dedicated connection for the transactions of the object (join, renew, leave) and one
@@ -88,4 +91,5 @@ task 3.3 (to confirm (owner) if it cannot be detected: then document it as not s
 - [The adapter's "highest seen" is lost on a restart of every instance] → the documented
   exception; the README says how to reset the fence row.
 - [Sentinel and Cluster jobs are slow] → they run on pull requests that change
-  `src/redis/` or the Compose files, and on `main`.
+  `src/redis/` or the Compose files, and on `main` (a job-level filter, see the
+  `add-ci-baseline` design, so they can stay required checks).

@@ -113,8 +113,26 @@ with any features; a config for a database whose feature is off SHALL make `join
 ### Requirement: Tokio runtime
 `join` and `leave` SHALL run on a Tokio runtime, and the core SHALL start its own tasks on the
 runtime where `join` was called. If that runtime stops, the renews SHALL stop and the lease
-SHALL end on its own.
+SHALL end on its own. Outside a Tokio runtime, `join` SHALL fail with `DOYEN_UNSUPPORTED` and
+SHALL NOT panic.
 
 #### Scenario: Runtime shut down
 - **WHEN** the app's Tokio runtime shuts down while the instance is master
 - **THEN** no renew is sent, and the status is not master after the lease ends
+
+#### Scenario: No Tokio runtime
+- **WHEN** an app awaits `join` with `futures::executor::block_on`, outside a Tokio runtime
+- **THEN** `join` fails with `DOYEN_UNSUPPORTED` and the message says that a Tokio runtime is needed
+
+### Requirement: Supported platforms
+The crate SHALL build on Linux (x86_64 and aarch64) and macOS (aarch64), each with a clock
+that counts suspend time, and SHALL pass its unit tests on Linux x86_64 and macOS aarch64. On
+any other target it SHALL fail to build with a message that names the supported platforms.
+
+#### Scenario: Build on macOS
+- **WHEN** the CI builds and tests the crate with all features on a macOS arm64 runner
+- **THEN** the build and the unit tests pass
+
+#### Scenario: Build on Windows
+- **WHEN** the crate is built for `x86_64-pc-windows-msvc`
+- **THEN** the build fails with a message that names the supported platforms

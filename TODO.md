@@ -96,7 +96,8 @@ README: do them one after the other (Redis first, the first database the owner c
   (never by an agent, see `AI_POLICY.md`). If yes, the commit check of `add-ci-baseline`
   checks it.
 - [ ] (owner) After `add-ci-baseline`: protect `main` with a ruleset (pull request and green
-  CI before a merge, rebase merge only, linear history, no force push), as the OpenSSF SCM
+  CI before a merge with every job of `ci.yml` required, rebase merge only, linear history,
+  no force push), as the OpenSSF SCM
   guide asks and GitHub Flow needs.
 - [ ] (owner) The dev image downloads VS Code "latest" with no checksum: pin a version with
   its SHA-256, or take VS Code out of the image.
