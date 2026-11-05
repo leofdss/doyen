@@ -48,6 +48,14 @@ def open_changes() -> dict[str, Path]:
     return {p.name: p for p in sorted(CHANGES.iterdir()) if p.is_dir() and p.name != "archive"}
 
 
+def archived_changes() -> set[str]:
+    """Names of the archived changes, without the date prefix of their folder."""
+    archive = CHANGES / "archive"
+    if not archive.is_dir():
+        return set()
+    return {re.sub(r"^\d{4}-\d{2}-\d{2}-", "", p.name) for p in archive.iterdir() if p.is_dir()}
+
+
 def todo_table(heading: str) -> list[list[str]]:
     """Rows of the first Markdown table after a heading of TODO.md (cells stripped)."""
     text = TODO.read_text()
@@ -152,9 +160,10 @@ def main() -> int:
         if c not in index:
             errors.append(f"TODO.md: change {c} is not in the order table")
     deps: dict[str, set[str]] = {}
+    known_changes = set(changes) | archived_changes()  # an archived dependency is done
     for name, path in changes.items():
         m = re.search(r"Depends on:(.+?)(?:\n\n|$)", (path / "proposal.md").read_text(), re.S)
-        deps[name] = {t for t in ticks(m.group(1)) if t in changes} if m else set()
+        deps[name] = {t for t in ticks(m.group(1)) if t in known_changes} if m else set()
         if not m:
             errors.append(f"{name}: proposal has no 'Depends on:' line")
     for row in order_rows:
