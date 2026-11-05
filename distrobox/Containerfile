@@ -82,6 +82,11 @@ ENV LLVM_COV=/usr/bin/llvm-cov \
 RUN npm install --global --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code \
  && npm cache clean --force
 
+# OpenSpec CLI -- the specs and changes in openspec/ (the /opsx:* commands
+# call it). Pinned: `openspec update` regenerates the skills for this version.
+RUN npm install --global @fission-ai/openspec@1.15.0 \
+ && npm cache clean --force
+
 # VS Code -- Microsoft's official tarball in /opt (no official Arch package;
 # AUR would depend on a third-party PKGBUILD).
 RUN curl -fsSL "https://update.code.visualstudio.com/latest/linux-x64/stable" -o /tmp/vscode.tar.gz \

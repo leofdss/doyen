@@ -35,6 +35,7 @@ Arch Linux (`quay.io/toolbx/arch-toolbox`) with:
 | Go, cbindgen (+ gcc from base-devel) | the Go module (cgo + C ABI, v0.3) |
 | Python, git, OpenSSL | scripts, version control, TLS for the drivers |
 | Claude Code, VS Code, fish, starship | editing and the shell |
+| OpenSpec CLI (`openspec` 1.15.0) | the specs and changes in `openspec/` (see `TODO.md`) |
 
 Decisions (the same as StemLoft):
 
@@ -61,7 +62,7 @@ tests.)
 ```bash
 podman build -t localhost/doyen-dev:latest -f distrobox/Containerfile .
 podman run --rm localhost/doyen-dev:latest bash -lc \
-  'rustc --version && cargo llvm-cov show-env && node --version && go version && cbindgen --version'
+  'rustc --version && cargo llvm-cov show-env && node --version && go version && cbindgen --version && openspec --version'
 ```
 
 To create the container from the local image, change two lines in `distrobox.ini`, create it
