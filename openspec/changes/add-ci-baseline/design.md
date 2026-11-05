@@ -19,7 +19,7 @@ own toolchains, so the CI does not depend on the image.
 ## Decisions
 
 - **Jobs:** `fmt`, `clippy`, `test`, `msrv`, `coverage`, `commits`, `scenarios`, `specs`,
-  `workflows`, `deps`, in parallel. One job per check gives a clear failure name. Alternative: one job with many steps; rejected, a
+  `workflows`, `deps`, `licenses`, in parallel. One job per check gives a clear failure name. Alternative: one job with many steps; rejected, a
   failure hides the next checks.
 - **Filters at job level only:** a job that runs only for some changes (the database jobs,
   `system`, `semver`) lives in `ci.yml` with an `if:` on the output of a small `changes` job,
@@ -63,6 +63,14 @@ own toolchains, so the CI does not depend on the image.
   from RustSec, licenses allowed = MIT, Apache-2.0, Apache-2.0 WITH LLVM-exception,
   BSD-2-Clause, BSD-3-Clause, ISC, Unicode-3.0, Zlib (add one only when a real dependency
   needs it), sources = crates.io only. Installed with `taiki-e/install-action`.
+- **License headers:** `scripts/check-license-headers.py` reads the first three lines of
+  each tracked source file. Generated files get the line from their generator when it can
+  (cbindgen `header`); the others are on a short list in the script (for example the napi-rs
+  `index.js` and `index.d.ts`). Only `SPDX-License-Identifier`, the kernel way: no copyright
+  line per file.
+- **Dependency policy (OSPS-VM-05):** any RustSec advisory, license or source finding fails
+  `deps` and blocks the release. An exception is an `ignore` entry in `deny.toml` with the
+  reason and a link, approved by the maintainer (`CONTRIBUTING.md`).
 - **TDD for the scripts too:** the tests of `check-commits.sh`, `check-commit-specs.py` and
   `check-scenario-tests.py` (in `scripts/tests/`, run with `python3 -m unittest`) come before
   the scripts.

@@ -2,7 +2,13 @@
 
 ## Supported versions
 
-doyen is in early development (0.x). Only the latest release gets fixes.
+doyen is in early development (0.x). Only the latest release gets fixes; older 0.x versions
+get none. There is no fixed support period before 1.0.
+
+## Security contacts
+
+The maintainer, Leonardo Farias de Souza Silva (GitHub `leofdss`), handles every report. A
+private report through GitHub reaches the maintainer only.
 
 ## Report a vulnerability
 
@@ -19,7 +25,20 @@ Please include:
   [AI_POLICY.md](AI_POLICY.md)).
 
 This is a one-person project, so answers are best effort. A confirmed problem gets a fix, a
-regression test and a GitHub security advisory. You get credit if you want it.
+regression test and a GitHub security advisory (GitHub can give it a CVE). For the crate, the
+advisory also goes to the [RustSec advisory database](https://rustsec.org/), which feeds
+[OSV](https://osv.dev/). You get credit if you want it.
+
+## Verify a release
+
+From 0.1.0, every release can be checked:
+
+- **Crate:** the GitHub release has `doyen-<version>.crate` and its SBOM
+  (`doyen-<version>.cdx.json`). Check where the file was built:
+  `gh attestation verify doyen-<version>.crate -R leofdss/doyen`.
+- **npm:** the packages are published with provenance: `npm audit signatures` checks it.
+- **Go:** each library in `leofdss/doyen-go` has an attestation:
+  `gh attestation verify <library> -R leofdss/doyen`.
 
 ## Threat model
 

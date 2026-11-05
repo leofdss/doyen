@@ -145,8 +145,13 @@ exact below 2^53, far above a time in ms or a member number.
 Each release `v<version>` (see `release-process`) SHALL publish `@leofdss/doyen` and its
 platform packages with that version, built by CI from the tagged commit, in the GitHub
 environment `release` after the owner's approval, with npm Trusted Publishing and
-provenance. `publishConfig.registry` SHALL be `https://registry.npmjs.org/`.
+provenance. Each package SHALL have both license files, and the GitHub release SHALL get an
+SBOM of each binary. `publishConfig.registry` SHALL be `https://registry.npmjs.org/`.
 
 #### Scenario: Release 0.2.0
 - **WHEN** the release `v0.2.0` is made and the owner approves the environment `release`
 - **THEN** the main package and every platform package are on npm as 0.2.0, with provenance
+
+#### Scenario: Package contents
+- **WHEN** a platform package is packed for a release
+- **THEN** it has `LICENSE-MIT`, `LICENSE-APACHE` and its `.node` file, and the GitHub release has an SBOM for that binary

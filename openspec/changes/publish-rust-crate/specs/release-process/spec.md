@@ -100,7 +100,14 @@ the one proposed.
 
 ### Requirement: Package check before publish
 Before a release, `cargo package` SHALL pass for the crate, and the CI (all checks and all
-database jobs) SHALL be green on the release commit.
+database jobs) SHALL be green on the release commit. The packaged crate SHALL include its
+tests, and `cargo test --all-features` in the unpacked crate SHALL pass with no database (the
+database tests skip), because Linux distributions such as Fedora run it when they package
+the crate.
+
+#### Scenario: Tests from the package
+- **WHEN** `cargo test --all-features` runs in the unpacked `doyen-0.1.0.crate` on a machine with no database
+- **THEN** every test passes or is skipped, and none fails
 
 #### Scenario: File missing from the package
 - **WHEN** the crate's `include` list misses a needed file

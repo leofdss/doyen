@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Security problem
+    url: https://github.com/leofdss/doyen/security/advisories/new
+    about: Report a vulnerability in private (see SECURITY.md). Never in a public issue.

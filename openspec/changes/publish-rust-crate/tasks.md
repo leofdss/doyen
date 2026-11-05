@@ -6,11 +6,12 @@ and the README examples are doc tests (they fail until the code they show exists
 ## 1. Package and docs
 
 - [ ] 1.1 Set the crate metadata for 0.1.0 (description without "work in progress", docs.rs `all-features`, `doc(cfg)` on the adapter items); verify `cargo doc --all-features` shows the feature labels
-- [ ] 1.2 Check the package contents with `cargo package -p doyen --list`; verify it has the sources, the README and both license files, and no test Compose files
-- [ ] 1.3 (owner) Pick 2–3 use cases from design.md (or others)
-- [ ] 1.4 Write the README quick starts (Redis and MongoDB) as doc tests first (`#![doc = include_str!("../README.md")]` or a doc test file), each with `// spec: release-process / Quick start compiles`; verify `cargo test --doc --all-features` runs them, then write the rest of the user README (use cases, links to the status, token and database sections)
-- [ ] 1.5 Add `openspec/manual-checks.md` lines for "docs.rs page" and "Missing docs" (the `missing_docs` lint, checked by building a crate item without docs); verify the lint fails the build on a throwaway item, then remove it
-- [ ] 1.6 Commit as `docs(release): write the README for the first release`
+- [ ] 1.2 Check the package contents with `cargo package -p doyen --list`; verify it has the sources, the unit, integration and doc tests, the README and both license files (the Compose files may stay out)
+- [ ] 1.3 Write the test of "Tests from the package" (a script step that unpacks `target/package/doyen-<version>.crate` and runs `cargo test --all-features` with no database URL), name it `# spec: release-process / Tests from the package`, and add it to the job `check` of the release workflow and to the job `versions` of `ci.yml`; verify it passes
+- [ ] 1.4 (owner) Pick 2–3 use cases from design.md (or others)
+- [ ] 1.5 Write the README quick starts (Redis and MongoDB) as doc tests first (`#![doc = include_str!("../README.md")]` or a doc test file), each with `// spec: release-process / Quick start compiles`; verify `cargo test --doc --all-features` runs them, then write the rest of the user README (use cases, links to the status, token and database sections)
+- [ ] 1.6 Add `openspec/manual-checks.md` lines for "docs.rs page" and "Missing docs" (the `missing_docs` lint, checked by building a crate item without docs); verify the lint fails the build on a throwaway item, then remove it
+- [ ] 1.7 Commit as `docs(release): write the README for the first release`
 
 ## 2. Version checks (test first)
 

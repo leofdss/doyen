@@ -1,0 +1,68 @@
+name: Bug report
+description: doyen does not do what its docs say.
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A security problem? Do not open an issue: see SECURITY.md.
+        Never paste a password, a token or a database URL with its password.
+  - type: input
+    id: version
+    attributes:
+      label: doyen version
+      placeholder: "0.1.0 (or a commit)"
+    validations:
+      required: true
+  - type: dropdown
+    id: language
+    attributes:
+      label: Language
+      options: [Rust, Node.js, Go]
+    validations:
+      required: true
+  - type: dropdown
+    id: database
+    attributes:
+      label: Database
+      options: [Redis, MongoDB, PostgreSQL]
+    validations:
+      required: true
+  - type: textarea
+    id: setup
+    attributes:
+      label: Database setup
+      description: Version, topology (one server, Sentinel, Cluster, replica set…), managed service, and the doyen settings (timeoutMs, renewIntervalMs).
+    validations:
+      required: true
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened
+      description: The status and its reason, the error codes, the warnings (DOYEN_*), and the logs (target doyen).
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps or a test that shows it
+    validations:
+      required: true
+  - type: textarea
+    id: ai-use
+    attributes:
+      label: AI use
+      description: If an AI tool found or wrote part of this report, say which one and how you checked it (AI_POLICY.md).
+  - type: checkboxes
+    id: checks
+    attributes:
+      label: Checks
+      options:
+        - label: I removed every password and token from this report.
+          required: true

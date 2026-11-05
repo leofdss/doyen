@@ -1,0 +1,24 @@
+name: Idea or question
+description: A new feature, a change, or a question about doyen.
+labels: [enhancement]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Describe the problem first, then your idea. An accepted idea becomes an OpenSpec
+        proposal (see CONTRIBUTING.md). doyen keeps its public API small on purpose.
+  - type: textarea
+    id: problem
+    attributes:
+      label: The problem or the question
+    validations:
+      required: true
+  - type: textarea
+    id: idea
+    attributes:
+      label: Your idea (if any)
+  - type: textarea
+    id: ai-use
+    attributes:
+      label: AI use
+      description: If an AI tool helped, say which one (AI_POLICY.md).

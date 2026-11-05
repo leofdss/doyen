@@ -43,7 +43,7 @@ change.
 | 3 | `add-redis-adapter` | v0.1 | 2 | `redis-adapter` | choose the Redis client (task 1.1) | todo |
 | 4 | `add-mongodb-adapter` | v0.1 | 2 | `mongodb-adapter` | — | todo |
 | 5 | `add-system-tests` | v0.1 | 3, 4 | `system-tests` | — | todo |
-| 6 | `publish-rust-crate` | v0.1 | 5 | `release-process` | pick the use cases (task 1.3); GitHub App, environment, crates.io publisher (task 3.1); approve the release | todo |
+| 6 | `publish-rust-crate` | v0.1 | 5 | `release-process` | pick the use cases (task 1.4); GitHub App, environment, crates.io publisher (task 3.1); approve the release | todo |
 | 7 | `add-node-binding` | v0.2 | 6 | `node-binding` | approve the napi-rs design (task 0.1); npm publishers (task 4.7); approve the release | todo |
 | 8 | `add-go-binding` | v0.3 | 7 | `go-binding` | create `leofdss/doyen-go` and its deploy key (task 3.2) | todo |
 | 9 | `add-postgresql-adapter` | v0.4 | 8 | `postgresql-adapter` | approve the design (task 0.1); approve the release | todo |
@@ -93,22 +93,47 @@ README: do them one after the other (Redis first, the first database the owner c
   `gh api -X PUT repos/leofdss/doyen/private-vulnerability-reporting` (or Settings →
   Code security).
 - [ ] (owner) Decide on the DCO: ask for `Signed-off-by` in every commit, added by the person
-  (never by an agent, see `AI_POLICY.md`). If yes, the commit check of `add-ci-baseline`
-  checks it.
+  (never by an agent, see `AI_POLICY.md`). The OpenSSF Baseline level 2 asks for it
+  (OSPS-LE-01). A simple flow: the agent commits without it; before the pull request, the
+  owner runs `git rebase --signoff main` (the human act that certifies). If yes, the commit
+  check of `add-ci-baseline` checks it.
 - [ ] (owner) After `add-ci-baseline`: protect `main` with a ruleset (pull request and green
   CI before a merge with every job of `ci.yml` required, rebase merge only, linear history,
-  no force push), as the OpenSSF SCM
-  guide asks and GitHub Flow needs.
+  no force push, no deletion of `main`), as the OpenSSF SCM guide and Baseline
+  (OSPS-AC-03) ask and GitHub Flow needs. Until then, push work as a branch and a pull
+  request too, not straight to `main`.
+- [ ] (owner) GitHub settings for the OpenSSF Baseline level 1: two-factor login on the
+  account (OSPS-AC-01); secret scanning and push protection on (OSPS-BR-07); default
+  workflow token read-only (Settings → Actions, OSPS-AC-04).
+- [ ] (owner, decision) Response time for security reports (OSPS-VM-01, level 2), for
+  `SECURITY.md`. Proposal: an answer within 7 days, a fix or a plan within 90 days.
+- [ ] (owner, decision) Code of Conduct: the [Contributor Covenant](https://www.contributor-covenant.org/)
+  2.1 (used by Linux Foundation and CNCF projects) as `CODE_OF_CONDUCT.md`, with a contact
+  for reports (an address the owner chooses).
+- [ ] (owner, decision) Naming: the Linux kernel coding style asks new code not to use
+  "master / slave" and proposes "leader / follower" (the usual words for leader election:
+  Raft, Kubernetes). doyen's states are `master` / `slave` (owner decision 2026-11-04). The
+  cheapest moment to rename is before 0.1.0: no user depends on the names yet.
+- [ ] (owner, decision) Go libraries in git: the plan commits prebuilt static libraries to
+  `leofdss/doyen-go`. The OpenSSF Baseline level 1 asks not to keep generated binaries in
+  version control (OSPS-QA-05), and Fedora asks packages to build against system libraries
+  when the project allows it. Proposal: keep the prebuilt module as a documented exception
+  (with attestations and SBOMs), and add a path to build from source with a system
+  `libdoyen` (pkg-config, a Go build tag) for distributions.
+- [ ] (owner, decision) TLS for Fedora: Fedora requires TLS users to follow its system crypto
+  policies, which OpenSSL follows and rustls does not. Proposal: rustls stays the default,
+  plus an optional cargo feature that uses the system OpenSSL (`native-tls`).
 - [ ] (owner) The dev image downloads VS Code "latest" with no checksum: pin a version with
   its SHA-256, or take VS Code out of the image.
 - [ ] (owner, optional) Get the OpenSSF Best Practices badge (bestpractices.dev) and add the
-  OpenSSF Scorecard workflow.
+  OpenSSF Scorecard workflow; later, an OpenSSF Security Insights file and Fedora Packit
+  builds in Copr.
 - [ ] Read the code of mongo-leader and @platformatic/leader: note what doyen does better and
   what it should copy (before change 4).
 
 The other open questions of the planning are tasks inside the changes: the Redis client
 (change 3, task 1.1), the napi-rs design (change 7, task 0.1), the use cases (change 6, task
-1.3), the PostgreSQL decisions (change 9, task 0.1).
+1.4), the PostgreSQL decisions (change 9, task 0.1).
 
 ## Done
 

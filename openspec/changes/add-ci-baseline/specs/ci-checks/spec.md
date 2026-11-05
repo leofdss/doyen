@@ -122,6 +122,15 @@ than crates.io.
 - **WHEN** a dependency comes from a git repository or another registry
 - **THEN** the dependency check fails
 
+### Requirement: Every source file has a license header
+The CI SHALL fail when a source file (`.rs`, `.go`, `.c`, `.h`, `.js`, `.ts`, `.py`, `.sh`)
+has no `SPDX-License-Identifier: MIT OR Apache-2.0` line in its first three lines, except the
+generated files on the list of the check.
+
+#### Scenario: File without a header
+- **WHEN** a commit adds `crates/doyen/src/lease.rs` without the license line
+- **THEN** the license header check fails and names the file
+
 ### Requirement: Every scenario has a test
 The CI SHALL fail when a scenario of a spec in `openspec/specs/` is named by no test (a
 comment `spec: <capability> / <scenario>`) and by no line of `openspec/manual-checks.md`, and

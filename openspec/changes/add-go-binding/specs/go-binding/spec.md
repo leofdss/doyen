@@ -105,16 +105,24 @@ Each release SHALL build the static library per platform with debug sections rem
 that each file is below 100 MiB and the module zip below 500 MiB, commit the Go code and the
 libraries to `leofdss/doyen-go`, and tag the version there with the tag of the release
 `v<version>` (see `release-process`), in the GitHub environment `release` after the owner's
-approval. It SHALL make a GitHub artifact attestation of each library.
+approval.
 
 #### Scenario: Release 0.3.0
 - **WHEN** the release `v0.3.0` is made and the owner approves the environment `release`
 - **THEN** `leofdss/doyen-go` gets a commit with the code and three libraries, and the tag `v0.3.0`
 
+#### Scenario: Library too large
+- **WHEN** a stripped library is over 100 MiB
+- **THEN** the release workflow fails before it pushes anything
+
+### Requirement: Evidence of the module release
+Each release SHALL make a GitHub artifact attestation of each library. The module SHALL have
+both license files, and the GitHub release SHALL get an SBOM of each library.
+
 #### Scenario: Library provenance
 - **WHEN** the release `v0.3.0` is in `leofdss/doyen-go`
 - **THEN** `gh attestation verify <library> -R leofdss/doyen` passes for each of the three libraries
 
-#### Scenario: Library too large
-- **WHEN** a stripped library is over 100 MiB
-- **THEN** the release workflow fails before it pushes anything
+#### Scenario: Module contents
+- **WHEN** the release `v0.3.0` is in `leofdss/doyen-go`
+- **THEN** the module has `LICENSE-MIT` and `LICENSE-APACHE`, and the GitHub release `v0.3.0` has an SBOM of each library

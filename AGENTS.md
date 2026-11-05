@@ -19,6 +19,7 @@ order is in [`TODO.md`](TODO.md).
 | `openspec/` | Specs (`specs/`), open changes (`changes/`), project rules (`config.yaml`) |
 | `distrobox/` | The development image and container |
 | `scripts/` | Repo checks (`check-specs.py`) |
+| `CONTRIBUTING.md`, `GOVERNANCE.md` | How to contribute; who decides and who has access |
 | `AI_POLICY.md` | How AI tools may be used here (people and agents) |
 | `SECURITY.md` | How to report a vulnerability, and the threat model |
 
@@ -124,6 +125,8 @@ understands it.
   comment.
 - Write the type when a reader would have to guess it (a function's return, a `let` from a
   long expression).
+- Each source file starts with `// SPDX-License-Identifier: MIT OR Apache-2.0` (`#` in Python
+  and shell, after the shebang line), the Linux kernel way.
 - Tests follow these rules too. The refactor step of TDD and the review before the merge
   check them.
 

@@ -23,6 +23,9 @@ Release: v0.1 (groundwork). Depends on: nothing.
   <scenario>`), or by a line of `openspec/manual-checks.md` for the CI scenarios checked by
   hand. Tests are the source of truth (TDD), so a scenario without a test is not done.
 - A specs check: `openspec validate --all --strict` and `scripts/check-specs.py` in CI.
+- A license header check: every source file starts with
+  `SPDX-License-Identifier: MIT OR Apache-2.0` (SPDX, a Linux Foundation standard, used by
+  the Linux kernel and by Fedora for license expressions).
 - Supply-chain checks (OpenSSF): `zizmor` on the workflows (every action pinned to a commit
   SHA, least permissions) and `cargo deny` on the dependencies (known vulnerabilities,
   licenses, sources). An AI agent can add a dependency or a workflow step; these checks
@@ -45,7 +48,8 @@ Release: v0.1 (groundwork). Depends on: nothing.
 ## Impact
 
 - New: `.github/workflows/ci.yml`, `scripts/check-commits.sh`,
-  `scripts/check-commit-specs.py`, `scripts/check-scenario-tests.py`, `deny.toml`,
+  `scripts/check-commit-specs.py`, `scripts/check-scenario-tests.py`,
+  `scripts/check-license-headers.py`, `deny.toml`,
   `.github/zizmor.yml`, their tests in `scripts/tests/`,
   `openspec/manual-checks.md`, `CONTRIBUTING.md`.
 - No change to the crate or the npm package. The dev image workflow stays as it is.
