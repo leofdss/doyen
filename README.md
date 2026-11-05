@@ -268,7 +268,12 @@ cargo build
 |---|---|
 | `crates/doyen` | The Rust crate `doyen` (now a placeholder that reserves the name) |
 | `bindings/node` | The npm package `@leofdss/doyen` (now a placeholder) |
+| `openspec/` | The specs and the planned changes ([OpenSpec](https://github.com/Fission-AI/OpenSpec)) |
 | `distrobox/` | The development image and container |
+
+The work is planned as OpenSpec changes, applied one at a time in the order of
+[TODO.md](TODO.md). How to work here (also for AI agents): [AGENTS.md](AGENTS.md).
+Commits follow [Conventional Commits](https://www.conventionalcommits.org/).
 
 ## License
 
