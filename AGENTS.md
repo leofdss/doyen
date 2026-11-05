@@ -161,7 +161,7 @@ the parts that matter for doyen:
 
 Agents follow [`AI_POLICY.md`](AI_POLICY.md), like people. Also:
 
-- **A person decides.** An agent never pushes, publishes, creates a tag or a release, changes
+- **A person decides.** An agent never pushes, merges, publishes, creates a tag or a release, changes
   GitHub settings, or sends anything outside the repo (issues, comments, security reports,
   emails) without the owner's go. `.claude/settings.json` blocks `cargo publish` and
   `npm publish`, and asks before `git push` and `gh release`.
