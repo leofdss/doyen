@@ -1,0 +1,36 @@
+# cargo-deny config (spec ci-checks, "Dependencies are checked"). The CI job `deps` runs
+# `cargo deny check`. Any RustSec advisory, license or source finding fails the job and
+# blocks the release (OSPS-VM-05). An exception is an `ignore` entry with the reason and a
+# link, approved by the maintainer (CONTRIBUTING.md).
+
+[graph]
+# Check the dependencies of every adapter, not only the default ones.
+all-features = true
+
+[advisories]
+# Vulnerabilities and unmaintained crates fail by default; unsound crates fail too, also
+# when they are not direct dependencies.
+unsound = "all"
+ignore = []
+
+[licenses]
+# The allow list is the policy, so a license that no dependency uses yet is not a warning.
+unused-allowed-license = "allow"
+# Add a license only when a real dependency needs it.
+allow = [
+    "MIT",
+    "Apache-2.0",
+    "Apache-2.0 WITH LLVM-exception",
+    "BSD-2-Clause",
+    "BSD-3-Clause",
+    "ISC",
+    "Unicode-3.0",
+    "Zlib",
+]
+
+[sources]
+# crates.io only: no git dependencies and no other registry.
+unknown-registry = "deny"
+unknown-git = "deny"
+allow-registry = ["https://github.com/rust-lang/crates.io-index"]
+allow-git = []
