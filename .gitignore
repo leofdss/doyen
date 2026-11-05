@@ -12,3 +12,6 @@ node_modules/
 # Editors and OS
 .idea/
 .DS_Store
+
+# Python
+__pycache__/

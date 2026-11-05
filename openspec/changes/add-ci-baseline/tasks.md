@@ -2,10 +2,10 @@
 
 ## 1. Commit message check (test first)
 
-- [ ] 1.1 Write `scripts/tests/test_check_commits.py` (`unittest`) for the scenarios "Valid subject", "Invalid subject" and "Merge commit", each test with its comment `spec: ci-checks / <scenario>`; verify `python3 -m unittest discover scripts/tests` fails because the script does not exist yet (red), then stage the tests
-- [ ] 1.2 Write `scripts/check-commits.sh <base> <head>` (Conventional Commits regex, skip `Merge` subjects, all-zero base = head only); verify the tests pass (green) and the script passes on `git log` of this repo
-- [ ] 1.3 Update `CONTRIBUTING.md` (it exists): the commit check and two example subjects; verify the examples pass the script
-- [ ] 1.4 Commit the group in one commit (tests, code, ticks): `ci: add the commit message check`
+- [x] 1.1 Write `scripts/tests/test_check_commits.py` (`unittest`) for the scenarios "Valid subject", "Invalid subject" and "Merge commit", each test with its comment `spec: ci-checks / <scenario>`; verify `python3 -m unittest discover scripts/tests` fails because the script does not exist yet (red), then stage the tests
+- [x] 1.2 Write `scripts/check-commits.sh <base> <head>` (Conventional Commits regex, skip `Merge` subjects, all-zero base = head only); verify the tests pass (green) and the script passes on `git log` of this repo
+- [x] 1.3 Update `CONTRIBUTING.md` (it exists): the commit check and two example subjects; verify the examples pass the script
+- [x] 1.4 Commit the group in one commit (tests, code, ticks): `ci: add the commit message check`
 
 ## 2. Commit-spec check (test first)
 
