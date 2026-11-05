@@ -21,10 +21,10 @@
 
 ## 4. Scenario-test check (test first)
 
-- [ ] 4.1 Write `scripts/tests/test_check_scenario_tests.py` with a small fixture tree (a spec with three scenarios, a test that names one, `manual-checks.md` with one, a test that names a scenario that does not exist) for the scenarios "Missing test", "Stale test", "Checked by hand" and "Open change"; verify they fail (red), then stage the tests
-- [ ] 4.2 Write `scripts/check-scenario-tests.py` (`--change <name>` for an open change); verify the tests pass (green)
-- [ ] 4.3 Create `openspec/manual-checks.md` (format and purpose at the top); verify `python3 scripts/check-scenario-tests.py` passes on the repo (no archived specs yet)
-- [ ] 4.4 Commit the group in one commit (tests, code, ticks): `ci: add the scenario check`
+- [x] 4.1 Write `scripts/tests/test_check_scenario_tests.py` with a small fixture tree (a spec with three scenarios, a test that names one, `manual-checks.md` with one, a test that names a scenario that does not exist) for the scenarios "Missing test", "Stale test", "Checked by hand" and "Open change"; verify they fail (red), then stage the tests
+- [x] 4.2 Write `scripts/check-scenario-tests.py` (`--change <name>` for an open change); verify the tests pass (green)
+- [x] 4.3 Create `openspec/manual-checks.md` (format and purpose at the top); verify `python3 scripts/check-scenario-tests.py` passes on the repo (no archived specs yet)
+- [x] 4.4 Commit the group in one commit (tests, code, ticks): `ci: add the scenario check`
 
 ## 5. CI workflow
 

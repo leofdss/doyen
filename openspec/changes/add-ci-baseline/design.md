@@ -46,11 +46,17 @@ own toolchains, so the CI does not depend on the image.
   enough). It runs in the `commits` job, after `check-commits.sh`.
 - **Scenario check: `scripts/check-scenario-tests.py`** (Python, standard library). It reads
   the scenarios of `openspec/specs/**/spec.md` (or of one open change with `--change`), and
-  searches `crates/`, `bindings/` and `scripts/tests/` for comments
-  `spec: <capability> / <scenario>` (any comment style: `//`, `#`). A scenario that CI checks
-  by hand (for example "Unformatted file") goes in `openspec/manual-checks.md` as
-  `- <capability> / <scenario>: <how and when it was checked>`. Scenario names must be unique
-  inside one capability (`scripts/check-specs.py` checks it), so a test can name them.
+  searches `crates/`, `bindings/`, `scripts/tests/` and `.github/workflows/` for comments
+  `spec: <capability> / <scenario>` at the start of a line (any comment style: `//`, `#`).
+  `.github/workflows/` is there because a release check of `publish-rust-crate` ("Tests from
+  the package") is a workflow step; the start-of-line rule keeps fixture strings inside test
+  code from counting. A scenario that CI checks by hand (for example "Unformatted file") goes
+  in `openspec/manual-checks.md` as `- <capability> / <scenario>: <how and when it was
+  checked>`; a line without the "how and when" part does not count. A test or a manual line
+  is stale when no spec has its scenario: not `openspec/specs/` and not the delta specs of an
+  open change (so the tests of a change in progress pass the check without `--change`).
+  Scenario names must be unique inside one capability (`scripts/check-specs.py` checks it), so
+  a test can name them.
 - **Specs job:** installs `@fission-ai/openspec@1.15.0` (the version in the dev image) and runs
   `openspec validate --all --strict` and `python3 scripts/check-specs.py`.
 - **Workflow security:** every action is pinned to a full commit SHA with the version in a
