@@ -1,0 +1,51 @@
+schema: spec-driven
+
+context: |
+  Project: doyen. A library that picks one master among the instances of one service,
+  through a database the company already runs (Redis and MongoDB first, PostgreSQL later).
+  There is no server of its own. One core in Rust; Node.js (napi-rs) and Go (C ABI + cgo)
+  use it through bindings. Goal: a small portfolio project, finished and well tested. Keep
+  the scope tight: done and well tested beats big.
+
+  Language: English, simple. The owner is learning English: short sentences, common words.
+  Keep OpenSpec headings and SHALL/MUST keywords in English.
+
+  Owner decisions. Do not change them in a proposal. If one causes a real problem, say it
+  and ask the owner.
+  - Master = the oldest live member of a seniority line (numbers from a database counter).
+    No vote, ever. A member that comes back joins at the end of the line.
+  - Public API: the same five operations in every language, nothing more: join(config),
+    status() (master | slave | offline; offline always has a reason), onStatusChange(cb),
+    token() ((generation, number) or null), leave(). Do not add public methods.
+  - The core is in Rust and opens its own database connection.
+  - No Lua or other server-side scripts in Redis. MongoDB aggregation pipeline updates are
+    allowed.
+  - timeoutMs and renewIntervalMs are settings chosen by the team that uses doyen
+    (defaults 10000 and 2000). join rejects timeoutMs < 3 x renewIntervalMs.
+  - Unsafe setups: a risk beyond what is documented for that database -> refuse
+    (DOYEN_UNSUPPORTED); a known, bounded risk -> a warning, once, at connect.
+  - Releases: v0.1 = Rust crate + Redis + MongoDB; v0.2 = npm; v0.3 = Go; v0.4 = PostgreSQL.
+  - The owner publishes (crates.io, npm need 2FA) and makes the decisions marked "owner".
+
+  Repo: Cargo workspace (edition 2024, MSRV Rust 1.85, resolver 3). Crate crates/doyen
+  (core + adapters behind cargo features), npm package bindings/node (@leofdss/doyen), Go
+  code in bindings/go (users get it from github.com/leofdss/doyen-go). Rust, Node.js and Go
+  run inside the Distrobox container `doyen` (see distrobox/). Commits follow Conventional
+  Commits. The order of the changes is in TODO.md.
+
+rules:
+  proposal:
+    - Say which release (v0.1, v0.2, v0.3 or v0.4) the change belongs to.
+    - List the changes this one depends on (see TODO.md).
+  specs:
+    - One capability belongs to one change. Never write a delta for a capability that another
+      open change adds; refer to it by name instead.
+    - Error and warning codes start with DOYEN_. Each code is defined in one capability only.
+  design:
+    - Record every assumption the owner has not confirmed under "Decisions" with the words
+      "to confirm (owner)".
+  tasks:
+    - Commits follow Conventional Commits, type(scope) subject; scopes core, redis, mongodb,
+      postgresql, node, go, ci, release, docs.
+    - Mark the tasks that only the owner can do (publish, 2FA, a decision) with "(owner)".
+    - "Run Rust, Node.js and Go commands inside the container (distrobox enter doyen -- <command>)."
