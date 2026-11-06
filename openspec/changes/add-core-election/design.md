@@ -118,8 +118,13 @@ never waits inside it, so it is atomic and safe to cancel.
   written to the record. The highest returned lives in the adapter, like in Redis.
 - Switches and hooks: `lose_all_data`, `delete_generation_record`, `set_counter`,
   `write_format`, `end_watch_streams` (for "Watch stream ends"), and a server version (1.4
-  minimum) for "Old server version". `connect` gives no warnings yet; the engine tests add
-  that switch when they need it.
+  minimum) for "Old server version".
+- Switches of the engine tests (task group 6), on each `MemoryBackend` (the network of one
+  app instance): a `Fault` per call kind (`NoAnswer`: the call waits until the fault is
+  removed, then runs, unless the call timeout ends it first; `LostAnswer`: the call runs and
+  its answer never comes; `NetworkError`, `Refused`, `SlowAnswer`, `Panic`), the warnings
+  that `connect` gives, and a log of the calls with their send times. `MemoryDatabase` adds
+  `live_numbers` and `stored_generation` to read the data.
 
 ### Database test switch
 
@@ -133,16 +138,26 @@ a pure function, tested without changing the environment of the test process.
 
 ### Driver task, snapshot and subscribers
 
-- `join` starts one Tokio task per object (the driver). It owns the membership, the tag and
-  the schedule. The public object holds an `Arc<Shared>`:
-  - `snapshot: std::sync::Mutex<Snapshot>`: my membership, the head of the line, the lease
-    end, the generation, the reason, the last error. `status()` and `token()` lock it for a
-    moment and compute the answer with `clock.now()`; they never `await`.
-  - `subscribers: Mutex<Vec<mpsc::UnboundedSender<Status>>>`: one queue per
-    `status_changes()` call. The driver pushes every change to all queues and removes closed
-    ones. Unbounded: a change is never lost or merged (`status-reporting`).
-- The driver computes the status after each answer and each lease deadline; it sends a
-  notification only when the state or the reason changed.
+- The `join` future itself runs `connect` and the join attempts, so dropping it cancels
+  them with no task to stop; a guard then sets `notJoined` (chosen in task group 6). After
+  the first place, `join` starts one Tokio task per object (the driver). It owns the
+  schedule and the watch stream, renews, and joins again after a lost place. The public
+  object holds an `Arc<Shared>` with one `std::sync::Mutex<State>`:
+  - the snapshot: the phase (`notJoined`, `connecting`, holding a place, `reconnecting`,
+    `left`), my place (membership, last line, generation, lease end), the tag of the next
+    place with the send time of its first attempt, and the last error. `status()` and
+    `token()` lock it for a moment and compute the answer with `clock.now()`; they never
+    `await`.
+  - the subscribers: one `mpsc::UnboundedSender<Status>` per `status_changes()` call.
+    Unbounded: a change is never lost or merged (`status-reporting`).
+  - One lock for both (not two), so the notifications follow the order of the changes, and
+    nothing comes after `left`.
+- The status is computed after each answer and at each lease deadline (also while a call
+  is stuck); a notification goes out only when the state or the reason changed. `status()`
+  and `token()` also send a change they see first (the lease ended a moment ago and the
+  driver did not run yet), so a subscriber never lags behind what `status()` returned.
+- The last error is the message of the last failed call since the last call that worked;
+  every offline status carries it.
 - A panic in the driver ends it; the lease then ends on its own (safe).
 - The public object holds an `Arc<Handle>`; clones share it. `Handle` keeps a
   `oneshot::Sender`, and the driver waits on its receiver next to its timers. When the last
@@ -151,8 +166,15 @@ a pure function, tested without changing the environment of the test process.
   handle, so it cannot keep the object alive. The Go binding's free uses the same path.
 - Data format: the in-memory adapter and every adapter store `format` (1) with the group
   data; the conformance suite writes format 2 through a test hook of each adapter.
-- Log events (`tracing`, target `doyen`): info for each status change, debug for each
-  failed database call; the URL in an event is redacted like in errors.
+- Log events (`tracing`, target `doyen`): info for each status change (fields `group`,
+  `state`, `reason` when offline, `number` and `generation` while there is a place), debug
+  for each failed database call (fields `group`, `call`, `error`), warn for each connect
+  warning (fields `group`, `code`). No event holds a URL.
+- Until the adapter changes, `join` with a config whose feature is on fails with
+  `DOYEN_UNSUPPORTED` ("the redis adapter is not in this version of doyen yet"). The engine
+  tests give the in-memory adapter and the clock through a test-only constructor
+  (`Doyen::with_backend`); that path runs every config check but the feature check
+  (`validate_settings`), so the engine tests also run with `--no-default-features`.
 
 ### Clock and schedule
 
@@ -175,21 +197,35 @@ a pure function, tested without changing the environment of the test process.
 
 ### Join, retries and reconnect
 
-- Before the first join, the driver calls `connect` once. Network errors are retried like a
-  join; refusals end `join` with the error.
+- Each `join` call runs `connect` once before its first join attempt. Network errors are
+  retried like a join; refusals end `join` with the error.
+- Then `join` opens the watch stream (one call timeout; when it fails, the driver opens it
+  again later), before the first join attempt: a wake-up just after the join (the master
+  leaves) is not lost. When the driver starts, it skips the wake-ups that wait in the
+  stream: they came from my own join, or from a change that the join answer already showed.
 - Retries (connecting and reconnecting): backoff from 100 ms, × 2, at most
-  `renewIntervalMs`, with jitter ± 20%. A retry keeps the tag.
-- The join lease counts from the send time of the first attempt with this tag; the driver
-  keeps that time with the tag.
+  `renewIntervalMs` (jitter ± 20% on top, so one delay can be 1.2 × the interval). A retry
+  keeps the tag.
+- The join lease counts from the send time of the first attempt with this tag; the
+  snapshot keeps that time with the tag. When less than one renew interval of it is left,
+  `join` renews at once before it finishes; when that renew fails, `join` tries again with
+  the same tag, so `join` always finishes with a valid lease (master or slave).
+- A call timeout is a network error ("the database did not answer within N ms").
 - A lost place (renew `None`, or my number not in the line) → new tag, reason
-  `reconnecting`, join again.
+  `reconnecting`, join again. The schedule keeps its rate from the first join.
+- The watch stream is a small state machine in the driver (opening, open, waiting to open
+  again, no push); it opens again inside the driver's wait, so the renew timer goes on
+  meanwhile.
 
 ### Leave
 
 `leave` sets "left" in the snapshot first (so `status()` is offline `left` and `token()` is
-`None` at once), cancels a pending join (`DOYEN_LEFT`), then calls the adapter's `leave`
-with one call timeout, ignores a network error, sends the last notification `left`, closes
-the queues and stops the driver.
+`None` at once), sends the last notification `left` and closes the queues in the same step,
+cancels a pending join (`DOYEN_LEFT`) and stops the driver, then calls the adapter's `leave`
+with one call timeout. It ignores a network error (a debug event); a refused leave returns
+its error. Outside a Tokio runtime it sets `left` and returns `DOYEN_UNSUPPORTED` (the place
+then expires). The notification comes before the adapter call (chosen in task group 6), so
+an app stops its master work before the place is removed.
 
 ### Binding hooks — to confirm (owner)
 
@@ -204,7 +240,8 @@ Alternative: public methods for these. Rejected: the public API is five operatio
 
 ### Dependencies
 
-`tokio` (rt, time, sync; macros and test-util in dev), `futures-core`/`futures-util`
+`tokio` (rt, time, sync, macros: the driver waits on its timer, the watch stream, the lease
+deadline and the stop signals with `select!`; test-util in dev), `futures-core`/`futures-util`
 (`Stream`), `async-trait`, `tracing`, `rand` (the 128-bit tag, OS-seeded), `thiserror`, `url`,
 `gethostname` (the default instance name), `rustix` (the clock). All of them must build with
 Rust 1.85 (the `msrv` CI job checks it).

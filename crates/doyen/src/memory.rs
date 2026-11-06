@@ -4,6 +4,10 @@
 //! [`MemoryDatabase`] plays the database server, shared by every adapter (every app
 //! instance) of a test. [`MemoryBackend`] is one adapter. The database decides who is alive
 //! with its own clock, like a real server: the fake clock, on paused Tokio time.
+//!
+//! The engine tests also use the switches of [`MemoryBackend`]: a [`Fault`] on the network
+//! of one app instance (no answer, a lost answer, an error, a refusal, a slow answer, a
+//! panic), the warnings of `connect`, and a log of the calls with their send times.
 
 use std::collections::{BTreeMap, HashMap};
 use std::sync::{Arc, Mutex, MutexGuard};
@@ -12,7 +16,7 @@ use std::time::Duration;
 use async_trait::async_trait;
 use futures_util::StreamExt;
 use futures_util::stream::BoxStream;
-use tokio::sync::mpsc;
+use tokio::sync::{mpsc, watch};
 
 use crate::backend::{
     Backend, BackendError, DATA_FORMAT, Membership, Result, View, Warning, newer_format_error,
@@ -139,6 +143,73 @@ impl MemoryDatabase {
     pub(crate) fn end_watch_streams(&self, group: &str) {
         self.lock().watchers.remove(group);
     }
+
+    /// A new adapter on this database: one more app instance.
+    pub(crate) fn backend(&self) -> MemoryBackend {
+        MemoryBackend::new(self.clone())
+    }
+
+    /// The numbers of the live places of the group now, in increasing order.
+    pub(crate) fn live_numbers(&self, group: &str) -> Vec<u64> {
+        let now = self.clock.now();
+        let state = self.lock();
+        let Some(data) = state.groups.get(group) else {
+            return Vec::new();
+        };
+        data.places
+            .iter()
+            .filter(|(_, place)| place.expires_at > now)
+            .map(|(number, _)| *number)
+            .collect()
+    }
+
+    /// The generation that the record of the group holds now.
+    pub(crate) fn stored_generation(&self, group: &str) -> Option<u64> {
+        let state = self.lock();
+        state.groups.get(group).and_then(|data| data.generation)
+    }
+}
+
+/// Lock a mutex of the adapter. Only a panic in a test can poison it, and that test failed
+/// already.
+fn lock<T>(mutex: &Mutex<T>) -> MutexGuard<'_, T> {
+    mutex
+        .lock()
+        .expect("a lock of the in-memory adapter is poisoned")
+}
+
+/// One adapter call, for the faults and the call log.
+#[derive(Debug, Clone, Copy, PartialEq, Eq, Hash)]
+pub(crate) enum Operation {
+    Connect,
+    Join,
+    Renew,
+    Leave,
+    Watch,
+}
+
+/// A problem on the network between one app instance and the database.
+#[derive(Debug, Clone)]
+pub(crate) enum Fault {
+    /// The call waits until the fault is removed, then runs: a database that is stuck. The
+    /// engine's call timeout cancels it first, or not.
+    NoAnswer,
+    /// The call runs, but its answer never comes.
+    LostAnswer,
+    /// The call fails at once with a network error with this message.
+    NetworkError(String),
+    /// The database refuses the call (a login or a command).
+    Refused(Error),
+    /// The call waits this long, then runs.
+    SlowAnswer(Duration),
+    /// The call panics, like a bug in an adapter.
+    Panic,
+}
+
+/// What happens to the answer of a call that runs.
+enum Answer {
+    Delivered,
+    Lost,
 }
 
 /// One adapter on the in-memory database: one app instance.
@@ -148,6 +219,12 @@ pub(crate) struct MemoryBackend {
     /// process, like in a real adapter, and keeps the generation from going back when the
     /// database loses its record.
     highest_generation_seen: Mutex<HashMap<String, u64>>,
+    /// The faults by call. A `watch` channel, so a call that waits for "no answer" sees the
+    /// change at once.
+    faults: watch::Sender<HashMap<Operation, Fault>>,
+    /// Each call with the Tokio time when it was sent.
+    calls: Mutex<Vec<(Operation, tokio::time::Instant)>>,
+    connect_warnings: Mutex<Vec<Warning>>,
 }
 
 impl MemoryBackend {
@@ -155,6 +232,86 @@ impl MemoryBackend {
         MemoryBackend {
             database,
             highest_generation_seen: Mutex::new(HashMap::new()),
+            faults: watch::Sender::new(HashMap::new()),
+            calls: Mutex::new(Vec::new()),
+            connect_warnings: Mutex::new(Vec::new()),
+        }
+    }
+
+    /// The switch for one kind of call: from now on, each such call has this fault.
+    pub(crate) fn set_fault(&self, operation: Operation, fault: Fault) {
+        self.faults.send_modify(|faults| {
+            faults.insert(operation, fault);
+        });
+    }
+
+    /// The switch for every call: the whole network of this instance has the fault.
+    pub(crate) fn set_fault_on_every_call(&self, fault: Fault) {
+        let every_operation = [
+            Operation::Connect,
+            Operation::Join,
+            Operation::Renew,
+            Operation::Leave,
+            Operation::Watch,
+        ];
+        for operation in every_operation {
+            self.set_fault(operation, fault.clone());
+        }
+    }
+
+    /// The network works again: the calls that wait for an answer run now.
+    pub(crate) fn clear_faults(&self) {
+        self.faults.send_modify(|faults| faults.clear());
+    }
+
+    /// The warnings that `connect` gives from now on.
+    pub(crate) fn set_connect_warnings(&self, warnings: Vec<Warning>) {
+        *lock(&self.connect_warnings) = warnings;
+    }
+
+    /// The send times of every call of this kind, in order.
+    pub(crate) fn call_times(&self, operation: Operation) -> Vec<tokio::time::Instant> {
+        lock(&self.calls)
+            .iter()
+            .filter(|(called, _)| *called == operation)
+            .map(|(_, sent_at)| *sent_at)
+            .collect()
+    }
+
+    /// How many calls of this kind were sent.
+    pub(crate) fn call_count(&self, operation: Operation) -> usize {
+        self.call_times(operation).len()
+    }
+
+    /// Log the call, then apply its fault. An error is the answer of the call.
+    async fn start_call(&self, operation: Operation) -> Result<Answer> {
+        lock(&self.calls).push((operation, tokio::time::Instant::now()));
+        let mut faults = self.faults.subscribe();
+        loop {
+            let fault = faults.borrow_and_update().get(&operation).cloned();
+            match fault {
+                None => return Ok(Answer::Delivered),
+                Some(Fault::NoAnswer) => {
+                    // The sender lives in `self`, so this never fails while the call runs.
+                    let _ = faults.changed().await;
+                }
+                Some(Fault::LostAnswer) => return Ok(Answer::Lost),
+                Some(Fault::NetworkError(message)) => return Err(BackendError::Network(message)),
+                Some(Fault::Refused(error)) => return Err(BackendError::Refused(error)),
+                Some(Fault::SlowAnswer(delay)) => {
+                    tokio::time::sleep(delay).await;
+                    return Ok(Answer::Delivered);
+                }
+                Some(Fault::Panic) => panic!("the in-memory adapter panics on purpose"),
+            }
+        }
+    }
+
+    /// Give the answer of a call, or never, when the fault lost it.
+    async fn finish_call<T>(answer: Answer, result: Result<T>) -> Result<T> {
+        match answer {
+            Answer::Delivered => result,
+            Answer::Lost => std::future::pending().await,
         }
     }
 
@@ -182,10 +339,40 @@ impl MemoryBackend {
 }
 
 // Each call does all its work under one lock and never waits inside it: it is atomic, and
-// a cancel can only come before or after it.
+// a cancel can only come before or after it. A fault waits only before the work, or (a lost
+// answer) after it.
 #[async_trait]
 impl Backend for MemoryBackend {
     async fn connect(&self) -> Result<Vec<Warning>> {
+        let answer = self.start_call(Operation::Connect).await?;
+        MemoryBackend::finish_call(answer, self.connect_now()).await
+    }
+
+    async fn join(&self, group: &str, id: &str, tag: u128, ttl: Duration) -> Result<(u64, View)> {
+        let answer = self.start_call(Operation::Join).await?;
+        MemoryBackend::finish_call(answer, self.join_now(group, id, tag, ttl)).await
+    }
+
+    async fn renew(&self, group: &str, me: &Membership, ttl: Duration) -> Result<Option<View>> {
+        let answer = self.start_call(Operation::Renew).await?;
+        MemoryBackend::finish_call(answer, self.renew_now(group, me, ttl)).await
+    }
+
+    async fn leave(&self, group: &str, me: &Membership) -> Result<()> {
+        let answer = self.start_call(Operation::Leave).await?;
+        MemoryBackend::finish_call(answer, self.leave_now(group, me)).await
+    }
+
+    async fn watch(&self, group: &str) -> Result<Option<BoxStream<'static, ()>>> {
+        let answer = self.start_call(Operation::Watch).await?;
+        MemoryBackend::finish_call(answer, self.watch_now(group)).await
+    }
+}
+
+/// The work of each call, without the faults. Each one does all its work under one lock and
+/// never waits inside it.
+impl MemoryBackend {
+    fn connect_now(&self) -> Result<Vec<Warning>> {
         let (major, minor) = self.database.lock().server_version;
         if (major, minor) < MINIMUM_SERVER_VERSION {
             let (minimum_major, minimum_minor) = MINIMUM_SERVER_VERSION;
@@ -197,10 +384,10 @@ impl Backend for MemoryBackend {
                 ),
             )));
         }
-        Ok(Vec::new())
+        Ok(lock(&self.connect_warnings).clone())
     }
 
-    async fn join(&self, group: &str, _id: &str, tag: u128, ttl: Duration) -> Result<(u64, View)> {
+    fn join_now(&self, group: &str, _id: &str, tag: u128, ttl: Duration) -> Result<(u64, View)> {
         let now = self.database.clock.now();
         let mut state = self.database.lock();
         let data = state
@@ -231,7 +418,7 @@ impl Backend for MemoryBackend {
         Ok((number, View { generation, line }))
     }
 
-    async fn renew(&self, group: &str, me: &Membership, ttl: Duration) -> Result<Option<View>> {
+    fn renew_now(&self, group: &str, me: &Membership, ttl: Duration) -> Result<Option<View>> {
         let now = self.database.clock.now();
         let mut state = self.database.lock();
         let Some(data) = state.groups.get_mut(group) else {
@@ -255,7 +442,7 @@ impl Backend for MemoryBackend {
         }))
     }
 
-    async fn leave(&self, group: &str, me: &Membership) -> Result<()> {
+    fn leave_now(&self, group: &str, me: &Membership) -> Result<()> {
         let mut state = self.database.lock();
         let Some(data) = state.groups.get_mut(group) else {
             return Ok(());
@@ -273,7 +460,7 @@ impl Backend for MemoryBackend {
         Ok(())
     }
 
-    async fn watch(&self, group: &str) -> Result<Option<BoxStream<'static, ()>>> {
+    fn watch_now(&self, group: &str) -> Result<Option<BoxStream<'static, ()>>> {
         let (sender, mut receiver) = mpsc::unbounded_channel();
         self.database
             .lock()
@@ -290,7 +477,7 @@ impl TestDatabase for MemoryDatabase {
     type Adapter = MemoryBackend;
 
     async fn new_adapter(&self) -> MemoryBackend {
-        MemoryBackend::new(self.clone())
+        self.backend()
     }
 
     fn group_name(&self, name: &str) -> String {
