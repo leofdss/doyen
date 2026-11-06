@@ -12,6 +12,10 @@ The Redis config SHALL have `type` `redis` and only the shared settings of `clie
 `url` SHALL use `redis://` or `rediss://` (TLS) for one server or Redis Cluster, or
 `redis+sentinel://` / `rediss+sentinel://` with the master name in the path for Sentinel.
 
+#### Scenario: Redis config
+- **WHEN** the config has `type` set to `redis`
+- **THEN** `join` uses the Redis adapter and accepts only the Redis settings
+
 #### Scenario: Sentinel URL
 - **WHEN** the URL is `redis+sentinel://user:pass@s1:26379,s2:26379/mymaster`
 - **THEN** doyen asks the sentinels for the primary of `mymaster` and logs in to it as `user`
