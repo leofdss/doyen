@@ -170,6 +170,29 @@ understands it.
 - Tests follow these rules too. The refactor step of TDD and the review before the merge
   check them.
 
+**3. Structured like NestJS and Angular** (owner rule 2026-11-06: they are the owner's
+reference for the layout of a project). Each crate, binding and folder is a tree of feature
+modules, the way a NestJS app or an Angular app is:
+
+- One folder per feature (`engine/`, later each adapter), with a module file of the same
+  name next to it (`engine.rs`). The module file declares the parts (`mod driver;`) and holds
+  the public face of the feature (the struct users call, `Doyen`), like `<feature>.module.ts`
+  with its controller.
+- `lib.rs` is `app.module.ts` plus the barrel `index.ts`: it declares the modules and
+  re-exports the public API, nothing else.
+- Inside the folder, one file per service with one job (`engine/driver.rs`,
+  `engine/state.rs`, `engine/stop.rs`), like `<name>.service.ts`.
+- The types the modules share live in their own files at the root (`config.rs`, `status.rs`,
+  `token.rs`, `error.rs`), like `dto/` and `interfaces/`.
+- A provider with more than one implementation is a trait plus one file per implementation
+  (`backend.rs`; `memory.rs`, then `redis.rs` and `mongodb.rs`), chosen at run time by the
+  config, like a provider bound to an injection token. The fake a test uses (`FakeClock`) is
+  the `useValue` of a `TestingModule`.
+- The tests of a file live next to it, as `<name>/tests.rs` or
+  `<name>/tests/<capability>.rs`, like `<name>.spec.ts`.
+- Before you create a new crate, binding or folder, write its tree in the `design.md` of the
+  change and say which NestJS or Angular idea each folder stands for.
+
 ## Security
 
 The threat model is in [`SECURITY.md`](SECURITY.md). These rules come from the OpenSSF
