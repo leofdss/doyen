@@ -39,7 +39,7 @@ change.
 | # | Change | Release | Depends on | Capabilities | Owner first | Status |
 |---|---|---|---|---|---|---|
 | 1 | `add-ci-baseline` | v0.1 | — | `ci-checks` | — | done |
-| 2 | `add-core-election` | v0.1 | 1 | `election-core`, `status-reporting`, `client-config`, `adapter-contract`, `rust-api` | approve the crate layout, the private trait and the hidden hooks (task 0.1) | todo |
+| 2 | `add-core-election` | v0.1 | 1 | `election-core`, `status-reporting`, `client-config`, `adapter-contract`, `rust-api` | — | done |
 | 3 | `add-redis-adapter` | v0.1 | 2 | `redis-adapter` | choose the Redis client (task 1.1); confirm the Active-Active detection (task 3.5) | todo |
 | 4 | `add-mongodb-adapter` | v0.1 | 2 | `mongodb-adapter` | — | todo |
 | 5 | `add-system-tests` | v0.1 | 3, 4 | `system-tests` | — | todo |
@@ -107,6 +107,7 @@ README: do them one after the other (Redis first, the first database the owner c
   commits. Until then, push work as a branch and a pull request too, not straight to `main`.
   **Standing rule:** every change that adds a job to `ci.yml` has an (owner) task to add it
   to the required checks; a job that is not required can be red on a merged pull request.
+- [ ] (owner) Task 4.4 of `add-core-election`: add the CI jobs `test-macos` and `check-linux-arm64` to the required checks of the ruleset of `main`.
 - [ ] (owner) GitHub settings for the OpenSSF Baseline level 1: two-factor login on the
   account (OSPS-AC-01); secret scanning and push protection on (OSPS-BR-07); default
   workflow token read-only (Settings → Actions, OSPS-AC-04).
@@ -150,3 +151,7 @@ the hidden hooks (change 2, task 0.1), the Redis client (change 3, task 1.1), th
 - `add-ci-baseline` (v0.1): merged in pull request #3 on 2026-11-05, archived as
   `openspec/changes/archive/2026-11-05-add-ci-baseline/`; its spec is
   `openspec/specs/ci-checks/`.
+- `add-core-election` (v0.1): merged in pull request #8 on 2026-11-06, archived as
+  `openspec/changes/archive/2026-11-06-add-core-election/`; its specs are now in
+  `openspec/specs/`: `election-core`, `status-reporting`, `client-config`,
+  `adapter-contract` and `rust-api`.
