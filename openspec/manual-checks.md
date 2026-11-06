@@ -34,3 +34,9 @@ jobs with a fault failed with the message of that fault; `coverage`, `scenarios`
 - ci-checks / Known vulnerability: pull request #4, 2026-11-05: `smallvec = "=1.6.0"`; `deps` failed and named RUSTSEC-2021-0003.
 - ci-checks / License not allowed: pull request #4, 2026-11-05: `webpki-roots = "=0.25.4"` (MPL-2.0); `deps` failed with "license is not explicitly allowed".
 - ci-checks / Unknown source: pull request #4, 2026-11-05: `itoa` from a git repository; `deps` failed with "detected 'git' source not explicitly allowed".
+
+The supported platforms of `rust-api` (change `add-core-election`): the CI builds and tests
+on each supported platform; the unsupported one is checked once with a throwaway pull
+request, as the failure paths above.
+
+- rust-api / Build on macOS: pull request #8, 2026-11-06 (run 42261276222): the job `test-macos` (macos-15, arm64) ran `cargo test --all-features` and passed; `check-linux-arm64` passed too.
