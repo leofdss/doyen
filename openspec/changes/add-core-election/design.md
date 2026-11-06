@@ -67,6 +67,70 @@ pub(crate) trait Backend: Send + Sync + 'static {
 `async_trait` because the core holds a `Box<dyn Backend>` (the database is chosen at run
 time from the config). Native `async fn` in traits is not object-safe.
 
+The types around it (task group 5):
+- `Membership { number: u64, tag: u128 }`, `View { generation: u64, line: Vec<u64> }` (the
+  live numbers in increasing order; no master field: the core decides) and
+  `Warning { code: String, message: String }`.
+- `Result<T>` is `Result<T, BackendError>`. `BackendError` has two variants: `Network(message)`
+  (a network error, a timeout, a failover: the core retries it) and `Refused(Error)` (a
+  `DOYEN_AUTH` or `DOYEN_UNSUPPORTED` error: it ends a `join` that has no place yet; after the
+  first place the core retries it too). The crate `Error` has no network code, because a
+  network error never reaches the user as an error, so the adapter needs this second type.
+- `DATA_FORMAT` (1) and `newer_format_error(stored)` live in `backend`, so every adapter
+  gives the same message: "the group data has format 2, but this version of doyen knows only
+  format 1: …". `join`, `renew` and `leave` all return it and write nothing for a newer format.
+
+### Conformance suite
+
+- `conformance` holds one async function per rule, generic over a `TestDatabase` trait (the
+  database plus the test hooks of its adapter): `new_adapter` (one more app instance),
+  `group_name` (unique on a shared database), `lose_all_data`, `delete_generation_record`,
+  `set_counter`, `write_format` and `adapter_on_old_server` (an adapter on a server below the
+  minimum version, and that version as text). Each adapter change implements it for its
+  database.
+- An adapter runs every rule with one line, `conformance_tests!(start)`: the macro writes one
+  `#[tokio::test]` per rule. `start` is an async function that returns `Some(database)`, or
+  `None` to skip. A macro, because a test function cannot be generic and each adapter must
+  run the same list.
+- The rules wait with `tokio::time::sleep`: in paused time (in-memory adapter) the clock
+  moves at once; on a real database it is a real wait. The places use a `ttl` of 3 s.
+- A stub adapter whose calls all fail runs the suite with `conformance_tests!(start,
+  every_rule_fails)`: each test passes only when its rule fails, so a broken adapter fails
+  the run (`adapter-contract`, "New adapter").
+- "App clock is wrong": a test cannot move the clock of the app machine. The adapter calls
+  carry no app time (only `ttl`), so the test checks that a place lives `ttl` by the database
+  time. "First join after a restart" joins again with the instance that ran before the data
+  loss: a fresh process can meet the documented exception of an adapter.
+- One more test, outside the scenarios: a join and a leave wake every watcher (when the
+  adapter has push). The engine needs it for the takeover at once after a leave.
+
+### In-memory adapter
+
+`memory` (`#[cfg(test)]`): `MemoryDatabase` plays the server (shared by the adapters of one
+test, on the fake clock); `MemoryBackend` is one adapter. Each call runs under one lock and
+never waits inside it, so it is atomic and safe to cancel.
+- Group data: `format`, the generation record, the number counter, the places (number →
+  tag and expiry in database time). A dead place is removed by the next call.
+- New number: max(counter, highest place) + 1. A live place with the same tag is returned
+  again.
+- Generation: the stored one, unless the record is missing or lower than the highest
+  generation this adapter returned; then max(highest returned + 1, database time in ms),
+  written to the record. The highest returned lives in the adapter, like in Redis.
+- Switches and hooks: `lose_all_data`, `delete_generation_record`, `set_counter`,
+  `write_format`, `end_watch_streams` (for "Watch stream ends"), and a server version (1.4
+  minimum) for "Old server version". `connect` gives no warnings yet; the engine tests add
+  that switch when they need it.
+
+### Database test switch
+
+`conformance::database_url(variable)` reads the URL of a test database. The variable is not
+set (or is empty) → `None`, the start function returns `None` and the test passes without
+running (it prints `skipped: <variable> is not set`, never the URL). `DOYEN_TEST_REQUIRE_DB`
+set to exactly `1` and no URL → panic, so the test fails. An adapter change uses it in its
+start function: `let url = database_url("DOYEN_TEST_REDIS_URL")?;`, with real time (no
+`tokio::time::pause()`), and its CI jobs set `DOYEN_TEST_REQUIRE_DB=1`. The decision itself is
+a pure function, tested without changing the environment of the test process.
+
 ### Driver task, snapshot and subscribers
 
 - `join` starts one Tokio task per object (the driver). It owns the membership, the tag and

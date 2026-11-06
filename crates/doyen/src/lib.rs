@@ -13,8 +13,12 @@
 mod backend;
 mod clock;
 mod config;
+#[cfg(test)]
+mod conformance;
 mod engine;
 mod error;
+#[cfg(test)]
+mod memory;
 mod status;
 mod token;
 
