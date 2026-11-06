@@ -40,11 +40,11 @@ change.
 |---|---|---|---|---|---|---|
 | 1 | `add-ci-baseline` | v0.1 | — | `ci-checks` | — | done |
 | 2 | `add-core-election` | v0.1 | 1 | `election-core`, `status-reporting`, `client-config`, `adapter-contract`, `rust-api` | approve the crate layout, the private trait and the hidden hooks (task 0.1) | todo |
-| 3 | `add-redis-adapter` | v0.1 | 2 | `redis-adapter` | choose the Redis client (task 1.1) | todo |
+| 3 | `add-redis-adapter` | v0.1 | 2 | `redis-adapter` | choose the Redis client (task 1.1); confirm the Active-Active detection (task 3.5) | todo |
 | 4 | `add-mongodb-adapter` | v0.1 | 2 | `mongodb-adapter` | — | todo |
 | 5 | `add-system-tests` | v0.1 | 3, 4 | `system-tests` | — | todo |
 | 6 | `publish-rust-crate` | v0.1 | 5 | `release-process` | pick the use cases (task 1.4); GitHub App, environment, crates.io publisher (task 3.1); approve the release | todo |
-| 7 | `add-node-binding` | v0.2 | 6 | `node-binding` | approve the napi-rs design (task 0.1); npm publishers (task 4.7); approve the release | todo |
+| 7 | `add-node-binding` | v0.2 | 6 | `node-binding` | approve the napi-rs design (task 0.1); npm publishers (task 4.8); approve the release | todo |
 | 8 | `add-go-binding` | v0.3 | 7 | `go-binding` | approve the Go design (task 0.1); create `leofdss/doyen-go` and its deploy key (task 3.2) | todo |
 | 9 | `add-postgresql-adapter` | v0.4 | 8 | `postgresql-adapter` | approve the design (task 0.1); approve the release | todo |
 
@@ -87,16 +87,17 @@ README: do them one after the other (Redis first, the first database the owner c
 
 - [ ] (owner) Remove the npm version `0.0.0-stage` (left by the first staged publish):
   `npm unpublish @leofdss/doyen@0.0.0-stage` before 2026-11-06 20:56 UTC.
-- [ ] (owner, optional) Publish the placeholders again (npm 0.0.3, crate 0.0.2) so they carry
-  the license texts.
+- [ ] (owner, optional) Publish the placeholders again so they carry the license texts, with
+  the same number for npm and the crate (for example both 0.0.3): the release manifest of
+  `publish-rust-crate` starts at that number and its CI fails when the versions differ.
 - [ ] (owner) Turn on private vulnerability reporting, which `SECURITY.md` points to:
   `gh api -X PUT repos/leofdss/doyen/private-vulnerability-reporting` (or Settings →
   Code security).
 - [ ] (owner) Decide on the DCO: ask for `Signed-off-by` in every commit, added by the person
   (never by an agent, see `AI_POLICY.md`). The OpenSSF Baseline level 2 asks for it
   (OSPS-LE-01). A simple flow: the agent commits without it; before the pull request, the
-  owner runs `git rebase --signoff main` (the human act that certifies). If yes, the commit
-  check of `add-ci-baseline` checks it.
+  owner runs `git rebase --signoff main` (the human act that certifies). If yes, a new
+  change adds it to the commit check (a MODIFIED delta on `ci-checks`).
 - [ ] (owner) Now that `add-ci-baseline` is merged: protect `main` with a ruleset (pull
   request and green CI before a merge, rebase merge only, linear history, no force push, no
   deletion of `main`), as the OpenSSF SCM guide and Baseline (OSPS-AC-03) ask and GitHub
@@ -104,6 +105,8 @@ README: do them one after the other (Redis first, the first database the owner c
   `coverage`, `commits`, `scenarios`, `specs`, `workflows`, `deps`, `licenses`). Also allow
   only rebase merging in the repo settings: pull requests #1–#3 were merged with merge
   commits. Until then, push work as a branch and a pull request too, not straight to `main`.
+  **Standing rule:** every change that adds a job to `ci.yml` has an (owner) task to add it
+  to the required checks; a job that is not required can be red on a merged pull request.
 - [ ] (owner) GitHub settings for the OpenSSF Baseline level 1: two-factor login on the
   account (OSPS-AC-01); secret scanning and push protection on (OSPS-BR-07); default
   workflow token read-only (Settings → Actions, OSPS-AC-04).

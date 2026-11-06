@@ -59,6 +59,10 @@ object, a missing or wrong field, an unknown `type` — SHALL reject the Promise
 - **WHEN** an app calls `doyen.join({ type: "redis", group: "g" })`
 - **THEN** the call returns a Promise that rejects with `error.code === "DOYEN_INVALID_CONFIG"`
 
+#### Scenario: Negative number
+- **WHEN** an app joins with `renewIntervalMs: -1` (the core fields are unsigned, so the binding checks it)
+- **THEN** the Promise rejects with `error.code === "DOYEN_INVALID_CONFIG"`
+
 ### Requirement: Status changes through callbacks
 `onStatusChange(callback)` SHALL call the callback on the JavaScript thread for every change,
 in order, also when added before `join`. A callback SHALL get the status of the moment of the
@@ -79,8 +83,10 @@ like an exception in an `EventEmitter` listener. The core SHALL keep running.
 ### Requirement: A blocked event loop stops the renews
 The binding SHALL send a tick to the JavaScript thread each renew interval, and the core SHALL
 send a renew only if a tick ran in the last 2 × `renewIntervalMs`. With the defaults, a loop
-blocked less than 11 s SHALL change nothing, and a loop blocked more than 13 s SHALL make the
-status offline `connectionLost`.
+blocked less than 8 s SHALL change nothing, and a loop blocked more than 13 s SHALL make the
+status offline `connectionLost`. (The last renew before the block can be up to 2 s old, the
+lease lasts 9 s after it, and the next renew waits for the next tick: that gives 8 s, not
+`timeoutMs`.)
 
 #### Scenario: Endless loop
 - **WHEN** the master's event loop is blocked for 20 s

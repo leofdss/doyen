@@ -38,6 +38,6 @@ Release: v0.1. Depends on: `add-core-election`.
 ## Impact
 
 - `crates/doyen/src/redis/` (feature `redis`), one Redis client crate (chosen in task 1.1).
-- `.github/workflows/ci.yml`: new jobs with Redis services; `tests/` helpers with Docker
-  Compose files for Sentinel and Cluster.
+- `.github/workflows/ci.yml`: new jobs with Redis services; Compose files in
+  `crates/doyen/tests/redis/` for Sentinel and Cluster.
 - `README.md`: Redis section updated from "planned" to the real behaviour.

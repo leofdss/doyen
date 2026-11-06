@@ -18,7 +18,7 @@ make it pass.
 
 ## 2. Methods and callbacks
 
-- [ ] 2.1 Write the tests against a local Redis: "Setting read back", "Missing url", "Busy event loop", "Callback throws", "SIGTERM with the database down", "Join after leave", "Redis with volatile eviction"; verify they fail (red)
+- [ ] 2.1 Write the tests against a local Redis: "Setting read back", "Missing url", "Negative number", "Busy event loop", "Callback throws", "SIGTERM with the database down", "Join after leave", "Redis with volatile eviction"; verify they fail (red)
 - [ ] 2.2 Write `new Doyen()`, `status()`, `token()` on the core snapshot, and `join` with an `Unknown` argument converted inside; verify the config tests pass
 - [ ] 2.3 Write `onStatusChange` with one weak thread-safe function per callback; verify the callback tests pass
 - [ ] 2.4 Write `leave` (never rejects on a network error, second call at once, pending join → `DOYEN_LEFT`), the error codes and the warnings through `process.emitWarning`; verify the remaining tests pass (green)
@@ -37,11 +37,12 @@ make it pass.
 - [ ] 4.2 Write the platform test "Unsupported platform" (import on Linux musl in a container fails with the platform name); verify it passes with the napi-rs loader, and add "Install on Linux x64" to `openspec/manual-checks.md` after a clean install
 - [ ] 4.3 Add the job `npm` to `release.yml` (build all platforms, the license files in each package, a CycloneDX SBOM per binary uploaded to the GitHub release, `napi prepublish`, `npm publish --provenance` per package, environment `release`, `id-token: write`) and a `workflow_dispatch` dry run (`npm publish --dry-run`); verify the dry run builds and packs every package with its license files ("Package contents"), and zizmor passes
 - [ ] 4.4 Write the Node.js README (`bindings/node/README.md`: install, quick start, status, token, no fixed order between the `join` Promise and the first callback, `SIGTERM`, warnings, platforms) and link it from the main README; verify the quick start runs against a local Redis
-- [ ] 4.5 Commit as `ci(node): build and publish the npm packages`
-- [ ] 4.6 Run `python3 scripts/check-scenario-tests.py --change add-node-binding`; verify every `node-binding` scenario is named by a test or a manual check
-- [ ] 4.7 (owner) Add the npm Trusted Publisher (repository `leofdss/doyen`, workflow `release.yml`, environment `release`) to `@leofdss/doyen` and to each platform package (design.md: a placeholder first if npm needs it); verify the npm settings page of each package shows it
-- [ ] 4.8 (owner) After the merge of this change, merge the release pull request (0.2.0) and approve the environment `release`; verify `npm install @leofdss/doyen` works in a clean folder on Linux x64 and npm shows the provenance, and add "Release 0.2.0" to `openspec/manual-checks.md`
-- [ ] 4.9 (owner) Deprecate the npm placeholders: `npm deprecate @leofdss/doyen@"<0.1.0" "placeholder: use 0.2.0 or newer"`; verify `npm view @leofdss/doyen@0.0.2` shows the note
+- [ ] 4.5 (owner) Add the new `ci.yml` jobs of this group to the required checks of the ruleset of `main` (a job that is not required can be red on a merged pull request)
+- [ ] 4.6 Commit as `ci(node): build and publish the npm packages`
+- [ ] 4.7 Run `python3 scripts/check-scenario-tests.py --change add-node-binding`; verify every `node-binding` scenario is named by a test or a manual check
+- [ ] 4.8 (owner) Add the npm Trusted Publisher (repository `leofdss/doyen`, workflow `release.yml`, environment `release`) to `@leofdss/doyen` and to each platform package (design.md: a placeholder first if npm needs it); verify the npm settings page of each package shows it
+- [ ] 4.9 (owner) After the merge of this change, merge the release pull request (0.2.0) and approve the environment `release`; verify `npm install @leofdss/doyen` works in a clean folder on Linux x64 and npm shows the provenance, and add "Release 0.2.0" to `openspec/manual-checks.md`
+- [ ] 4.10 (owner) Deprecate the npm placeholders: `npm deprecate @leofdss/doyen@"<0.1.0" "placeholder: use 0.2.0 or newer"`; verify `npm view @leofdss/doyen@0.0.2` shows the note
 
 ## Workflow follow-up
 

@@ -34,6 +34,8 @@ The rules apply to people and to AI agents. Agents also follow [AGENTS.md](AGENT
      - `Assisted-by: generic LLM chatbot`
    - An AI agent *MUST NOT* add `Signed-off-by` or `Co-authored-by` for itself. Only a
      person can certify the [Developer Certificate of Origin](https://developercertificate.org/).
+     (The commits before 2026-11-05 carry a `Co-Authored-By` trailer for the agent: they
+     are from before this rule, and history is not rewritten.)
 4. **Licenses:** doyen is MIT OR Apache-2.0.
    - You *MUST* use only AI tools whose terms let you contribute their output under these
      licenses.

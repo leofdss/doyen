@@ -32,7 +32,8 @@ write the code until they pass. Never change a test only to make it pass.
 - [ ] 4.1 Write the clock tests: the real clock against a real 2 s sleep, the fake clock in paused Tokio time; verify they fail (red)
 - [ ] 4.2 Write the `Clock` trait, the real clock (Linux `CLOCK_BOOTTIME` through `rustix`) and the fake clock on `tokio::time::Instant`; verify the tests pass (green)
 - [ ] 4.3 Choose the suspend-aware clock for macOS and record it in design.md; add a `compile_error!` for other targets that names the supported platforms; add the CI jobs `test-macos` (macOS arm64 runner, `cargo test --all-features`, no database) and `check-linux-arm64` (`cargo check --all-features --target aarch64-unknown-linux-gnu`); verify both jobs pass and a Windows `cargo check` fails with the message, then write "Build on macOS" and "Build on Windows" in `openspec/manual-checks.md`
-- [ ] 4.4 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add a clock that counts suspend time`
+- [ ] 4.4 (owner) Add the new `ci.yml` jobs of this group to the required checks of the ruleset of `main` (a job that is not required can be red on a merged pull request)
+- [ ] 4.5 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add a clock that counts suspend time`
 
 ## 5. Adapter contract and conformance suite
 

@@ -20,6 +20,10 @@ At connect the adapter SHALL refuse a server older than PostgreSQL 14 with
 `DOYEN_UNSUPPORTED`, and SHALL refuse a connection to a standby (read-only) server with
 `DOYEN_UNSUPPORTED`.
 
+#### Scenario: PostgreSQL 13
+- **WHEN** the server is PostgreSQL 13
+- **THEN** `join` fails with `DOYEN_UNSUPPORTED` and the message says that 14 or newer is needed
+
 #### Scenario: Standby URL
 - **WHEN** the URL points to a hot standby
 - **THEN** `join` fails with `DOYEN_UNSUPPORTED` and the message says that doyen needs the primary

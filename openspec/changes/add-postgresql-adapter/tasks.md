@@ -12,7 +12,7 @@ make it pass.
 ## 1. Driver, config and connect checks
 
 - [ ] 1.1 Add `tokio-postgres` with a TLS connector behind the feature `postgresql` (in the default features); verify `cargo build --no-default-features --features postgresql` and the `msrv` job
-- [ ] 1.2 Write the tests: "Default schema", "Standby URL", "No CREATE privilege", "Tables made by hand", "Function not allowed", and a PostgreSQL 13 server refused (PostgreSQL containers: 13, 14, a standby, limited users); verify they fail (red)
+- [ ] 1.2 Write the tests: "Default schema", "Standby URL", "No CREATE privilege", "Tables made by hand", "Function not allowed", "PostgreSQL 13" (PostgreSQL containers: 13, 14, a standby, limited users); verify they fail (red)
 - [ ] 1.3 Write the PostgreSQL config (`schema`, URL schemes), the connect checks (version, standby, timeline readable) and the table creation; verify the tests pass (green)
 - [ ] 1.4 Commit the group in one commit (tests, code, spec changes, ticks): `feat(postgresql): add the config and the connect checks`
 
@@ -28,7 +28,8 @@ make it pass.
 
 - [ ] 3.1 Add the CI jobs `postgresql` (14 / latest), a primary + standby failover (promote the standby) and the dump/restore test, with `DOYEN_TEST_REQUIRE_DB=1`; verify they pass and the failover test shows a new, higher generation
 - [ ] 3.2 Add PostgreSQL to the system tests of `system-tests` (member type `postgresql`, a pause of the PostgreSQL container, the job `system`); verify the four scenarios and "Timelines checked" pass on PostgreSQL
-- [ ] 3.3 Commit as `test(postgresql): run the adapter and the system tests on PostgreSQL in CI`
+- [ ] 3.3 (owner) Add the new `ci.yml` jobs of this group to the required checks of the ruleset of `main` (a job that is not required can be red on a merged pull request)
+- [ ] 3.4 Commit as `test(postgresql): run the adapter and the system tests on PostgreSQL in CI`
 
 ## 4. Managed services and documentation
 

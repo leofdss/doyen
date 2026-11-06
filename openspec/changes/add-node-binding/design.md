@@ -60,7 +60,9 @@ core gives the public Rust API and the hidden hooks `__binding::set_liveness` an
 At each renew interval the core sends a tick through the strong thread-safe function; the
 tick is native code that only writes the time. A new tick goes only after the last one ran.
 `__binding::set_liveness` checks "a tick ran in the last 2 × `renewIntervalMs`" before each
-renew. With the defaults: blocked < 11 s → nothing; > 13 s → the lease ends.
+renew. With the defaults: blocked < 8 s → nothing (the last renew can be 2 s old, the lease
+lasts 9 s after it, the next renew waits for the next tick); > 13 s → the lease ends. Between
+the two it depends on the phase of the block.
 
 ### Life of the object
 
