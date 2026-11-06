@@ -23,9 +23,9 @@ write the code until they pass. Never change a test only to make it pass.
 
 ## 3. Status and token types
 
-- [ ] 3.1 Write the tests for the `rust-api` scenarios "Display a reason" and "Compare tokens" and the `status-reporting` scenario "Log a reason"; verify they fail (red)
-- [ ] 3.2 Write `Status`, `OfflineReason` (camelCase `Display`) and `Token` (`Ord`, generation first); verify the tests pass (green)
-- [ ] 3.3 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add the status and token types`
+- [x] 3.1 Write the tests for the `rust-api` scenarios "Display a reason" and "Compare tokens" and the `status-reporting` scenario "Log a reason"; verify they fail (red)
+- [x] 3.2 Write `Status`, `OfflineReason` (camelCase `Display`) and `Token` (`Ord`, generation first); verify the tests pass (green)
+- [x] 3.3 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add the status and token types`
 
 ## 4. Clock
 

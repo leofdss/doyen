@@ -20,3 +20,5 @@ mod token;
 
 pub use config::{DatabaseConfig, MongodbConfig, RedisConfig};
 pub use error::{Error, ErrorCode};
+pub use status::{OfflineReason, Status};
+pub use token::Token;
