@@ -93,11 +93,13 @@ time from the config). Native `async fn` in traits is not object-safe.
 ### Clock and schedule
 
 - `Clock::now()` is a monotonic time that **counts suspend**: Linux `CLOCK_BOOTTIME`
-  (`rustix::time::clock_gettime`). macOS: choose a clock of the same kind at implementation
-  and record it here (to check: macOS `CLOCK_MONOTONIC` counts sleep, Rust's `Instant` there
-  does not). Windows is not supported in v0.1, like in the Node.js and Go builds: a
-  `compile_error!` names the supported platforms. To confirm (owner): Windows later
-  (`QueryInterruptTime` counts sleep).
+  (`rustix::time::clock_gettime`). macOS: `CLOCK_MONOTONIC` (the same call with
+  `ClockId::Monotonic`). On macOS it is the clock that counts sleep (it follows
+  `mach_continuous_time`), while `CLOCK_UPTIME_RAW`, which Rust's `Instant` uses there, does
+  not. Chosen at implementation; a macOS runner checks the build (CI job `test-macos`). The
+  supported targets are Linux x86_64 and aarch64 and macOS aarch64. Windows is not supported
+  in v0.1, like in the Node.js and Go builds: a `compile_error!` names the supported
+  platforms. To confirm (owner): Windows later (`QueryInterruptTime` counts sleep).
 - `join` checks `tokio::runtime::Handle::try_current()` first: outside Tokio it returns
   `DOYEN_UNSUPPORTED` instead of the panic of `tokio::spawn`.
 - The lease is checked with `Clock::now()`. The timers use Tokio (`interval_at` from the join,
