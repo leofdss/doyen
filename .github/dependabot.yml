@@ -2,6 +2,8 @@
 # ecosystem. The cooldown waits a week after a release, so a bad or hijacked release has
 # time to be found before it reaches this repo. Commit subjects follow Conventional
 # Commits: "ci(deps): ..." for actions, "build(deps): ..." for crates and npm packages.
+# Not here: .github/tools/package-lock.json (the OpenSpec CLI of the CI). It moves by hand,
+# together with the version in distrobox/Containerfile, so both stay the same.
 version: 2
 updates:
   - package-ecosystem: github-actions

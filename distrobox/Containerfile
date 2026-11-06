@@ -70,7 +70,7 @@ RUN rust_llvm="$(rustc -vV | sed -n 's/^LLVM version: \([0-9]*\)\..*/\1/p')" \
 # built from crates.io. CARGO_HOME points outside HOME during the build, and
 # the binary is copied to /usr/local/bin. Without rustup there is no
 # llvm-tools-preview, so it needs these two variables.
-RUN CARGO_HOME=/tmp/cargo cargo install --locked --root /usr/local cargo-llvm-cov \
+RUN CARGO_HOME=/tmp/cargo cargo install --locked --root /usr/local cargo-llvm-cov --version 0.9.1 \
  && rm -rf /tmp/cargo
 ENV LLVM_COV=/usr/bin/llvm-cov \
     LLVM_PROFDATA=/usr/bin/llvm-profdata
@@ -78,7 +78,7 @@ ENV LLVM_COV=/usr/bin/llvm-cov \
 # Claude Code (CLI) -- npm global as root, so it lands in /usr, not HOME.
 # --allow-scripts: recent npm blocks the postinstall that downloads the
 # native binary.
-RUN npm install --global --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code \
+RUN npm install --global --allow-scripts=@anthropic-ai/claude-code @anthropic-ai/claude-code@2.1.312 \
  && npm cache clean --force
 
 # OpenSpec CLI -- the specs and changes in openspec/ (the /opsx:* commands
