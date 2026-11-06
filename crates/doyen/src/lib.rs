@@ -24,6 +24,10 @@ mod token;
 
 pub use config::{DatabaseConfig, MongodbConfig, RedisConfig};
 pub use engine::Doyen;
+// The hooks of the bindings (not the public API). The module lives inside `engine`, so it
+// can reach the private parts of `Doyen`.
+#[doc(hidden)]
+pub use engine::binding as __binding;
 pub use error::{Error, ErrorCode};
 pub use status::{OfflineReason, Status};
 pub use token::Token;

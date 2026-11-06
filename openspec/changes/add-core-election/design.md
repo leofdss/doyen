@@ -238,6 +238,22 @@ API does not:
 
 Alternative: public methods for these. Rejected: the public API is five operations.
 
+Chosen in task group 7:
+- Both hooks are functions that take the object first: `set_liveness(&doyen, check)` and
+  `warnings(&doyen)`. The module is `engine/binding.rs`, shown at the crate root as
+  `__binding` (`#[doc(hidden)] pub use`), so it can reach the private parts of `Doyen`.
+  `Warning` is public for it (`__binding::Warning`, fields `code` and `message`).
+- `set_liveness`: the check is `Fn() -> bool + Send + Sync`; it can be set before or after
+  `join`, and a new call replaces it. The driver calls it, without the lock, before each
+  renew of its timer and of a wake-up; the join attempts (and the renew inside a join) do not
+  call it. A skipped renew writes a debug event and does not change the last error. With no
+  renew the lease ends (offline `connectionLost`); when the check returns true again, the
+  next renew gets the place back if it did not expire, else the place is lost as usual.
+- `warnings`: one unbounded queue per stream, like `status_changes()`. A stream gets the
+  warnings from the moment it was made (no replay of earlier ones), each one once, before
+  `join` finishes; it ends after `leave` (a stream made after `leave` ends at once). The
+  bindings make their stream before they call `join`.
+
 ### Dependencies
 
 `tokio` (rt, time, sync, macros: the driver waits on its timer, the watch stream, the lease

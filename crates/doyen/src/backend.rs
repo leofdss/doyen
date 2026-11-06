@@ -76,12 +76,15 @@ pub(crate) struct View {
 }
 
 /// A setup that works but has a known risk, found by `connect`.
+///
+/// Public only for the bindings, through `__binding::warnings`: it is not part of the
+/// public API.
 #[derive(Debug, Clone, PartialEq, Eq)]
-pub(crate) struct Warning {
+pub struct Warning {
     /// The code, for example `DOYEN_REDIS_EVICTION`. Each adapter defines its own codes.
-    pub(crate) code: String,
+    pub code: String,
     /// What the risk is and how to fix it.
-    pub(crate) message: String,
+    pub message: String,
 }
 
 /// A database adapter: the five operations of the spec adapter-contract.

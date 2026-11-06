@@ -12,11 +12,15 @@ use std::time::Duration;
 use tokio::sync::{mpsc, oneshot, watch};
 
 use super::joining::{Connection, Place};
-use crate::backend::{Backend, Membership};
+use crate::backend::{Backend, Membership, Warning};
 use crate::clock::Clock;
 use crate::error::{Error, ErrorCode};
 use crate::status::{OfflineReason, Status};
 use crate::token::Token;
+
+/// A check of a binding: `false` means the app cannot work now (for example a blocked
+/// Node.js event loop), so the driver skips the renew.
+pub(super) type LivenessCheck = Arc<dyn Fn() -> bool + Send + Sync>;
 
 /// The part of an object that the driver task shares with the handles.
 pub(super) struct Shared {
@@ -55,6 +59,10 @@ struct State {
     last_published: Status,
     /// One unbounded queue per stream: a change is never lost or merged.
     subscribers: Vec<mpsc::UnboundedSender<Status>>,
+    /// One unbounded queue per warnings stream of a binding.
+    warning_subscribers: Vec<mpsc::UnboundedSender<Warning>>,
+    /// The liveness check of a binding. `None`: every renew is sent.
+    liveness_check: Option<LivenessCheck>,
     /// The adapter and the config of the last `join`, for `leave`.
     connection: Option<Connection>,
     /// The other end of the handle's stop signal. The driver takes it when it starts.
@@ -85,6 +93,8 @@ impl Shared {
             last_error: None,
             last_published: not_joined,
             subscribers: Vec::new(),
+            warning_subscribers: Vec::new(),
+            liveness_check: None,
             connection: None,
             driver_stop: Some(driver_stop),
         };
@@ -153,6 +163,42 @@ impl Shared {
             state.subscribers.push(sender);
         }
         receiver
+    }
+
+    /// A new queue of connect warnings, from now on. After `left` the queue is closed at
+    /// once.
+    pub(super) fn subscribe_to_warnings(&self) -> mpsc::UnboundedReceiver<Warning> {
+        let (sender, receiver) = mpsc::unbounded_channel();
+        let mut state = self.lock();
+        if !matches!(state.phase, Phase::Left) {
+            state.warning_subscribers.push(sender);
+        }
+        receiver
+    }
+
+    /// Send each connect warning once to every warnings stream.
+    pub(super) fn send_warnings(&self, warnings: &[Warning]) {
+        let mut state = self.lock();
+        for warning in warnings {
+            state
+                .warning_subscribers
+                .retain(|subscriber| subscriber.send(warning.clone()).is_ok());
+        }
+    }
+
+    pub(super) fn set_liveness_check(&self, check: LivenessCheck) {
+        self.lock().liveness_check = Some(check);
+    }
+
+    /// `true` when the app can work now, or when no binding gave a check.
+    pub(super) fn is_live(&self) -> bool {
+        // The check is code of the binding: it runs without the lock, so it cannot block
+        // `status()`.
+        let check = self.lock().liveness_check.clone();
+        match check {
+            Some(check) => check(),
+            None => true,
+        }
     }
 
     pub(super) fn leaving(&self) -> watch::Receiver<bool> {
@@ -285,6 +331,7 @@ impl Shared {
         state.publish_change(now);
         // Dropping the queues ends the streams after `left` (rust-api, "End of the stream").
         state.subscribers.clear();
+        state.warning_subscribers.clear();
         let connection = state.connection.clone();
         drop(state);
         self.leaving.send_replace(true);
