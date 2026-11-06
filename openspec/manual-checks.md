@@ -40,3 +40,4 @@ on each supported platform; the unsupported one is checked once with a throwaway
 request, as the failure paths above.
 
 - rust-api / Build on macOS: pull request #8, 2026-11-06 (run 42261276222): the job `test-macos` (macos-15, arm64) ran `cargo test --all-features` and passed; `check-linux-arm64` passed too.
+- rust-api / Build on Windows: draft pull request #9 (throwaway, closed after), 2026-11-06 (run 42269663901): `cargo check -p doyen --all-features` on windows-latest failed with "doyen supports only Linux (x86_64 and aarch64) and macOS (aarch64): it needs a monotonic clock that counts the time of a suspend".
