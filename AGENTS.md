@@ -137,6 +137,11 @@ programmer already knows:
 | `async` / `await` | `async fn` / `.await` | a goroutine + a channel, only where the spec asks |
 | `array.map` / `filter` / `find` | iterator `map` / `filter` / `find` | a `for` loop |
 
+- The reference for the Rust side is
+  [`TypeScript to Rust Migration Guide.md`](TypeScript%20to%20Rust%20Migration%20Guide.md)
+  (owner rule 2026-11-06): read it before you write Rust, and write the code with the forms
+  it shows. Use a Rust feature that is not in the guide only when the code really needs it,
+  and then add it to the guide, with its TypeScript equivalent, in the same commit.
 - Use a Rust- or Go-only feature only when the code needs it, with a comment that says why:
   lifetimes (a clone or an owned value often removes them), your own macros
   (`macro_rules!`), generics with many bounds, type-level tricks, `unsafe` (only in the
