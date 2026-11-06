@@ -18,7 +18,7 @@ make it pass.
 
 ## 2. Methods and callbacks
 
-- [ ] 2.1 Write the tests against a local Redis: "Setting read back", "Missing url", "Negative number", "Busy event loop", "Callback throws", "SIGTERM with the database down", "Join after leave", "Redis with volatile eviction"; verify they fail (red)
+- [ ] 2.1 Write the tests against a local Redis: "Setting read back", "Missing url", "Negative number", "Unknown type", "Busy event loop", "Callback throws", "SIGTERM with the database down", "Join after leave", "Redis with volatile eviction"; verify they fail (red)
 - [ ] 2.2 Write `new Doyen()`, `status()`, `token()` on the core snapshot, and `join` with an `Unknown` argument converted inside; verify the config tests pass
 - [ ] 2.3 Write `onStatusChange` with one weak thread-safe function per callback; verify the callback tests pass
 - [ ] 2.4 Write `leave` (never rejects on a network error, second call at once, pending join → `DOYEN_LEFT`), the error codes and the warnings through `process.emitWarning`; verify the remaining tests pass (green)

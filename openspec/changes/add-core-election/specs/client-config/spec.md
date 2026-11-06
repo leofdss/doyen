@@ -10,15 +10,13 @@ defaults and checks, and the error codes that every language returns.
 ### Requirement: Config typed by database
 The config SHALL be one of several shapes chosen by its `type` field. Each database adapter
 SHALL define its `type` value and its extra settings in its own capability. The adapter SHALL
-come from `type`, never from the URL scheme.
+come from `type`, never from the URL scheme. In Rust the config is an enum, so a `type` no
+adapter defines does not compile; a binding, where `type` is a string, SHALL check it in its
+own capability.
 
 #### Scenario: Redis config
 - **WHEN** the config has `type` set to the Redis value
 - **THEN** the core uses the Redis adapter and accepts only the Redis settings
-
-#### Scenario: Unknown type
-- **WHEN** the config has a `type` no adapter defines
-- **THEN** `join` fails with `DOYEN_INVALID_CONFIG`
 
 ### Requirement: Shared settings and defaults
 Every config SHALL have `url` (required), `group` (required), `timeoutMs` (default 10000),
