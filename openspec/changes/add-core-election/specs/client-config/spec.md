@@ -12,11 +12,12 @@ The config SHALL be one of several shapes chosen by its `type` field. Each datab
 SHALL define its `type` value and its extra settings in its own capability. The adapter SHALL
 come from `type`, never from the URL scheme. In Rust the config is an enum, so a `type` no
 adapter defines does not compile; a binding, where `type` is a string, SHALL check it in its
-own capability.
+own capability. Each adapter capability SHALL have a scenario that shows that `join` uses
+that adapter for its `type`.
 
-#### Scenario: Redis config
-- **WHEN** the config has `type` set to the Redis value
-- **THEN** the core uses the Redis adapter and accepts only the Redis settings
+#### Scenario: Config shape
+- **WHEN** an app builds a Redis config with `new(url, group)`
+- **THEN** it holds only the shared settings and the Redis settings, and the adapter comes from the shape, not from the URL
 
 ### Requirement: Shared settings and defaults
 Every config SHALL have `url` (required), `group` (required), `timeoutMs` (default 10000),

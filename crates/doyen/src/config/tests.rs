@@ -53,6 +53,21 @@ fn a_new_config_leaves_every_optional_setting_empty() {
     assert_eq!(config.instance_name, None);
 }
 
+// spec: client-config / Config shape
+#[test]
+fn the_adapter_comes_from_the_shape_of_the_config() {
+    // The URL has the MongoDB scheme, but the shape is the Redis one: the config is still a
+    // Redis config. The scheme check happens later, in the checks of `join`.
+    let config = redis("mongodb://localhost/doyen", "billing-jobs");
+
+    assert!(matches!(config, DatabaseConfig::Redis(_)));
+    let DatabaseConfig::Redis(settings) = config else {
+        unreachable!();
+    };
+    assert_eq!(settings.url, "mongodb://localhost/doyen");
+    assert_eq!(settings.group, "billing-jobs");
+}
+
 // spec: client-config / Braces in the group
 #[test]
 fn a_group_with_braces_is_invalid() {
