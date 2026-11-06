@@ -81,6 +81,11 @@ So:
   edit, the extra reading costs more than the cheaper model saves. Delegate read-heavy work
   (exploration, logs, many files), work with a clear test-guarded goal, and fresh-context
   reviews. Spawn subagents only when the owner asks or the workflow says so.
+- **Every subagent prompt carries the shell rule** of `AGENTS.md` (*AI agents*, "Shell
+  commands never hang"): bash syntax only, long commands in the foreground as
+  `timeout 600 distrobox enter doyen -- bash -lc '<command>' </dev/null`, never in the
+  background. A subagent that hands back while a background command still runs leaves a
+  stuck shell that nobody reads.
 
 ## Tell the owner
 

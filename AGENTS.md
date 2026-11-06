@@ -211,6 +211,17 @@ Agents follow [`AI_POLICY.md`](AI_POLICY.md), like people. Also:
   you could not build, test or reproduce.
 - **Ask first** before a command that deletes data, writes outside the repo, or uses a
   database that is not a local test container.
+- **Shell commands never hang** (owner rule 2026-11-06, after a stuck shell ran 2 h 32 min).
+  Write every command for **bash**, never zsh or fish forms (`$=`, `=cmd`, `set -x`). Run a
+  long command (`cargo`, `distrobox enter`, `openspec`, `npm`) in the foreground, with a
+  time limit and with its input closed, so a program that waits for a terminal ends at once:
+  `timeout 600 distrobox enter doyen -- bash -lc '<command>' </dev/null`. A command that
+  asks a question gets its answer on the command line (`--yes`) or fails. Never start a long
+  command in the background: it has no time limit and nobody reads it when it hangs. For
+  Claude Code, `.claude/hooks/guard-shell.py` denies a background command that does not
+  start with `timeout` and end with `</dev/null`, and any `$=`; `.claude/settings.json` sets
+  `CLAUDE_CODE_SHELL=/bin/bash`, so the Bash tool runs bash even when the login shell is
+  fish or zsh.
 
 ## Choosing the model
 
