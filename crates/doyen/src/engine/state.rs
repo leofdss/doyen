@@ -334,6 +334,7 @@ impl Shared {
         state.warning_subscribers.clear();
         let connection = state.connection.clone();
         drop(state);
+        // `send` stores nothing when no receiver exists; `send_replace` always stores.
         self.leaving.send_replace(true);
 
         match (connection, membership) {

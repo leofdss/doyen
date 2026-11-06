@@ -112,6 +112,8 @@ impl MongodbConfig {
 }
 
 /// The settings every database shares, borrowed from a config struct.
+// The lifetime `'config` lets the struct borrow the URL, the group and the name from the config:
+// the shared checks and the `Debug` output only read them, so no copy is needed.
 struct SharedSettings<'config> {
     database: DatabaseKind,
     url: &'config str,
@@ -322,7 +324,7 @@ pub(crate) fn redact_url(url: &str) -> String {
             .query_pairs()
             .map(|(name, value)| {
                 let value = if holds_secret(&name) {
-                    HIDDEN.into()
+                    HIDDEN.to_owned()
                 } else {
                     value.into_owned()
                 };

@@ -35,7 +35,7 @@ One crate, `doyen`:
 | `engine` | the driver task, the lease, the schedule, the snapshot, the subscribers |
 | `clock` | `Clock` trait, the real clock, the fake clock (tests) |
 | `memory` | in-memory adapter (`#[cfg(test)]`) |
-| `conformance` | the conformance suite, generic over `Backend` (`#[cfg(test)]`) |
+| `conformance` | the conformance suite, generic over `TestDatabase` (`#[cfg(test)]`) |
 | `redis`, `mongodb` | added by the adapter changes, behind the cargo features |
 
 Alternative: one crate per adapter (`doyen-redis`, …). Rejected: users then match versions
@@ -64,7 +64,7 @@ pub(crate) trait Backend: Send + Sync + 'static {
 }
 ```
 
-`async_trait` because the core holds a `Box<dyn Backend>` (the database is chosen at run
+`async_trait` because the core holds an `Arc<dyn Backend>` (the database is chosen at run
 time from the config). Native `async fn` in traits is not object-safe.
 
 The types around it (task group 5):
@@ -191,8 +191,9 @@ a pure function, tested without changing the environment of the test process.
 - The lease is checked with `Clock::now()`. The timers use Tokio (`interval_at` from the join,
   period `renewIntervalMs`, `MissedTickBehavior::Skip`): fixed rate, and a missed tick after a
   suspend does not send a burst. Each call is wrapped in `tokio::time::timeout(renewInterval)`.
-- Tests: the fake clock reads `tokio::time::Instant` and the tests run with
-  `tokio::time::pause()`, so the lease and the timers move together. One test also checks
+- Tests: the fake clock reads `tokio::time::Instant` and the engine tests run with
+  `#[tokio::test(start_paused = true)]`, and the memory and conformance tests call
+  `tokio::time::pause()` in their start function, so the lease and the timers move together. One test also checks
   the real clock against a real sleep.
 
 ### Join, retries and reconnect

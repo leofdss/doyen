@@ -6,7 +6,10 @@
 
 // The adapters (later changes) build `BackendError`, `DATA_FORMAT` and `newer_format_error`;
 // until then only the in-memory adapter of the tests does.
-#![cfg_attr(not(test), allow(dead_code))]
+#![cfg_attr(
+    not(test),
+    expect(dead_code, reason = "the adapters of later changes use these items")
+)]
 
 use std::sync::Arc;
 use std::time::Duration;
@@ -91,7 +94,7 @@ pub struct Warning {
 ///
 /// Every call must be safe to cancel at any point (the engine wraps each one in a
 /// timeout).
-// `async_trait` because the engine holds a `Box<dyn Backend>`: the database is chosen at run
+// `async_trait` because the engine holds an `Arc<dyn Backend>`: the database is chosen at run
 // time from the config, and a native `async fn` in a trait cannot be used through `dyn`.
 #[async_trait]
 pub(crate) trait Backend: Send + Sync + 'static {
