@@ -1638,6 +1638,39 @@ pub use api::routes::Router;       // re-export (like `export { X } from`)
 - Modules must be **declared** with `mod` — files aren't auto-discovered. A folder module can be `engine.rs` + `engine/driver.rs` (no `mod.rs`); the file `engine.rs` declares `mod driver;`.
 - Items are private by default.
 
+### Project structure: NestJS and Angular as the reference
+
+This repo lays out a crate the way a NestJS or Angular app is laid out (`AGENTS.md`, *Code
+style*, rule 3): a tree of feature modules, each with a module file, its services, its types
+and its spec files next to the code. The crate today, side by side with the Nest shape:
+
+```text
+NestJS                                   doyen (crates/doyen/src)
+src/                                     src/
+├── main.ts + app.module.ts              ├── lib.rs            declares the modules, re-exports the API (the barrel)
+├── election/                            ├── engine.rs         the module file: `mod driver;` …, holds `Doyen`
+│   ├── election.module.ts               ├── engine/
+│   ├── election.controller.ts  (Doyen)  │   ├── driver.rs     a service with one job (the renew loop)
+│   ├── driver.service.ts                │   ├── joining.rs    a service (connect and the first join)
+│   ├── state.service.ts                 │   ├── state.rs      a service (the shared state)
+│   ├── stop.service.ts                  │   ├── stop.rs
+│   ├── wake-ups.service.ts              │   ├── wake_ups.rs
+│   ├── binding.internal.ts              │   ├── binding.rs    hooks for the bindings (`#[doc(hidden)]`)
+│   └── election.spec.ts (per feature)   │   └── tests/        one spec file per capability
+├── dto/ + interfaces/                   ├── config.rs, status.rs, token.rs, error.rs   shared types, each with <name>/tests.rs
+├── backend/                             ├── backend.rs        the provider interface (a trait = an injection token)
+│   ├── backend.interface.ts             ├── memory.rs         one file per implementation (later redis.rs, mongodb.rs)
+│   ├── memory.backend.ts                ├── conformance.rs    the spec suite every implementation runs
+│   └── backend.conformance.spec.ts      │
+└── clock/clock.service.ts (+ mock)      └── clock.rs          a provider with a fake for the tests (`FakeClock` = `useValue`)
+```
+
+- The module file (`engine.rs`) is `election.module.ts` and the controller in one: it says which files belong to the feature and holds the public struct. Nothing else at the root imports `engine/driver.rs` directly, as nothing imports a service except its module.
+- `lib.rs` is `app.module.ts` plus `index.ts`: `mod engine;` is the `imports: [ElectionModule]`, `pub use engine::Doyen;` is the `export { Doyen }` of the barrel.
+- A trait is the injection token: `Backend` is chosen at run time from the config `type`, as Nest picks the provider bound to a token. The in-memory adapter is the implementation the tests inject; a fake (`FakeClock`) is the `useValue` of a `TestingModule`.
+- A spec file lives next to its code: `config/tests.rs` is `config.spec.ts`; the engine has one spec file per capability (`engine/tests/election_core.rs`), as a feature with many specs.
+- Angular reads the same way: a feature module per folder, `core/` singletons are the shared root files, a `shared/` piece is the conformance suite.
+
 ### Visibility levels
 
 | TS                                             | Rust            | Who sees it                      |
