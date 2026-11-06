@@ -9,3 +9,25 @@ edition.workspace = true
 license.workspace = true
 repository.workspace = true
 rust-version.workspace = true
+
+[dependencies]
+async-trait = "0.1.92"
+futures-core = "0.3.34"
+futures-util = "0.3.34"
+gethostname = "1.1.0"
+rand = "0.10.3"
+rustix = { version = "1.1.6", features = ["time"] }
+thiserror = "2.0.21"
+tokio = { version = "1.54.1", features = ["rt", "time", "sync"] }
+tracing = "0.1.44"
+url = "2.5.8"
+
+[dev-dependencies]
+tokio = { version = "1.54.1", features = ["macros", "test-util", "rt"] }
+
+[features]
+# One feature per database adapter, named after its `type`. The adapters come in later
+# changes, so both features are empty for now. Every adapter is in the default features.
+default = ["redis", "mongodb"]
+redis = []
+mongodb = []

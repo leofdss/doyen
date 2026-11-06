@@ -7,3 +7,13 @@
 //! **Work in progress:** this version only reserves the name. The first release (v0.1) brings
 //! the Rust core with the Redis and MongoDB adapters. Follow
 //! <https://github.com/leofdss/doyen>.
+
+#![deny(missing_docs)]
+
+mod backend;
+mod clock;
+mod config;
+mod engine;
+mod error;
+mod status;
+mod token;
