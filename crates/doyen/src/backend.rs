@@ -4,14 +4,17 @@
 //! An adapter only stores and reads: numbers, places, the live line and the generation. The
 //! master rule stays in the engine (spec adapter-contract, "Five operations").
 
-// The engine (change task group 6) uses these types; until then only the tests do.
+// The adapters (later changes) build `BackendError`, `DATA_FORMAT` and `newer_format_error`;
+// until then only the in-memory adapter of the tests does.
 #![cfg_attr(not(test), allow(dead_code))]
 
+use std::sync::Arc;
 use std::time::Duration;
 
 use async_trait::async_trait;
 use futures_util::stream::BoxStream;
 
+use crate::config::Validated;
 use crate::error::{Error, ErrorCode};
 
 /// The data format that this version of doyen writes with the group data.
@@ -110,4 +113,19 @@ pub(crate) trait Backend: Send + Sync + 'static {
     /// no data: the engine reads the line again with `renew`. `None` means the database has
     /// no push, and the engine uses only its timer.
     async fn watch(&self, group: &str) -> Result<Option<BoxStream<'static, ()>>>;
+}
+
+/// The adapter for a checked config, chosen by its type (spec client-config, "Config typed
+/// by database").
+///
+/// No adapter is built in yet: the Redis and MongoDB adapters come in their own changes
+/// (see `TODO.md`). Until then each type is refused with `DOYEN_UNSUPPORTED`.
+pub(crate) fn adapter_for(settings: &Validated) -> std::result::Result<Arc<dyn Backend>, Error> {
+    Err(Error::new(
+        ErrorCode::Unsupported,
+        format!(
+            "the {} adapter is not in this version of doyen yet",
+            settings.database.name()
+        ),
+    ))
 }

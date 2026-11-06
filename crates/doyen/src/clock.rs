@@ -33,7 +33,6 @@ mod tests;
 ///
 /// The lease uses it: after a resume the lease must be over, even if the process did not
 /// run. `Instant` of the standard library does not count sleep on macOS.
-#[cfg_attr(not(test), allow(dead_code))] // the engine (a later group) uses the clock
 pub(crate) trait Clock: Send + Sync + 'static {
     /// The time since an arbitrary start. Only the difference of two readings means
     /// something.
@@ -42,7 +41,6 @@ pub(crate) trait Clock: Send + Sync + 'static {
 
 /// The real clock of the host.
 #[derive(Debug, Clone, Copy, Default)]
-#[cfg_attr(not(test), allow(dead_code))]
 pub(crate) struct SystemClock;
 
 impl Clock for SystemClock {

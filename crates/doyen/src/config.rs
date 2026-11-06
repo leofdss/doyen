@@ -126,15 +126,20 @@ impl DatabaseConfig {
     ///
     /// The shared checks come first, so a wrong setting is reported the same way with any
     /// cargo features. The feature check comes last.
-    // The engine (change task group 6) is the caller; until then only the tests call it.
-    #[cfg_attr(not(test), allow(dead_code))]
     pub(crate) fn validate(&self) -> Result<Validated, Error> {
+        let validated = self.validate_settings()?;
+        check_feature(validated.database)?;
+        Ok(validated)
+    }
+
+    /// Every check but the feature check. The engine tests use it: they give the in-memory
+    /// adapter, so the cargo features do not matter there.
+    pub(crate) fn validate_settings(&self) -> Result<Validated, Error> {
         let settings = self.shared_settings();
         check_group(settings.group)?;
         let (timeout, renew_interval) =
             check_timing(settings.timeout_ms, settings.renew_interval_ms)?;
         check_url(settings.database, settings.url)?;
-        check_feature(settings.database)?;
         Ok(Validated {
             database: settings.database,
             url: settings.url.to_owned(),
@@ -188,7 +193,7 @@ pub(crate) enum DatabaseKind {
 
 impl DatabaseKind {
     /// The name of the type and of its cargo feature.
-    fn name(self) -> &'static str {
+    pub(crate) fn name(self) -> &'static str {
         match self {
             DatabaseKind::Redis => "redis",
             DatabaseKind::Mongodb => "mongodb",
@@ -212,7 +217,6 @@ impl DatabaseKind {
 }
 
 /// A config that passed every check, with the defaults filled in.
-#[cfg_attr(not(test), allow(dead_code))]
 #[derive(Clone, PartialEq, Eq)]
 pub(crate) struct Validated {
     pub(crate) database: DatabaseKind,
