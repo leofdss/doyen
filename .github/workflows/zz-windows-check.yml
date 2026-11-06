@@ -1,0 +1,33 @@
+name: Windows build check (throwaway, do not merge)
+
+# Scenario rust-api / Build on Windows: `cargo check` on Windows must fail with the message
+# of the `compile_error!` in crates/doyen/src/clock.rs. This workflow runs once, on a draft
+# pull request that is closed after; its run is recorded in openspec/manual-checks.md.
+on:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  check-windows-fails:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: dtolnay/rust-toolchain@683b588c487a69d01f6c6ddf40f036ff682cc2c8 # master (2026-10-16)
+        with:
+          toolchain: stable
+      - name: cargo check must fail with the platform message
+        shell: bash
+        run: |
+          set +e
+          output=$(cargo check -p doyen --all-features 2>&1)
+          status=$?
+          printf '%s\n' "$output" | tail -30
+          if [ "$status" -eq 0 ]; then
+            echo "cargo check passed on Windows: it must fail (spec rust-api, Build on Windows)"
+            exit 1
+          fi
+          printf '%s\n' "$output" | grep -F "doyen supports only Linux (x86_64 and aarch64) and macOS (aarch64)"
