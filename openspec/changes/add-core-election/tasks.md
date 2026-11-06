@@ -37,11 +37,11 @@ write the code until they pass. Never change a test only to make it pass.
 
 ## 5. Adapter contract and conformance suite
 
-- [ ] 5.1 Write the `Backend` trait, `Membership`, `View` and `Warning` (types only); verify it compiles behind `pub(crate)`
-- [ ] 5.2 Write the conformance suite, generic over `Backend`: one test per scenario of `adapter-contract`; run it against a stub adapter whose methods return an error and verify every test fails (red)
-- [ ] 5.3 Write the in-memory adapter on the fake clock (counter, line, places with expiry, tags, wake-ups, a switch to end the watch stream, the data format, a switch to "lose all data" and a test hook that writes a newer format); verify the whole conformance suite passes (green)
-- [ ] 5.4 Write the tests of the database test switch (no `DOYEN_TEST_*_URL` → skipped; `DOYEN_TEST_REQUIRE_DB=1` and no URL → failure), see them fail, then write the switch; verify they pass
-- [ ] 5.5 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add the in-memory adapter and the database test switch`
+- [x] 5.1 Write the `Backend` trait, `Membership`, `View` and `Warning` (types only); verify it compiles behind `pub(crate)`
+- [x] 5.2 Write the conformance suite, generic over `Backend`: one test per scenario of `adapter-contract`; run it against a stub adapter whose methods return an error and verify every test fails (red)
+- [x] 5.3 Write the in-memory adapter on the fake clock (counter, line, places with expiry, tags, wake-ups, a switch to end the watch stream, the data format, a switch to "lose all data" and a test hook that writes a newer format); verify the whole conformance suite passes (green)
+- [x] 5.4 Write the tests of the database test switch (no `DOYEN_TEST_*_URL` → skipped; `DOYEN_TEST_REQUIRE_DB=1` and no URL → failure), see them fail, then write the switch; verify they pass
+- [x] 5.5 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add the in-memory adapter and the database test switch`
 
 ## 6. Engine
 
