@@ -17,3 +17,6 @@ mod engine;
 mod error;
 mod status;
 mod token;
+
+pub use config::{DatabaseConfig, MongodbConfig, RedisConfig};
+pub use error::{Error, ErrorCode};
