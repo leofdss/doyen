@@ -65,7 +65,7 @@ Run them inside the container (`distrobox enter doyen -- <command>`).
 |---|---|
 | Format | `cargo fmt --all --check` |
 | Lint | `cargo clippy --workspace --all-features --all-targets -- -D warnings` |
-| Tests | `cargo test --workspace --all-features` |
+| Tests | `cargo test --workspace --all-features` and `cargo test --workspace --no-default-features` |
 | Specs | `openspec validate --all --strict` and `python3 scripts/check-specs.py` |
 | Scenario tests | `python3 scripts/check-scenario-tests.py` (and `--change <name>` for an open change) |
 | Commits | `scripts/check-commits.sh origin/main HEAD` and `python3 scripts/check-commit-specs.py origin/main HEAD "$(git branch --show-current)"` |

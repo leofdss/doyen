@@ -139,6 +139,7 @@ async fn watch_the_lease<T>(
 ) -> Option<T> {
     let lease_deadline = shared.lease_deadline();
     let work = signals.unless_stopped(work);
+    // Pinned so that `&mut work` can be polled inside `select!` and awaited again after it.
     tokio::pin!(work);
     tokio::select! {
         output = &mut work => return output,

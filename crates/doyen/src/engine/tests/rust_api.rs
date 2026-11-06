@@ -41,6 +41,8 @@ impl Clock for ManualClock {
 
 /// Run a future to its end on this thread, without Tokio, like
 /// `futures::executor::block_on`. A short busy loop is enough for a test.
+// Written by hand because the test must run with no Tokio runtime (spec rust-api,
+// "No Tokio runtime") and the crate has no `futures-executor` dependency.
 fn block_on<F: Future>(future: F) -> F::Output {
     let mut future = pin!(future);
     let mut context = Context::from_waker(Waker::noop());
@@ -55,6 +57,7 @@ fn block_on<F: Future>(future: F) -> F::Output {
 // spec: rust-api / New object
 #[tokio::test(start_paused = true)]
 async fn a_new_object_is_not_joined_and_calls_no_database() {
+    // Compile-time check of spec rust-api: "Doyen SHALL be Send and Sync".
     fn assert_send_and_sync<T: Send + Sync>() {}
     assert_send_and_sync::<Doyen>();
     let group = TestGroup::new();
