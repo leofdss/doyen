@@ -88,6 +88,16 @@ impl Driver {
         let Some(membership) = self.shared.membership() else {
             return true;
         };
+        // A renew from an app that cannot work would keep a dead master in its place. With
+        // no renew, the lease ends and the other members take over as after a crash.
+        if !self.shared.is_live() {
+            tracing::debug!(
+                target: "doyen",
+                group = self.connection.group(),
+                "the liveness check failed, so the renew is skipped"
+            );
+            return true;
+        }
         let renewing = joining::renew(&self.shared, &self.connection, membership);
         let outcome = watch_the_lease(&self.shared, &mut self.signals, renewing).await;
         match outcome {

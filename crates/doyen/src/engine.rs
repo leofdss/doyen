@@ -14,6 +14,7 @@ use crate::error::{Error, ErrorCode};
 use crate::status::Status;
 use crate::token::Token;
 
+pub mod binding;
 mod driver;
 mod joining;
 mod state;

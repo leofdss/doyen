@@ -5,6 +5,7 @@
 //! a wait of 10 s takes no real time.
 
 mod backoff;
+mod binding_hooks;
 mod client_config;
 mod election_core;
 mod helpers;

@@ -57,9 +57,9 @@ write the code until they pass. Never change a test only to make it pass.
 
 ## 7. Binding hooks
 
-- [ ] 7.1 Write the tests: a false liveness check skips the renews and the status turns offline `connectionLost`; the warnings stream gets each connect warning once; verify they fail (red)
-- [ ] 7.2 Write `__binding::set_liveness` and `__binding::warnings`; verify the tests pass (green)
-- [ ] 7.3 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add the hidden hooks for the bindings`
+- [x] 7.1 Write the tests: a false liveness check skips the renews and the status turns offline `connectionLost`; the warnings stream gets each connect warning once; verify they fail (red)
+- [x] 7.2 Write `__binding::set_liveness` and `__binding::warnings`; verify the tests pass (green)
+- [x] 7.3 Commit the group in one commit (tests, code, spec changes, ticks): `feat(core): add the hidden hooks for the bindings`
 
 ## 8. Integration check
 

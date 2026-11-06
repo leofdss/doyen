@@ -133,6 +133,7 @@ async fn connect(
         match call_with_timeout(connection, connection.backend.connect()).await {
             Ok(warnings) => {
                 log_warnings(connection.group(), &warnings);
+                shared.send_warnings(&warnings);
                 return Ok(());
             }
             Err(BackendError::Refused(error)) => return Err(error),
