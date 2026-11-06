@@ -92,6 +92,10 @@ failure.
 - **WHEN** `Join` gets a config with an empty group
 - **THEN** the error's `Code` is `DOYEN_INVALID_CONFIG`
 
+#### Scenario: Negative number
+- **WHEN** `Join` gets a config with `RenewIntervalMs` -1 (the core fields are unsigned, so the binding checks it)
+- **THEN** the error's `Code` is `DOYEN_INVALID_CONFIG`
+
 ### Requirement: Warnings through slog
 Each connect warning SHALL be logged once with `slog.Default()` at level `Warn`, with the
 attribute `code`.

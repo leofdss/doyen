@@ -49,8 +49,8 @@ least 3 × `renewIntervalMs`. Otherwise `join` SHALL fail with `DOYEN_INVALID_CO
 - **WHEN** `timeoutMs` is 5000 and `renewIntervalMs` is 2000
 - **THEN** `join` fails with `DOYEN_INVALID_CONFIG` and the message says that the timeout must be at least 3 times the interval
 
-#### Scenario: Negative number
-- **WHEN** `renewIntervalMs` is -1
+#### Scenario: Zero interval
+- **WHEN** `renewIntervalMs` is 0
 - **THEN** `join` fails with `DOYEN_INVALID_CONFIG`
 
 ### Requirement: URL check

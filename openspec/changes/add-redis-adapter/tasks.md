@@ -35,7 +35,8 @@ pass.
 
 - [ ] 4.1 Write the topology tests: "URL of a Cluster node", "Sentinel failover", "Transaction in Cluster", and the failure tests (restart without persistence, `FLUSHDB`, Sentinel failback with old data, partition with `docker network disconnect` at the default and at a 5 s `down-after-milliseconds`, Cluster failover); add the Sentinel and Cluster Compose files; verify the tests that need code not written yet fail
 - [ ] 4.2 Add the CI jobs `redis-single` (6.2 and latest), `redis-sentinel` and `redis-cluster` with `DOYEN_TEST_REQUIRE_DB=1`; fix the code until the tests pass; verify the three jobs pass on a pull request and each failure test shows the token still growing and the expected warning
-- [ ] 4.3 Commit the group in one commit (tests, any code fix, ticks): `test(redis): run the adapter on one server, Sentinel and Cluster`
+- [ ] 4.3 (owner) Add the new `ci.yml` jobs of this group to the required checks of the ruleset of `main` (a job that is not required can be red on a merged pull request)
+- [ ] 4.4 Commit the group in one commit (tests, any code fix, ticks): `test(redis): run the adapter on one server, Sentinel and Cluster`
 
 ## 5. Documentation
 

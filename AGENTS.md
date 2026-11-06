@@ -39,11 +39,13 @@ source. The repo must keep working, with every rule, even if every outside note 
 | Path | What |
 |---|---|
 | `crates/doyen` | The Rust crate: core and adapters (cargo features) |
+| `crates/system-tests` | The system tests (v0.1, a program that joins a group; not published) |
+| `crates/doyen-ffi` | The C library for the Go module (v0.3) |
 | `bindings/node` | The npm package `@leofdss/doyen` (napi-rs, v0.2) |
 | `bindings/go` | The Go code (v0.3), published from `github.com/leofdss/doyen-go` |
 | `openspec/` | Specs (`specs/`), open changes (`changes/`), project rules (`config.yaml`) |
 | `distrobox/` | The development image and container |
-| `scripts/` | Repo checks (`check-specs.py`) |
+| `scripts/` | Repo checks (`check-*.py`, `check-commits.sh`) and their tests (`scripts/tests/`) |
 | `CONTRIBUTING.md`, `GOVERNANCE.md` | How to contribute; who decides and who has access |
 | `AI_POLICY.md` | How AI tools may be used here (people and agents) |
 | `SECURITY.md` | How to report a vulnerability, and the threat model |
@@ -114,7 +116,7 @@ code only makes the tests pass.
 - To change a behaviour, change its test first, and the spec in the same commit.
 - Never change a test only to make it pass. A test that looks wrong goes back to the spec:
   ask the owner.
-- `python3 scripts/check-scenario-tests.py` (from `add-ci-baseline`) fails when a scenario has
+- `python3 scripts/check-scenario-tests.py` fails when a scenario has
   no test, or a test names a scenario that no longer exists. A scenario that can only be
   checked by hand (for example a CI failure path) goes in `openspec/manual-checks.md`.
 
@@ -226,12 +228,13 @@ tests pass at a cheaper one, and when to escalate.
   `deps` (Dependabot), or none.
 - `!` after the type or scope for a breaking change, for example `feat(core)!: …`.
 - Subject in English, imperative, lower case, no period: `feat(core): add the local lease`.
+  The CI checks only the type, the scope and the colon; Dependabot's `Bump …` subjects pass.
 - **Code goes with its spec.** When code (tests included) belongs to an open change, the
   commit that adds or changes it also holds the spec changes it needs (`specs/`,
   `design.md`) and the ticks in that change's `tasks.md`. Never code in one commit and its
   spec in another. One task group = one commit. Code outside a change (a typo, a dependency
-  update) has no spec. `scripts/check-commit-specs.py` (from `add-ci-baseline`) checks it on
-  the change branches.
+  update) has no spec. `scripts/check-commit-specs.py` checks it on the change
+  branches.
 - Branch: `<type>/<change-name>`, for example `feat/add-core-election`.
 - The commit type sets the next version (`release-process`): before 1.0, `!` or `feat` →
   minor, `fix` or `perf` → patch; other types make no release. Mark every breaking change

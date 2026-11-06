@@ -30,7 +30,8 @@ make it pass.
 
 - [ ] 4.1 Write the failover tests: "Failover" (`rs.stepDown()` on a three-node set: same generation and numbers), a deleted group document → the token still grows, and the 5.0 test "a pipeline update reaches the change stream with `updatedFields.version`"; verify the tests that need code not written yet fail
 - [ ] 4.2 Add the CI jobs `mongodb-rs` (one-node replica set, 5.0 / latest), `mongodb-psa` and the three-node failover job, all with `DOYEN_TEST_REQUIRE_DB=1`; fix the code until the tests pass; verify the jobs pass
-- [ ] 4.3 Commit the group in one commit (tests, any code fix, ticks): `test(mongodb): run the adapter on replica sets in CI`
+- [ ] 4.3 (owner) Add the new `ci.yml` jobs of this group to the required checks of the ruleset of `main` (a job that is not required can be red on a merged pull request)
+- [ ] 4.4 Commit the group in one commit (tests, any code fix, ticks): `test(mongodb): run the adapter on replica sets in CI`
 
 ## 5. Documentation
 

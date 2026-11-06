@@ -22,7 +22,8 @@ and put the code back (design.md, TDD note). Each test names its scenario:
 
 - [ ] 3.1 Add the job `system` to `ci.yml` (the Redis service and the MongoDB replica set container of the `add-mongodb-adapter` jobs, `DOYEN_TEST_SYSTEM=1`, `DOYEN_TEST_REQUIRE_DB=1`, the pause commands through `docker`, the timelines as an artifact; on pull requests that change `crates/` and on a nightly `schedule`); verify it passes, then write "Timeline" and "Pull request" in `openspec/manual-checks.md`
 - [ ] 3.2 Write the README section *How doyen is tested* (unit tests with a fake clock, the conformance suite, the database failure tests, the system tests and their timelines), and add the command of the system tests to the *Commands* table of `AGENTS.md`
-- [ ] 3.3 Commit the group in one commit (workflow, README, manual checks, ticks): `ci: run the system tests`
+- [ ] 3.3 (owner) Add the new `ci.yml` jobs of this group to the required checks of the ruleset of `main` (a job that is not required can be red on a merged pull request)
+- [ ] 3.4 Commit the group in one commit (workflow, README, manual checks, ticks): `ci: run the system tests`
 
 ## 4. Integration check
 

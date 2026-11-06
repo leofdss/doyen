@@ -51,8 +51,9 @@ confirm while applying".
     release pull request also updates the `doyen` entry of `Cargo.lock` (a TOML
     `extra-files` entry with a filter, or a workflow step that runs
     `cargo update --workspace` on the release branch).
-  - `.release-please-manifest.json` starts at `0.0.2` (the last placeholder; the crate
-    version is set to `0.0.2` too, so the version check passes). The first `feat` gives
+  - `.release-please-manifest.json` starts at the version of the last placeholder (`0.0.2`,
+    or the number of a later republish; the crate, the npm package and the manifest must
+    hold the same number, so the version check passes). The first `feat` gives
     `0.1.0`; if not, set `release-as: 0.1.0` for that release.
   - Alternatives: semantic-release (publishes at each merge, with no point to review;
     made for Node.js); release-plz (Rust only); changesets (needs a file written by hand
