@@ -21,7 +21,7 @@ later changes, so the core is built and tested with an in-memory adapter only.
 
 ## Decisions
 
-### Crate layout — to confirm (owner)
+### Crate layout (approved in task 0.1)
 
 One crate, `doyen`:
 
@@ -227,7 +227,7 @@ its error. Outside a Tokio runtime it sets `left` and returns `DOYEN_UNSUPPORTED
 then expires). The notification comes before the adapter call (chosen in task group 6), so
 an app stops its master work before the place is removed.
 
-### Binding hooks — to confirm (owner)
+### Binding hooks (approved in task 0.1)
 
 A `#[doc(hidden)] pub mod __binding` (not semver-covered) gives the bindings what the public
 API does not:
