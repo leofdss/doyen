@@ -63,6 +63,10 @@ object, a missing or wrong field, an unknown `type` — SHALL reject the Promise
 - **WHEN** an app joins with `renewIntervalMs: -1` (the core fields are unsigned, so the binding checks it)
 - **THEN** the Promise rejects with `error.code === "DOYEN_INVALID_CONFIG"`
 
+#### Scenario: Unknown type
+- **WHEN** an app joins with `type: "sqlite"` (the core config is an enum, so the binding checks the string)
+- **THEN** the Promise rejects with `error.code === "DOYEN_INVALID_CONFIG"`
+
 ### Requirement: Status changes through callbacks
 `onStatusChange(callback)` SHALL call the callback on the JavaScript thread for every change,
 in order, also when added before `join`. A callback SHALL get the status of the moment of the
