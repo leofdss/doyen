@@ -44,6 +44,30 @@ rule of this library.
 | 0.3 | Go module | `github.com/leofdss/doyen-go` |
 | 0.4 | PostgreSQL adapter | all three |
 
+## Node.js binding (development)
+
+The native addon requires Rust 1.88+ and Node.js 22.13+ (or Node.js 24+). Install the
+local build tools, compile a debug addon, and run its tests with:
+
+```bash
+npm install
+npm run build:debug
+npm test
+```
+
+Use `npm run build` for an optimized release build. The NAPI-RS CLI generates the
+`index.js` loader, the `index.d.ts` declarations, and a platform-specific `.node`
+binary. Import the addon through `index.js`.
+
+> **WSL:** keep the checkout on the Linux filesystem (for example, under `$HOME`),
+> not under `/mnt/*`. The NAPI-RS CLI can fail its atomic artifact replacement on
+> Windows-mounted filesystems.
+
+The current exports preserve the original example responses:
+
+- `raiz(): string` returns `Olá, mundo!`.
+- `saudacao(nome: string): string` returns `Olá, <nome>!`.
+
 ## License
 
 Licensed under either of
