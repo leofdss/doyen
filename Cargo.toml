@@ -1,14 +1,3 @@
-[package]
-name = "doyen"
-version = "0.1.0"
-edition = "2024"
-
-[lib]
-crate-type = ["cdylib"]
-
-[dependencies]
-napi = "3"
-napi-derive = "3"
-
-[build-dependencies]
-napi-build = "2"
+[workspace]
+members = ["packages/doyen"]
+resolver = "3"

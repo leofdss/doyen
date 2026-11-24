@@ -1,4 +1,14 @@
-target
-yay
-node_modules
+target/
+yay/
+node_modules/
+dist/
+coverage/
+.nx/
 *.node
+*.tgz
+*.tmp
+*.tsbuildinfo
+.napi-rs-filesystem-transaction.swp/
+
+.DS_Store
+Thumbs.db

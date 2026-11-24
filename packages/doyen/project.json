@@ -1,0 +1,58 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "doyen",
+  "root": "packages/doyen",
+  "sourceRoot": "packages/doyen/src",
+  "projectType": "library",
+  "targets": {
+    "build": {
+      "executor": "nx:run-commands",
+      "outputs": [
+        "{projectRoot}/index.js",
+        "{projectRoot}/index.d.ts",
+        "{projectRoot}/*.node"
+      ],
+      "options": {
+        "command": "napi build --platform --release",
+        "cwd": "packages/doyen"
+      }
+    },
+    "build-debug": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "outputs": [
+        "{projectRoot}/index.js",
+        "{projectRoot}/index.d.ts",
+        "{projectRoot}/*.node"
+      ],
+      "options": {
+        "command": "napi build --platform",
+        "cwd": "packages/doyen"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node --test test/binding.test.cjs",
+        "cwd": "packages/doyen"
+      }
+    },
+    "test-rust": {
+      "executor": "nx:run-commands",
+      "options": {
+        "command": "cargo test -p doyen"
+      }
+    },
+    "pack": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "cache": false,
+      "outputs": ["{workspaceRoot}/dist/packages/doyen"],
+      "options": {
+        "command": "mkdir -p ../../dist/packages/doyen && npm pack --ignore-scripts --pack-destination ../../dist/packages/doyen",
+        "cwd": "packages/doyen"
+      }
+    }
+  }
+}

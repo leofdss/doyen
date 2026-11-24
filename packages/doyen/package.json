@@ -1,0 +1,32 @@
+{
+  "name": "doyen",
+  "version": "0.1.0",
+  "description": "Native Node.js bindings for doyen",
+  "main": "index.js",
+  "types": "index.d.ts",
+  "license": "MIT OR Apache-2.0",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "files": [
+    "index.js",
+    "index.d.ts",
+    "*.node",
+    "README.md",
+    "LICENSE-APACHE",
+    "LICENSE-MIT"
+  ],
+  "scripts": {
+    "build": "napi build --platform --release",
+    "build:debug": "napi build --platform",
+    "test": "node --test test/binding.test.cjs",
+    "test:rust": "cargo test -p doyen",
+    "pack": "npm pack --ignore-scripts --pack-destination ../../dist/packages/doyen"
+  },
+  "napi": {
+    "binaryName": "doyen"
+  },
+  "devDependencies": {
+    "@napi-rs/cli": "^3.11.1"
+  }
+}

@@ -1,19 +1,32 @@
 {
-  "name": "doyen",
-  "version": "0.1.0",
-  "description": "Native Node.js bindings for doyen",
-  "main": "index.js",
-  "types": "index.d.ts",
-  "license": "MIT OR Apache-2.0",
-  "scripts": {
-    "build": "napi build --platform --release",
-    "build:debug": "napi build --platform",
-    "test": "node --test test/binding.test.cjs"
+  "name": "doyen-monorepo",
+  "version": "0.0.0",
+  "private": true,
+  "description": "Monorepo do doyen: binding nativo e consumidores de validação",
+  "workspaces": [
+    "packages/*"
+  ],
+  "engines": {
+    "node": ">=22.13.0"
   },
-  "napi": {
-    "binaryName": "doyen"
+  "scripts": {
+    "build": "nx run-many --target=build --all",
+    "build:debug": "nx run doyen:build-debug",
+    "test": "nx run-many --target=test --all",
+    "test:rust": "nx run doyen:test-rust",
+    "test:nestjs": "nx run nestjs-consumer:e2e",
+    "test:container": "podman build --file Containerfile.test --tag localhost/doyen-test:latest .",
+    "pack": "nx run doyen:pack",
+    "start:nestjs": "nx run nestjs-consumer:start",
+    "lint": "nx run-many --target=lint --all",
+    "lint:rust": "cargo clippy --workspace --all-targets -- -D warnings",
+    "format": "nx format:write --all",
+    "format:check": "nx format:check --all",
+    "format:rust": "cargo fmt --all",
+    "graph": "nx graph"
   },
   "devDependencies": {
-    "@napi-rs/cli": "^3.11.0"
+    "nx": "24.0.6",
+    "prettier": "3.10.1"
   }
 }

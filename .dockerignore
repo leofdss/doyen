@@ -1,0 +1,13 @@
+.git
+.github
+.nx
+node_modules
+target
+dist
+coverage
+yay
+*.node
+*.tgz
+*.tmp
+.napi-rs-filesystem-transaction.swp
+apps/nestjs-consumer/package-lock.json

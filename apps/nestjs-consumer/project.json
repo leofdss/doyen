@@ -1,0 +1,66 @@
+{
+  "$schema": "../../node_modules/nx/schemas/project-schema.json",
+  "name": "nestjs-consumer",
+  "root": "apps/nestjs-consumer",
+  "sourceRoot": "apps/nestjs-consumer/src",
+  "projectType": "application",
+  "implicitDependencies": ["doyen"],
+  "targets": {
+    "install-local-package": {
+      "executor": "nx:run-commands",
+      "dependsOn": [
+        {
+          "projects": ["doyen"],
+          "target": "pack"
+        }
+      ],
+      "cache": false,
+      "options": {
+        "command": "npm install --ignore-scripts --force ../../dist/packages/doyen/doyen-0.1.0.tgz",
+        "cwd": "apps/nestjs-consumer"
+      }
+    },
+    "build": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["install-local-package"],
+      "outputs": ["{projectRoot}/dist"],
+      "options": {
+        "command": "nest build",
+        "cwd": "apps/nestjs-consumer"
+      }
+    },
+    "test": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --runInBand",
+        "cwd": "apps/nestjs-consumer"
+      }
+    },
+    "e2e": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["build"],
+      "options": {
+        "command": "node --experimental-vm-modules ./node_modules/jest/bin/jest.js --config ./test/jest-e2e.json --runInBand",
+        "cwd": "apps/nestjs-consumer"
+      }
+    },
+    "lint": {
+      "executor": "nx:run-commands",
+      "cache": true,
+      "options": {
+        "command": "oxlint --type-aware src/ test/",
+        "cwd": "apps/nestjs-consumer"
+      }
+    },
+    "start": {
+      "executor": "nx:run-commands",
+      "dependsOn": ["install-local-package"],
+      "cache": false,
+      "options": {
+        "command": "nest start",
+        "cwd": "apps/nestjs-consumer"
+      }
+    }
+  }
+}
